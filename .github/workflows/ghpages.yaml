@@ -39,7 +39,6 @@ jobs:
 
     - name: Install & build webapp
       run: |
-        cd web
         npm install
         PUBLIC_URL="https://truebrain.github.io/TrueGRF/" npm run build
 
@@ -47,4 +46,4 @@ jobs:
       uses: JamesIves/github-pages-deploy-action@releases/v4
       with:
         branch: gh-pages
-        folder: web/build
+        folder: build
