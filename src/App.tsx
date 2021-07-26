@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import Iframe from 'react-iframe';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Col from 'react-bootstrap/Col';
@@ -14,6 +15,8 @@ import GenerateGRF from './GenerateGRF';
 import HeaderWIP from './HeaderWIP';
 
 function Main() {
+    const [radioValue, setRadioValue] = useState('disabled');
+
     return (
         <Container>
             <Row>
@@ -26,7 +29,7 @@ function Main() {
                 </Col>
             </Row>
             <Row>
-                <GenerateGRF />
+                <GenerateGRF radioValue={radioValue} />
             </Row>
             <Tab.Container id="categories" defaultActiveKey="generic">
                 <Row>
@@ -48,12 +51,17 @@ function Main() {
                                 <CategoryGeneric />
                             </Tab.Pane>
                             <Tab.Pane eventKey="industries">
-                                <CategoryIndustries />
+                                <CategoryIndustries radioValue={radioValue} setRadioValue={setRadioValue} />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>
                 </Row>
             </Tab.Container>
+            <Row>
+                <Col>
+                    <Iframe url="openttd.html" width="1280px" height="1024px" id="game" />
+                </Col>
+            </Row>
         </Container>
     )
 }

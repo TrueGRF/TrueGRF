@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
@@ -8,9 +6,7 @@ import Tab from 'react-bootstrap/Tab';
 import Table from 'react-bootstrap/Table';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 
-function CategoryIndustries() {
-    const [radioValue, setRadioValue] = useState('disabled');
-
+function CategoryIndustries(props: any) {
     return (
         <Tab.Container id="categories" defaultActiveKey="coalmine">
             <Row>
@@ -46,8 +42,8 @@ function CategoryIndustries() {
                                                     type="radio"
                                                     name="radio"
                                                     value="enabled"
-                                                    checked={radioValue === "enabled"}
-                                                    onChange={(e) => setRadioValue(e.currentTarget.value)}
+                                                    checked={props.radioValue === "enabled"}
+                                                    onChange={(e) => props.setRadioValue(e.currentTarget.value)}
                                                     >
                                                         Enabled
                                                 </ToggleButton>
@@ -57,8 +53,8 @@ function CategoryIndustries() {
                                                     type="radio"
                                                     name="radio"
                                                     value="disabled"
-                                                    checked={radioValue === "disabled"}
-                                                    onChange={(e) => setRadioValue(e.currentTarget.value)}
+                                                    checked={props.radioValue === "disabled"}
+                                                    onChange={(e) => props.setRadioValue(e.currentTarget.value)}
                                                     >
                                                         Disabled
                                                 </ToggleButton>

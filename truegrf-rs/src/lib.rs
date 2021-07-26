@@ -1,10 +1,13 @@
 use wasm_bindgen::prelude::*;
 use serde::{Serialize, Deserialize};
 
+mod grf;
+
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFCompile {
     error: String,
+    output: Vec<u8>,
 }
 
 #[wasm_bindgen()]
@@ -18,8 +21,9 @@ macro_rules! console_log {
 }
 
 #[wasm_bindgen]
-pub fn compile() -> String {
-    let result : NewGRFCompile = NewGRFCompile { error: "Unknown error".to_string(), ..Default::default() };
+pub fn compile(coalmine: u8) -> String {
+    let mut result : NewGRFCompile = NewGRFCompile { error: "Unknown error".to_string(), ..Default::default() };
+    result.output = grf::write_grf(coalmine).unwrap();
     return serde_json::to_string(&result).unwrap();
 }
 
