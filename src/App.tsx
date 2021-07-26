@@ -2,14 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 
-import HeaderWIP from './HeaderWIP';
+import CategoryGeneric from './CategoryGeneric';
+import CategoryIndustries from './CategoryIndustries';
 import GenerateGRF from './GenerateGRF';
+import HeaderWIP from './HeaderWIP';
 
 function Main() {
     return (
@@ -36,17 +38,17 @@ function Main() {
                             </ListGroup.Item>
                             <ListGroup.Item variant="light" action eventKey="industries">
                                 <h5 className="mb-1">Industries</h5>
-                                <small>Create new industries or modified existing</small>
+                                <small>Create or modify industries</small>
                             </ListGroup.Item>
                         </ListGroup>
                     </Col>
-                    <Col sm={8}>
+                    <Col>
                         <Tab.Content>
                             <Tab.Pane eventKey="generic">
-                                Test
+                                <CategoryGeneric />
                             </Tab.Pane>
                             <Tab.Pane eventKey="industries">
-                                Test2
+                                <CategoryIndustries />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>
