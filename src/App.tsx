@@ -14,8 +14,19 @@ import CategoryIndustries from './CategoryIndustries';
 import GenerateGRF from './GenerateGRF';
 import HeaderWIP from './HeaderWIP';
 
+const startIndustries = [
+    {
+        id: 0,
+        available: false,
+    },
+    {
+        id: 1,
+        available: true,
+    },
+]
+
 function Main() {
-    const [radioValue, setRadioValue] = useState('disabled');
+    const [industries, setIndustry] = useState(startIndustries);
 
     return (
         <Container>
@@ -29,7 +40,7 @@ function Main() {
                 </Col>
             </Row>
             <Row>
-                <GenerateGRF radioValue={radioValue} />
+                <GenerateGRF industries={industries} />
             </Row>
             <Tab.Container id="categories" defaultActiveKey="generic">
                 <Row>
@@ -51,7 +62,7 @@ function Main() {
                                 <CategoryGeneric />
                             </Tab.Pane>
                             <Tab.Pane eventKey="industries">
-                                <CategoryIndustries radioValue={radioValue} setRadioValue={setRadioValue} />
+                                <CategoryIndustries industries={industries} setIndustry={setIndustry} />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>
@@ -59,7 +70,8 @@ function Main() {
             </Tab.Container>
             <Row>
                 <Col>
-                    <Iframe url="openttd.html" width="1280px" height="1024px" id="game" />
+                    <p className="lead">Test your NewGRF in-game. Press the green button first, go to NewGRF settings in-game and activate your GRF!</p>
+                    <Iframe url="openttd.html" width="1320px" height="1024px" id="game" />
                 </Col>
             </Row>
         </Container>

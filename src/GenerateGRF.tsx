@@ -4,7 +4,7 @@ import { compile } from 'truegrf';
 
 function GenerateGRF(props: any) {
     function Generate() {
-        let raw_return = compile(props.radioValue === "enabled" ? 1 : 0);
+        let raw_return = compile({industries: props.industries});
         let ret = JSON.parse(raw_return);
 
         let game: any = document?.getElementById("game");

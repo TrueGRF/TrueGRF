@@ -3,9 +3,8 @@ use serde::{Serialize, Deserialize};
 
 mod grf;
 
-
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFCompile {
+struct NewGRFResult {
     error: String,
     output: Vec<u8>,
 }
@@ -16,14 +15,12 @@ extern "C" {
     fn log(s: &str);
 }
 
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-
 #[wasm_bindgen]
-pub fn compile(coalmine: u8) -> String {
-    let mut result : NewGRFCompile = NewGRFCompile { error: "Unknown error".to_string(), ..Default::default() };
-    result.output = grf::write_grf(coalmine).unwrap();
+pub fn compile(options_raw: &JsValue) -> String {
+    let options: grf::NewGRFOptions = options_raw.into_serde().unwrap();
+
+    let mut result : NewGRFResult = NewGRFResult { error: "Unknown error".to_string(), ..Default::default() };
+    result.output = grf::write_grf(options).unwrap();
     return serde_json::to_string(&result).unwrap();
 }
 
