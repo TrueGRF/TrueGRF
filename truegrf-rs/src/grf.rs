@@ -12,9 +12,7 @@ pub struct NewGRFOptions {
 }
 
 
-fn write_pseudo_sprite(data: &[u8]) -> std::io::Result<Vec<u8>> {
-    let mut output = Vec::new();
-
+fn write_pseudo_sprite(output: &mut Vec<u8>, data: &[u8]) -> std::io::Result<()> {
     let len = data.len();
     output.extend(&[
         ((len >>  0) & 0xff) as u8,
@@ -26,7 +24,7 @@ fn write_pseudo_sprite(data: &[u8]) -> std::io::Result<Vec<u8>> {
     output.extend(&[0xff]);
     output.extend(data);
 
-    Ok(output)
+    Ok(())
 }
 
 pub fn write_grf(options: NewGRFOptions) -> std::io::Result<Vec<u8>> {
@@ -40,16 +38,16 @@ pub fn write_grf(options: NewGRFOptions) -> std::io::Result<Vec<u8>> {
     output.extend(b"\x00");
 
     /* TODO -- Amount of sprites in the file; ignored by OpenTTD. */
-    output.extend(write_pseudo_sprite(b"\x02\x00\x00\x00")?);
+    write_pseudo_sprite(&mut output, b"\x02\x00\x00\x00")?;
 
     /* Action8 - GRF metadata */
-    output.extend(write_pseudo_sprite(b"\x08\x08TRU1TrueGRF Test\x00TrueGRF Test Description\x00")?);
+    write_pseudo_sprite(&mut output, b"\x08\x08TRU1TrueGRF Test\x00TrueGRF Test Description\x00")?;
 
     if !options.industries[0].available {
-        output.extend(write_pseudo_sprite(b"\x00\x0a\x01\x01\x00\x08\xff")?);
+        write_pseudo_sprite(&mut output, b"\x00\x0a\x01\x01\x00\x08\xff")?;
     }
     if !options.industries[1].available {
-        output.extend(write_pseudo_sprite(b"\x00\x0a\x01\x01\x01\x08\xff")?);
+        write_pseudo_sprite(&mut output, b"\x00\x0a\x01\x01\x01\x08\xff")?;
     }
 
     /* Final sprite marker. */

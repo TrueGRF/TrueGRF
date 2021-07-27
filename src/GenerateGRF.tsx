@@ -4,11 +4,10 @@ import { compile } from 'truegrf';
 
 function GenerateGRF(props: any) {
     function Generate() {
-        let raw_return = compile({industries: props.industries});
-        let ret = JSON.parse(raw_return);
+        let newgrf_data = compile({industries: props.industries});
 
         let game: any = document?.getElementById("game");
-        game.contentWindow.openttd_insert_grf(ret.output);
+        game.contentWindow.openttd_insert_grf(newgrf_data);
     }
 
     return (

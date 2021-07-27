@@ -16,12 +16,10 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub fn compile(options_raw: &JsValue) -> String {
+pub fn compile(options_raw: &JsValue) -> Vec<u8> {
     let options: grf::NewGRFOptions = options_raw.into_serde().unwrap();
 
-    let mut result : NewGRFResult = NewGRFResult { error: "Unknown error".to_string(), ..Default::default() };
-    result.output = grf::write_grf(options).unwrap();
-    return serde_json::to_string(&result).unwrap();
+    return grf::write_grf(options).unwrap();
 }
 
 pub fn set_panic_hook() {
