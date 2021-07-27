@@ -1,0 +1,4 @@
+All these files are from OpenGFX, licensed under GPLv2:
+
+https://github.com/OpenTTD/OpenGFX
+https://github.com/OpenTTD/OpenGFX/blob/master/LICENSE

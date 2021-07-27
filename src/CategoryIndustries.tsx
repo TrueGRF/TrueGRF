@@ -9,6 +9,8 @@ import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 
+import Sprite from './Sprite';
+
 function CategoryIndustries(props: any) {
     const [industry, setIndustry] = useState(props.industries[0]);
     const [layoutSelection, setLayoutSelection] = useState(0);
@@ -37,6 +39,7 @@ function CategoryIndustries(props: any) {
             prevState[industry.id] = industry;
             return prevState;
         });
+        setLayoutSelection(0);
         setIndustry(props.industries[id]);
     }
 
@@ -115,27 +118,27 @@ function CategoryIndustries(props: any) {
                                 </Dropdown>
                             </th>
                             <td>
+                                <small>(layout images are an estimation; click an image to change it)</small>
                                 {industry.layout[layoutSelection].map((row: any, row_index: number) => (
-                                <div key={`layout-${layoutSelection}-${row_index}`}>
+                                <div key={`layout-${layoutSelection}-${row_index}`} className="layout-row">
                                     {row.map((col: any, col_index: number) => (
                                     <Dropdown onSelect={(e) => ChangeLayout(layoutSelection, row_index, col_index, parseInt(e || "0xfd"))} key={`layout-${layoutSelection}-${row_index}-${col_index}`} as="span">
                                         <Dropdown.Toggle as="span" bsPrefix="layout">
-                                            {col === 0xfd ? "_" : col.toString(16)}
+                                            <Sprite old_tile_id={col} />
                                         </Dropdown.Toggle>
 
                                         <Dropdown.Menu>
                                             <Dropdown.Item eventKey="0xfd">(none)</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x00">00</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x01">01</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x02">02</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x03">03</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x04">04</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x05">05</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x06">06</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x07">07</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x08">08</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x09">09</Dropdown.Item>
-                                            <Dropdown.Item eventKey="0x0a">0a</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x00"><Sprite old_tile_id={0x00} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x02"><Sprite old_tile_id={0x02} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x03"><Sprite old_tile_id={0x03} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x04"><Sprite old_tile_id={0x04} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x05"><Sprite old_tile_id={0x05} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x06"><Sprite old_tile_id={0x06} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x07"><Sprite old_tile_id={0x07} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x08"><Sprite old_tile_id={0x08} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x09"><Sprite old_tile_id={0x09} /></Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x0a"><Sprite old_tile_id={0x0a} /></Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
                                     ))}
