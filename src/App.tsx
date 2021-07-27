@@ -27,6 +27,10 @@ const startIndustries = [
 
 function Main() {
     const [industries, setIndustry] = useState(startIndustries);
+    const [generic, setGeneric] = useState({
+        name: "TrueGRF",
+        description: "Your first NewGRF with TrueGRF",
+    });
     const [tab, setTab] = useState("generic");
 
     return (
@@ -41,7 +45,7 @@ function Main() {
                 </Col>
             </Row>
             <Row>
-                <GenerateGRF industries={industries} openGame={() => setTab("test") } />
+                <GenerateGRF industries={industries} generic={generic} openGame={() => setTab("test") } />
             </Row>
             <Tab.Container id="categories" activeKey={tab} onSelect={(eventKey) => setTab(eventKey || "generic") }>
                 <Row>
@@ -64,7 +68,7 @@ function Main() {
                     <Col>
                         <Tab.Content>
                             <Tab.Pane eventKey="generic">
-                                <CategoryGeneric />
+                                <CategoryGeneric generic={generic} setGeneric={setGeneric} />
                             </Tab.Pane>
                             <Tab.Pane eventKey="industries">
                                 <CategoryIndustries industries={industries} setIndustry={setIndustry} />

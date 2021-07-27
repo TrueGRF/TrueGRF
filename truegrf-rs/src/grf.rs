@@ -1,6 +1,12 @@
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFGeneric {
+    name: String,
+    description: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFIndustry {
     id: i32,
     available: bool,
@@ -8,6 +14,7 @@ struct NewGRFIndustry {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct NewGRFOptions {
+    generic: NewGRFGeneric,
     industries: Vec<NewGRFIndustry>,
 }
 
@@ -41,7 +48,13 @@ pub fn write_grf(options: NewGRFOptions) -> std::io::Result<Vec<u8>> {
     write_pseudo_sprite(&mut output, b"\x02\x00\x00\x00")?;
 
     /* Action8 - GRF metadata */
-    write_pseudo_sprite(&mut output, b"\x08\x08TRU1TrueGRF Test\x00TrueGRF Test Description\x00")?;
+    let mut metadata = Vec::new();
+    metadata.extend(b"\x08\x08TRU1");
+    metadata.extend(options.generic.name.as_bytes());
+    metadata.extend(b"\x00");
+    metadata.extend(options.generic.description.as_bytes());
+    metadata.extend(b"\x00");
+    write_pseudo_sprite(&mut output, metadata.as_slice())?;
 
     if !options.industries[0].available {
         write_pseudo_sprite(&mut output, b"\x00\x0a\x01\x01\x00\x08\xff")?;

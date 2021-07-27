@@ -4,7 +4,7 @@ import { compile } from 'truegrf';
 
 function GenerateGRF(props: any) {
     function Generate() {
-        let newgrf_data = compile({industries: props.industries});
+        let newgrf_data = compile({generic: props.generic, industries: props.industries});
 
         props.openGame();
 

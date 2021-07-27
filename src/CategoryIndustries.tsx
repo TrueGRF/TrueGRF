@@ -59,7 +59,7 @@ function CategoryIndustries(props: any) {
                                         name="radio"
                                         value="enabled"
                                         checked={industry.available === true}
-                                        onChange={(e) => ChangeValue({"available": true})}
+                                        onChange={() => ChangeValue({"available": true})}
                                         >
                                             Enabled
                                     </ToggleButton>
@@ -71,7 +71,7 @@ function CategoryIndustries(props: any) {
                                         name="radio"
                                         value="disabled"
                                         checked={industry.available === false}
-                                        onChange={(e) => ChangeValue({"available": false})}
+                                        onChange={() => ChangeValue({"available": false})}
                                         >
                                             Disabled
                                     </ToggleButton>
