@@ -19,7 +19,7 @@ extern "C" {
 pub fn compile(options_raw: &JsValue) -> Vec<u8> {
     let options: grf::NewGRFOptions = options_raw.into_serde().unwrap();
 
-    return grf::write_grf(options).unwrap();
+    return grf::write_grf(options);
 }
 
 pub fn set_panic_hook() {

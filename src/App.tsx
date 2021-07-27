@@ -17,11 +17,13 @@ import HeaderWIP from './HeaderWIP';
 const startIndustries = [
     {
         id: 0,
-        available: false,
+        available: true,
+        name: "Coal Mine",
     },
     {
         id: 1,
         available: true,
+        name: "Power Station",
     },
 ]
 

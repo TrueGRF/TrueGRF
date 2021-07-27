@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
@@ -15,6 +16,13 @@ function CategoryIndustries(props: any) {
             ...prevState,
             ...update,
         }));
+        props.setIndustry((prevState: any) => {
+            prevState[industry.id] = {
+                ...prevState[industry.id],
+                ...update,
+            }
+            return prevState;
+        });
     }
 
     function IndustryClick(id: number) {
@@ -76,6 +84,12 @@ function CategoryIndustries(props: any) {
                                             Disabled
                                     </ToggleButton>
                                 </ButtonGroup>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Name</th>
+                            <td>
+                                <Form.Control placeholder="Name of the industry" size="sm" value={industry.name} onChange={(e) => ChangeValue({"name": e.target.value})} />
                             </td>
                         </tr>
                     </tbody>
