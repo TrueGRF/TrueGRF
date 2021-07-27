@@ -19,11 +19,24 @@ const startIndustries = [
         id: 0,
         available: true,
         name: "Coal Mine",
+        layout: [
+            [
+                [ 0x05, 0x06, 0x03 ],
+                [ 0xfd, 0x00, 0xfd ],
+                [ 0xfd, 0x02, 0x03 ],
+            ]
+        ]
     },
     {
         id: 1,
         available: true,
         name: "Power Station",
+        layout: [
+            [
+                [ 0x07, 0x07, 0x07, 0x0a ],
+                [ 0x09, 0x08, 0x08, 0x0a ],
+            ]
+        ],
     },
 ]
 

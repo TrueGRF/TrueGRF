@@ -11,6 +11,7 @@ struct NewGRFIndustry {
     id: u8,
     available: bool,
     name: String,
+    layout: Vec<Vec<Vec<u8>>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -73,6 +74,34 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
             /* Set the name of the industry. */
             let string_id = write_store_string(&mut output, &mut string_counter, 0x0a, &industry.name);
             write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x1f", &string_id.to_le_bytes()]);
+
+            if industry.layout.len() > 0 {
+                let mut data_layout = Vec::new();
+
+                for layout in &industry.layout {
+                    let mut x : u8 = 0;
+                    let mut y : u8 = 0;
+
+                    for row in layout {
+                        for old_tile in row {
+                            if *old_tile != 0xfd {
+                                data_layout.extend(x.to_le_bytes());
+                                data_layout.extend(y.to_le_bytes());
+                                data_layout.extend(old_tile.to_le_bytes());
+                            }
+
+                            x += 1;
+                        }
+
+                        x = 0;
+                        y += 1;
+                    }
+                }
+
+                let size : u32 = data_layout.len() as u32 + 2;
+
+                write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x0a", &(industry.layout.len() as u8).to_le_bytes(), &size.to_le_bytes(), &data_layout, b"\x00\x80"]);
+            }
         }
     }
 
