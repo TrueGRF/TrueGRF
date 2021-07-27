@@ -105,7 +105,7 @@ function CategoryIndustries(props: any) {
                                 Layout
                                 <Dropdown onSelect={(e) => setLayoutSelection(parseInt(e || "0"))}>
                                     <Dropdown.Toggle size="sm">
-                                        Layout #0
+                                        Layout #{layoutSelection}
                                     </Dropdown.Toggle>
 
                                     <Dropdown.Menu>
