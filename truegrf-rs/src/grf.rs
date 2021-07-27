@@ -96,11 +96,13 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
                         x = 0;
                         y += 1;
                     }
+
+                    data_layout.extend(b"\x00\x80");
                 }
 
                 let size : u32 = data_layout.len() as u32 + 2;
 
-                write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x0a", &(industry.layout.len() as u8).to_le_bytes(), &size.to_le_bytes(), &data_layout, b"\x00\x80"]);
+                write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x0a", &(industry.layout.len() as u8).to_le_bytes(), &size.to_le_bytes(), &data_layout]);
             }
         }
     }
