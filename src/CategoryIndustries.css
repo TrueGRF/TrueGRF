@@ -1,0 +1,13 @@
+.layout {
+    border: 1px solid rgba(0,0,0,.125);
+    cursor: pointer;
+    display: inline-block;
+    height: 40px;
+    padding-top: 8px;
+    text-align: center;
+    width: 40px;
+}
+
+.layout:hover {
+    background-color: #e5e5e5;
+}

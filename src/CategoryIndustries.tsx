@@ -12,6 +12,7 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 
 function CategoryIndustries(props: any) {
     const [industry, setIndustry] = useState(props.industries[0]);
+    const [layoutSelection, setLayoutSelection] = useState(0);
 
     function ChangeValue(update: any) {
         setIndustry((prevState: any) => ({
@@ -100,35 +101,46 @@ function CategoryIndustries(props: any) {
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Layout</th>
+                            <th scope="row">
+                                Layout
+                                <Dropdown onSelect={(e) => setLayoutSelection(parseInt(e || "0"))}>
+                                    <Dropdown.Toggle size="sm">
+                                        Layout #0
+                                    </Dropdown.Toggle>
+
+                                    <Dropdown.Menu>
+                                        {industry.layout.map((layout: any, layout_index: number) => (
+                                        <Dropdown.Item key={`layout-selection-${layout_index}`} eventKey={layout_index}>Layout #{layout_index}</Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </th>
                             <td>
-                                {industry.layout.map((layout: any, layout_index: number) => (
-                                <Table bordered key={`layout-${layout_index}`}>
-                                    <tbody>
-                                    {layout.map((row: any, row_index: number) => (
-                                        <tr key={`layout-${layout_index}-${row_index}`}>
-                                            {row.map((col: any, col_index: number) => (
-                                                <td className="text-center" key={`layout-${layout_index}-${row_index}-${col_index}`}>
-                                                    <DropdownButton title={col === 0xfd ? " " : col.toString(16)}>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0xfd)}>(none)</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x00)}>00</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x01)}>01</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x02)}>02</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x03)}>03</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x04)}>04</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x05)}>05</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x06)}>06</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x07)}>07</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x08)}>08</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x09)}>09</Dropdown.Item>
-                                                        <Dropdown.Item onSelect={(e) => ChangeLayout(layout_index, row_index, col_index, 0x0a)}>0a</Dropdown.Item>
-                                                    </DropdownButton>
-                                                </td>
-                                            ))}
-                                        </tr>
+                                {industry.layout[layoutSelection].map((row: any, row_index: number) => (
+                                <div key={`layout-${layoutSelection}-${row_index}`}>
+                                    {row.map((col: any, col_index: number) => (
+                                    <Dropdown onSelect={(e) => ChangeLayout(layoutSelection, row_index, col_index, parseInt(e || "0xfd"))} key={`layout-${layoutSelection}-${row_index}-${col_index}`} as="span">
+                                        <Dropdown.Toggle as="span" bsPrefix="layout">
+                                            {col === 0xfd ? "_" : col.toString(16)}
+                                        </Dropdown.Toggle>
+
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item eventKey="0xfd">(none)</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x00">00</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x01">01</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x02">02</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x03">03</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x04">04</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x05">05</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x06">06</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x07">07</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x08">08</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x09">09</Dropdown.Item>
+                                            <Dropdown.Item eventKey="0x0a">0a</Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
                                     ))}
-                                    </tbody>
-                                </Table>
+                                </div>
                                 ))}
                             </td>
                         </tr>

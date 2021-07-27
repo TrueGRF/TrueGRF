@@ -14,6 +14,8 @@ import CategoryIndustries from './CategoryIndustries';
 import GenerateGRF from './GenerateGRF';
 import HeaderWIP from './HeaderWIP';
 
+import './CategoryIndustries.css';
+
 const startIndustries = [
     {
         id: 0,
@@ -24,7 +26,12 @@ const startIndustries = [
                 [ 0x05, 0x06, 0x03 ],
                 [ 0xfd, 0x00, 0xfd ],
                 [ 0xfd, 0x02, 0x03 ],
-            ]
+            ],
+            [
+                [ 0x03, 0x03, 0x00 ],
+                [ 0x04, 0x00, 0x02 ],
+                [ 0x04, 0x02, 0x04 ],
+            ],
         ]
     },
     {
