@@ -6,6 +6,8 @@ function GenerateGRF(props: any) {
     function Generate() {
         let newgrf_data = compile({industries: props.industries});
 
+        props.openGame();
+
         let game: any = document?.getElementById("game");
         game.contentWindow.openttd_insert_grf(newgrf_data);
     }

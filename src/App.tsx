@@ -27,6 +27,7 @@ const startIndustries = [
 
 function Main() {
     const [industries, setIndustry] = useState(startIndustries);
+    const [tab, setTab] = useState("generic");
 
     return (
         <Container>
@@ -40,9 +41,9 @@ function Main() {
                 </Col>
             </Row>
             <Row>
-                <GenerateGRF industries={industries} />
+                <GenerateGRF industries={industries} openGame={() => setTab("test") } />
             </Row>
-            <Tab.Container id="categories" defaultActiveKey="generic">
+            <Tab.Container id="categories" activeKey={tab} onSelect={(eventKey) => setTab(eventKey || "generic") }>
                 <Row>
                     <Col sm={3}>
                         <ListGroup>
@@ -54,6 +55,10 @@ function Main() {
                                 <h5 className="mb-1">Industries</h5>
                                 <small>Create or modify industries</small>
                             </ListGroup.Item>
+                            <ListGroup.Item variant="light" action eventKey="test">
+                                <h5 className="mb-1">Test</h5>
+                                <small>Try your NewGRF in-game</small>
+                            </ListGroup.Item>
                         </ListGroup>
                     </Col>
                     <Col>
@@ -64,14 +69,17 @@ function Main() {
                             <Tab.Pane eventKey="industries">
                                 <CategoryIndustries industries={industries} setIndustry={setIndustry} />
                             </Tab.Pane>
+                            <Tab.Pane eventKey="test">
+                                <p className="lead">Test your NewGRF in-game. Press the green button first, go to NewGRF settings in-game and activate your GRF!</p>
+                                <Iframe url="openttd.html" width="966px" height="800px" id="game" />
+                            </Tab.Pane>
                         </Tab.Content>
                     </Col>
                 </Row>
             </Tab.Container>
             <Row>
                 <Col>
-                    <p className="lead">Test your NewGRF in-game. Press the green button first, go to NewGRF settings in-game and activate your GRF!</p>
-                    <Iframe url="openttd.html" width="1320px" height="1024px" id="game" />
+
                 </Col>
             </Row>
         </Container>
