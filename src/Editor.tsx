@@ -58,7 +58,23 @@ function Editor(props: any) {
 
     const onConnect = (params: Connection | Edge) => setElements((els) => addEdge({...params, animated: true}, els));
     const onElementsRemove = (elementsToRemove: Elements) => setElements((els) => removeElements(elementsToRemove, els));
-    const onLoad = (_reactFlowInstance: OnLoadParams) => setReactFlowInstance(_reactFlowInstance);
+    const onLoad = (_reactFlowInstance: OnLoadParams) => {
+        setReactFlowInstance(_reactFlowInstance);
+
+        setElements((prevState) => prevState.map((e) => {
+            if (isEdge(e)) {
+                return e;
+            }
+
+            return {
+                ...e,
+                data: {
+                    ...e.data,
+                    onChange: (value: any) => onNodeChange(e.id, value),
+                },
+            };
+        }));
+    }
     const onEdgeUpdate = (oldEdge: Edge, newConnection: Connection) => setElements((els) => updateEdge(oldEdge, newConnection, els));
 
     const onNodeDragStop = (event: any, node: Node<any>) => {
@@ -114,7 +130,7 @@ function Editor(props: any) {
 
             setElements((es) => es.concat(newNode));
         }
-  };
+    };
 
     return (
         <Container className="editor">

@@ -160,8 +160,7 @@ function IndustryItem({industry, setIndustry}: any) {
                     </tr>
                     <tr>
                         <th scope="row">
-                            Placement (WIP)
-                            <p className="lead">Not working yet</p>
+                            Placement
                         </th>
                         <td>
                             <Dropdown onSelect={(e) => setValue({placement: e })} as="span">
@@ -187,6 +186,12 @@ function IndustryItem({industry, setIndustry}: any) {
                                     <Modal.Title>Custom Placement</Modal.Title>
                                 </Modal.Header>
                                 <Modal.Body>
+                                    <p className="lead">
+                                        WIP: ensure inputs have exactly one connection (not zero, not two: exactly one).<br/>
+                                        WIP: ensure only one output block is placed.<br/>
+                                        WIP: most settings do not work yet.<br/>
+                                        WIP: math block does not work yet.
+                                    </p>
                                     <Editor elements={industry.placementCustom} setElements={setPlacementCustom} />
                                 </Modal.Body>
                             </Modal>

@@ -190,7 +190,7 @@ Module['FS_createPath']('/', 'game', true, true);
     }
   
    }
-   loadPackage({"files": [{"filename": "/baseset/orig_extra.grf", "start": 0, "end": 328676, "audio": 0}, {"filename": "/baseset/orig_dos.obm", "start": 328676, "end": 333345, "audio": 0}, {"filename": "/baseset/orig_win.obs", "start": 333345, "end": 338902, "audio": 0}, {"filename": "/baseset/orig_win.obg", "start": 338902, "end": 344713, "audio": 0}, {"filename": "/baseset/orig_dos.obs", "start": 344713, "end": 349729, "audio": 0}, {"filename": "/baseset/no_music.obm", "start": 349729, "end": 353745, "audio": 0}, {"filename": "/baseset/no_sound.obs", "start": 353745, "end": 357353, "audio": 0}, {"filename": "/baseset/orig_win.obm", "start": 357353, "end": 365278, "audio": 0}, {"filename": "/baseset/orig_dos.obg", "start": 365278, "end": 370933, "audio": 0}, {"filename": "/baseset/orig_tto.obm", "start": 370933, "end": 376087, "audio": 0}, {"filename": "/baseset/opntitle.dat", "start": 376087, "end": 514797, "audio": 0}, {"filename": "/baseset/orig_dos_de.obg", "start": 514797, "end": 521052, "audio": 0}, {"filename": "/baseset/openttd.grf", "start": 521052, "end": 1031687, "audio": 0}, {"filename": "/lang/english.lng", "start": 1031687, "end": 1175324, "audio": 0}, {"filename": "/ai/compat_1.5.nut", "start": 1175324, "end": 1176354, "audio": 0}, {"filename": "/ai/compat_1.2.nut", "start": 1176354, "end": 1177384, "audio": 0}, {"filename": "/ai/compat_1.10.nut", "start": 1177384, "end": 1178015, "audio": 0}, {"filename": "/ai/CMakeLists.txt", "start": 1178015, "end": 1179495, "audio": 0}, {"filename": "/ai/compat_1.11.nut", "start": 1179495, "end": 1180126, "audio": 0}, {"filename": "/ai/compat_1.7.nut", "start": 1180126, "end": 1181156, "audio": 0}, {"filename": "/ai/compat_1.0.nut", "start": 1181156, "end": 1186625, "audio": 0}, {"filename": "/ai/compat_1.1.nut", "start": 1186625, "end": 1190190, "audio": 0}, {"filename": "/ai/compat_1.6.nut", "start": 1190190, "end": 1191220, "audio": 0}, {"filename": "/ai/compat_1.3.nut", "start": 1191220, "end": 1192250, "audio": 0}, {"filename": "/ai/compat_1.8.nut", "start": 1192250, "end": 1193280, "audio": 0}, {"filename": "/ai/compat_1.9.nut", "start": 1193280, "end": 1193910, "audio": 0}, {"filename": "/ai/compat_0.7.nut", "start": 1193910, "end": 1206126, "audio": 0}, {"filename": "/ai/compat_1.12.nut", "start": 1206126, "end": 1206707, "audio": 0}, {"filename": "/ai/compat_1.4.nut", "start": 1206707, "end": 1207737, "audio": 0}, {"filename": "/game/compat_1.5.nut", "start": 1207737, "end": 1208809, "audio": 0}, {"filename": "/game/compat_1.2.nut", "start": 1208809, "end": 1210485, "audio": 0}, {"filename": "/game/compat_1.10.nut", "start": 1210485, "end": 1211376, "audio": 0}, {"filename": "/game/CMakeLists.txt", "start": 1211376, "end": 1212724, "audio": 0}, {"filename": "/game/compat_1.11.nut", "start": 1212724, "end": 1213355, "audio": 0}, {"filename": "/game/compat_1.7.nut", "start": 1213355, "end": 1214427, "audio": 0}, {"filename": "/game/compat_1.6.nut", "start": 1214427, "end": 1215499, "audio": 0}, {"filename": "/game/compat_1.3.nut", "start": 1215499, "end": 1217175, "audio": 0}, {"filename": "/game/compat_1.8.nut", "start": 1217175, "end": 1218247, "audio": 0}, {"filename": "/game/compat_1.9.nut", "start": 1218247, "end": 1219137, "audio": 0}, {"filename": "/game/compat_1.12.nut", "start": 1219137, "end": 1219718, "audio": 0}, {"filename": "/game/compat_1.4.nut", "start": 1219718, "end": 1220996, "audio": 0}], "remote_package_size": 1220996, "package_uuid": "f1aecd01-d01c-4591-a8dc-431295aa950d"});
+   loadPackage({"files": [{"filename": "/baseset/orig_extra.grf", "start": 0, "end": 328676, "audio": 0}, {"filename": "/baseset/orig_dos.obm", "start": 328676, "end": 333345, "audio": 0}, {"filename": "/baseset/orig_win.obs", "start": 333345, "end": 338902, "audio": 0}, {"filename": "/baseset/orig_win.obg", "start": 338902, "end": 344713, "audio": 0}, {"filename": "/baseset/orig_dos.obs", "start": 344713, "end": 349729, "audio": 0}, {"filename": "/baseset/no_music.obm", "start": 349729, "end": 353745, "audio": 0}, {"filename": "/baseset/no_sound.obs", "start": 353745, "end": 357353, "audio": 0}, {"filename": "/baseset/orig_win.obm", "start": 357353, "end": 365278, "audio": 0}, {"filename": "/baseset/orig_dos.obg", "start": 365278, "end": 370933, "audio": 0}, {"filename": "/baseset/orig_tto.obm", "start": 370933, "end": 376087, "audio": 0}, {"filename": "/baseset/opntitle.dat", "start": 376087, "end": 514797, "audio": 0}, {"filename": "/baseset/orig_dos_de.obg", "start": 514797, "end": 521052, "audio": 0}, {"filename": "/baseset/openttd.grf", "start": 521052, "end": 1031687, "audio": 0}, {"filename": "/lang/english.lng", "start": 1031687, "end": 1175324, "audio": 0}, {"filename": "/ai/compat_1.5.nut", "start": 1175324, "end": 1176354, "audio": 0}, {"filename": "/ai/compat_1.2.nut", "start": 1176354, "end": 1177384, "audio": 0}, {"filename": "/ai/compat_1.10.nut", "start": 1177384, "end": 1178015, "audio": 0}, {"filename": "/ai/CMakeLists.txt", "start": 1178015, "end": 1179495, "audio": 0}, {"filename": "/ai/compat_1.11.nut", "start": 1179495, "end": 1180126, "audio": 0}, {"filename": "/ai/compat_1.7.nut", "start": 1180126, "end": 1181156, "audio": 0}, {"filename": "/ai/compat_1.0.nut", "start": 1181156, "end": 1186625, "audio": 0}, {"filename": "/ai/compat_1.1.nut", "start": 1186625, "end": 1190190, "audio": 0}, {"filename": "/ai/compat_1.6.nut", "start": 1190190, "end": 1191220, "audio": 0}, {"filename": "/ai/compat_1.3.nut", "start": 1191220, "end": 1192250, "audio": 0}, {"filename": "/ai/compat_1.8.nut", "start": 1192250, "end": 1193280, "audio": 0}, {"filename": "/ai/compat_1.9.nut", "start": 1193280, "end": 1193910, "audio": 0}, {"filename": "/ai/compat_0.7.nut", "start": 1193910, "end": 1206126, "audio": 0}, {"filename": "/ai/compat_1.12.nut", "start": 1206126, "end": 1206707, "audio": 0}, {"filename": "/ai/compat_1.4.nut", "start": 1206707, "end": 1207737, "audio": 0}, {"filename": "/game/compat_1.5.nut", "start": 1207737, "end": 1208809, "audio": 0}, {"filename": "/game/compat_1.2.nut", "start": 1208809, "end": 1210485, "audio": 0}, {"filename": "/game/compat_1.10.nut", "start": 1210485, "end": 1211376, "audio": 0}, {"filename": "/game/CMakeLists.txt", "start": 1211376, "end": 1212724, "audio": 0}, {"filename": "/game/compat_1.11.nut", "start": 1212724, "end": 1213355, "audio": 0}, {"filename": "/game/compat_1.7.nut", "start": 1213355, "end": 1214427, "audio": 0}, {"filename": "/game/compat_1.6.nut", "start": 1214427, "end": 1215499, "audio": 0}, {"filename": "/game/compat_1.3.nut", "start": 1215499, "end": 1217175, "audio": 0}, {"filename": "/game/compat_1.8.nut", "start": 1217175, "end": 1218247, "audio": 0}, {"filename": "/game/compat_1.9.nut", "start": 1218247, "end": 1219137, "audio": 0}, {"filename": "/game/compat_1.12.nut", "start": 1219137, "end": 1219718, "audio": 0}, {"filename": "/game/compat_1.4.nut", "start": 1219718, "end": 1220996, "audio": 0}], "remote_package_size": 1220996, "package_uuid": "cf91aa46-03b5-4954-9370-40047f47ffd8"});
   
   })();
   
@@ -220,7 +220,6 @@ Module.preRun.push(function() {
     personal_dir = '/home/web_user/.openttd';
     content_download_dir = personal_dir + '/content_download'
 
-    /* Because of the "-c" above, all user-data is stored in /user_data. */
     FS.mkdir(personal_dir);
     FS.mount(IDBFS, {}, personal_dir);
 
@@ -268,15 +267,13 @@ Module.preRun.push(function() {
         Module.onAbort();
     }
 
-    window.openttd_insert_grf = function(data) {
-        insert_grf = Module.cwrap("em_openttd_insert_grf", null, ["number", "array"]);
-        insert_grf(data.length, data);
+    window.openttd_inject_truegrf = function(data, newgame_seed) {
+        inject_truegrf = Module.cwrap("em_openttd_inject_truegrf", null, ["number", "array", "number"]);
+        inject_truegrf(data.length, data, newgame_seed);
     }
 
     window.openttd_server_list = function() {
-        console.log("TICK");
         add_server = Module.cwrap("em_openttd_add_server", null, ["string"]);
-        add_server("localhost");
 
         /* Add servers that support WebSocket here. Examples:
          *  add_server("localhost");
@@ -11647,8 +11644,8 @@ var _main = Module["_main"] = function() {
 };
 
 /** @type {function(...*):?} */
-var _em_openttd_insert_grf = Module["_em_openttd_insert_grf"] = function() {
-  return (_em_openttd_insert_grf = Module["_em_openttd_insert_grf"] = Module["asm"]["em_openttd_insert_grf"]).apply(null, arguments);
+var _em_openttd_inject_truegrf = Module["_em_openttd_inject_truegrf"] = function() {
+  return (_em_openttd_inject_truegrf = Module["_em_openttd_inject_truegrf"] = Module["asm"]["em_openttd_inject_truegrf"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */

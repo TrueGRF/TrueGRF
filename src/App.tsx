@@ -33,8 +33,81 @@ const startIndustries = [
                 [ 0x04, 0x02, 0x04 ],
             ],
         ],
-        placement: "anywhere",
-        placementCustom: [],
+        placement: "custom",
+        placementCustom: [
+            {
+              "id": "editor_0",
+              "type": "number",
+              "position": {
+                "x": 195,
+                "y": 315
+              },
+              "data": {
+                "value": "64"
+              }
+            },
+            {
+              "id": "editor_1",
+              "type": "variable",
+              "position": {
+                "x": 210,
+                "y": 225
+              },
+              "data": {
+                "value": "distance-to-town"
+              }
+            },
+            {
+              "id": "editor_2",
+              "type": "compare",
+              "position": {
+                "x": 465,
+                "y": 270
+              },
+              "sourcePosition": "right",
+              "targetPosition": "left",
+              "data": {
+                "value": "gt"
+              }
+            },
+            {
+              "id": "editor_3",
+              "type": "output",
+              "position": {
+                "x": 690,
+                "y": 240
+              },
+              "sourcePosition": "right",
+              "targetPosition": "left",
+              "data": {}
+            },
+            {
+              "source": "editor_2",
+              "sourceHandle": null,
+              "target": "editor_3",
+              "targetHandle": null,
+              "animated": true,
+              "id": "reactflow__edge-editor_2null-editor_3null"
+            },
+            {
+              "source": "editor_1",
+              "sourceHandle": null,
+              "target": "editor_2",
+              "targetHandle": "a",
+              "animated": true,
+              "id": "reactflow__edge-editor_1null-editor_2a",
+              "type": "default"
+            },
+            {
+              "source": "editor_0",
+              "sourceHandle": null,
+              "target": "editor_2",
+              "targetHandle": "b",
+              "animated": true,
+              "id": "reactflow__edge-editor_0null-editor_2b",
+              "type": "default"
+            }
+          ],
     },
     {
         id: 1,

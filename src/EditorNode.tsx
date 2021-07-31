@@ -146,7 +146,7 @@ const NumberNode: FC<NodeProps> = ({ data, isConnectable }) => {
         <>
             <Toast>
                 <Toast.Body>
-                    <Form.Control size="sm" value={data.value} onChange={(e) => data.onChange(parseInt(e.target.value))} />
+                    <Form.Control size="sm" value={data.value} onChange={(e) => data.onChange(e.target.value)} />
                 </Toast.Body>
             </Toast>
             <Handle type="source" position={Position.Right} style={targetHandleStyle} isConnectable={isConnectable} />
