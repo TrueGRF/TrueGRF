@@ -12,6 +12,7 @@ import ReactFlow, {
     Node,
     Position,
     updateEdge,
+    isEdge,
 } from 'react-flow-renderer';
 
 import Col from 'react-bootstrap/Col';
@@ -19,7 +20,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
 import EditorSidebar from './EditorSidebar';
-import { VariableNode, MathNode, CompareNode, OutputNode } from './EditorNode';
+import { NumberNode, VariableNode, MathNode, CompareNode, OutputNode } from './EditorNode';
 
 import './Editor.css';
 
@@ -29,24 +30,61 @@ const onDragOver = (event: DragEvent) => {
 };
 
 let id = 0;
-const getId = (): ElementId => `dndnode_${id++}`;
+const getId = (): ElementId => `editor_${id++}`;
 
 const nodeTypes = {
+    number: NumberNode,
     variable: VariableNode,
     math: MathNode,
     compare: CompareNode,
     output: OutputNode,
 };
 
-const DnDFlow = () => {
+function Editor(props: any) {
     const reactFlowWrapper = useRef(null);
     const [reactFlowInstance, setReactFlowInstance] = useState<OnLoadParams>();
-    const [elements, setElements] = useState<Elements>([]);
+
+    const elements: Elements = props.elements;
+    const setElements: React.Dispatch<React.SetStateAction<Elements>> = props.setElements;
+
+    /* Find the last "id" value. */
+    elements.map((e) => {
+        let eid = parseInt(e.id.split("_")[1]);
+        if (eid >= id) {
+            id = eid + 1;
+        }
+    });
 
     const onConnect = (params: Connection | Edge) => setElements((els) => addEdge({...params, animated: true}, els));
     const onElementsRemove = (elementsToRemove: Elements) => setElements((els) => removeElements(elementsToRemove, els));
     const onLoad = (_reactFlowInstance: OnLoadParams) => setReactFlowInstance(_reactFlowInstance);
     const onEdgeUpdate = (oldEdge: Edge, newConnection: Connection) => setElements((els) => updateEdge(oldEdge, newConnection, els));
+
+    const onNodeDragStop = (event: any, node: Node<any>) => {
+        setElements((prevState) => prevState.map((e) => {
+            if (isEdge(e) || e.id !== node.id) {
+                return e;
+            }
+
+            return node;
+        }));
+    }
+
+    function onNodeChange(id: string, value: any) {
+        setElements((prevState) => prevState.map((e) => {
+            if (isEdge(e) || e.id !== id) {
+                return e;
+            }
+
+            return {
+                ...e,
+                data: {
+                    ...e.data,
+                    value,
+                },
+            };
+        }));
+    }
 
     const onDrop = (event: DragEvent) => {
         event.preventDefault();
@@ -59,13 +97,18 @@ const DnDFlow = () => {
                 x: event.clientX - reactFlowBounds.left,
                 y: event.clientY - reactFlowBounds.top,
             });
+
+            const id = getId();
             const newNode: Node = {
-                id: getId(),
+                id: id,
                 type: type,
                 position,
                 sourcePosition: Position.Right,
                 targetPosition: Position.Left,
-                data: {},
+                data: {
+                    onChange: (value: any) => onNodeChange(id, value),
+                    value: undefined,
+                },
             };
 
             setElements((es) => es.concat(newNode));
@@ -82,6 +125,7 @@ const DnDFlow = () => {
                                 elements={elements}
                                 onConnect={onConnect}
                                 onElementsRemove={onElementsRemove}
+                                onNodeDragStop={onNodeDragStop}
                                 onLoad={onLoad}
                                 onDrop={onDrop}
                                 onDragOver={onDragOver}
@@ -102,4 +146,4 @@ const DnDFlow = () => {
     );
 };
 
-export default DnDFlow;
+export default Editor;

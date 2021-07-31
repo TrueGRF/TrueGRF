@@ -10,11 +10,11 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 
 import CategoryGeneric from './CategoryGeneric';
-import CategoryIndustries from './CategoryIndustries';
 import GenerateGRF from './GenerateGRF';
 import HeaderWIP from './HeaderWIP';
 
-import './CategoryIndustries.css';
+import IndustryList from './IndustryList';
+import IndustryItem from './IndustryItem';
 
 const startIndustries = [
     {
@@ -34,6 +34,7 @@ const startIndustries = [
             ],
         ],
         placement: "anywhere",
+        placementCustom: [],
     },
     {
         id: 1,
@@ -46,16 +47,24 @@ const startIndustries = [
             ]
         ],
         placement: "anywhere",
+        placementCustom: [],
     },
 ]
 
 function Main() {
-    const [industries, setIndustry] = useState(startIndustries);
+    const [industries, setIndustries] = useState(startIndustries);
+    const [industryId, setIndustryId] = useState(0);
+
     const [generic, setGeneric] = useState({
         name: "TrueGRF",
         description: "Your first NewGRF with TrueGRF",
     });
     const [tab, setTab] = useState("generic");
+
+    function onChangeIndustry(id: number) {
+        //setLayoutSelection(0);
+        setIndustryId(id);
+    }
 
     return (
         <Container>
@@ -95,7 +104,14 @@ function Main() {
                                 <CategoryGeneric generic={generic} setGeneric={setGeneric} />
                             </Tab.Pane>
                             <Tab.Pane eventKey="industries">
-                                <CategoryIndustries industries={industries} setIndustry={setIndustry} />
+                                <Row>
+                                    <Col sm={3}>
+                                        <IndustryList onChangeIndustry={onChangeIndustry} />
+                                    </Col>
+                                    <Col>
+                                        <IndustryItem industry={industries[industryId]} setIndustry={(e: React.SetStateAction<any>) => setIndustries((prevState) => { let newState = [...prevState]; newState[industryId] = e(prevState[industryId]); return newState } )} />
+                                    </Col>
+                                </Row>
                             </Tab.Pane>
                             <Tab.Pane eventKey="test">
                                 <p className="lead">Test your NewGRF in-game. Press the green button first, go to NewGRF settings in-game and activate your GRF!</p>

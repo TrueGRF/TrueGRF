@@ -11,6 +11,13 @@ const EditorSidebar = () => {
     return (
         <aside>
             <p className="lead">You can drag these nodes to the pane on the left</p>
+            <Toast onDragStart={(event: DragEvent) => onDragStart(event, 'number')} draggable>
+                <Toast.Header closeButton={false}>
+                    <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
+                    <strong className="me-auto">Number</strong>
+                </Toast.Header>
+                <Toast.Body>A fixed number.</Toast.Body>
+            </Toast>
             <Toast onDragStart={(event: DragEvent) => onDragStart(event, 'variable')} draggable>
                 <Toast.Header closeButton={false}>
                     <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
