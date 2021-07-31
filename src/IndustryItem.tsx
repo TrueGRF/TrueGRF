@@ -34,7 +34,7 @@ const placementOptions: {[key: string] : any} = {
     },
 };
 
-function CategoryIndustries({industry, setIndustry}: any) {
+function IndustryItem({industry, setIndustry}: any) {
     const [layoutSelection, setLayoutSelection] = useState(0);
     const [placementEditorVisible, setPlacementEditorVisible] = useState(false);
 
@@ -198,4 +198,4 @@ function CategoryIndustries({industry, setIndustry}: any) {
     );
 }
 
-export default CategoryIndustries;
+export default IndustryItem;

@@ -53,6 +53,7 @@ function Editor(props: any) {
         if (eid >= id) {
             id = eid + 1;
         }
+        return 0;
     });
 
     const onConnect = (params: Connection | Edge) => setElements((els) => addEdge({...params, animated: true}, els));
