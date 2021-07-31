@@ -18,11 +18,17 @@ const placementOptions: {[key: string] : any} = {
     "anywhere": {
         label: "Anywhere",
     },
+    "on-water": {
+        label: "On water",
+    },
     "in-town": {
         label: "In town",
     },
     "in-large-town": {
         label: "In large town",
+    },
+    "near-town": {
+        label: "Near town",
     },
     "custom": {
         label: "Customize",
