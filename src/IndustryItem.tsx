@@ -188,9 +188,7 @@ function IndustryItem({industry, setIndustry}: any) {
                                 <Modal.Body>
                                     <p className="lead">
                                         WIP: ensure inputs have exactly one connection (not zero, not two: exactly one).<br/>
-                                        WIP: ensure only one output block is placed.<br/>
-                                        WIP: most settings do not work yet.<br/>
-                                        WIP: math block does not work yet.
+                                        WIP: ensure only one output block is placed.
                                     </p>
                                     <Editor elements={industry.placementCustom} setElements={setPlacementCustom} />
                                 </Modal.Body>

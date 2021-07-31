@@ -11,14 +11,8 @@ const sourceHandleStyleA: CSSProperties = { ...targetHandleStyle, top: 14 };
 const sourceHandleStyleB: CSSProperties = { ...targetHandleStyle, bottom: 6, top: 'auto' };
 
 const variableOptions: {[key: string] : any} = {
-    "distance-to-land": {
-        label: "Distance to land",
-    },
     "distance-to-town": {
         label: "Distance to town",
-    },
-    "layout-number": {
-        label: "Layout number",
     },
 }
 
@@ -40,9 +34,6 @@ const compareOptions: {[key: string] : any} = {
     },
     "lt": {
         label: "Less Than",
-    },
-    "eq": {
-        label: "Equal",
     },
 }
 

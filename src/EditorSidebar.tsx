@@ -25,13 +25,6 @@ const EditorSidebar = () => {
                 </Toast.Header>
                 <Toast.Body>Read values to use in your callback.</Toast.Body>
             </Toast>
-            <Toast onDragStart={(event: DragEvent) => onDragStart(event, 'math')} draggable>
-                <Toast.Header closeButton={false}>
-                    <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
-                    <strong className="me-auto">Math</strong>
-                </Toast.Header>
-                <Toast.Body>Do math operations.</Toast.Body>
-            </Toast>
             <Toast onDragStart={(event: DragEvent) => onDragStart(event, 'compare')} draggable>
                 <Toast.Header closeButton={false}>
                     <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
