@@ -1,0 +1,17 @@
+.editor .react-flow {
+    border: 1px solid black;
+}
+
+.editor aside > * {
+    margin-bottom: 10px;
+    cursor: grab;
+}
+
+.editor .toast {
+    width: auto !important;
+}
+
+.editor .react-flow__handle {
+    height: 10px;
+    width: 10px;
+}

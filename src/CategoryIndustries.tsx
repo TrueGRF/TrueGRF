@@ -1,19 +1,38 @@
 import { useState } from 'react';
 
+import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Col from 'react-bootstrap/Col';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 
+import Editor from './Editor';
 import Sprite from './Sprite';
+
+const placementOptions: {[key: string] : any} = {
+    "anywhere": {
+        label: "Anywhere",
+    },
+    "in-town": {
+        label: "In town",
+    },
+    "in-large-town": {
+        label: "In large town",
+    },
+    "custom": {
+        label: "Customize",
+    },
+};
 
 function CategoryIndustries(props: any) {
     const [industry, setIndustry] = useState(props.industries[0]);
     const [layoutSelection, setLayoutSelection] = useState(0);
+    const [customPlacement, setCustomPlacement] = useState(false);
 
     function ChangeValue(update: any) {
         setIndustry((prevState: any) => ({
@@ -144,6 +163,44 @@ function CategoryIndustries(props: any) {
                                     ))}
                                 </div>
                                 ))}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                Placement (WIP)
+                                <p className="lead">Not working yet</p>
+                            </th>
+                            <td>
+                                <Dropdown onSelect={(e) => ChangeValue({placement: e })} as="span">
+                                    <Dropdown.Toggle size="sm">
+                                        {placementOptions[industry.placement].label}
+                                    </Dropdown.Toggle>
+
+                                    <Dropdown.Menu>
+                                        {Object.entries(placementOptions).map((option: any) => (
+                                        <Dropdown.Item key={`placement-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+
+                                {industry.placement === "custom" &&
+                                    <span>
+                                        <Button variant="primary" onClick={() => setCustomPlacement(true)} size="sm" style={{marginLeft: 10}}>
+                                            Editor
+                                        </Button>
+
+                                        (resets every time you open it)
+                                    </span>
+                                }
+
+                                <Modal show={customPlacement} onHide={() => setCustomPlacement(false)} dialogClassName="modal-fixed">
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Custom Placement</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <Editor />
+                                    </Modal.Body>
+                                </Modal>
                             </td>
                         </tr>
                     </tbody>

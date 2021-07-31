@@ -6,6 +6,7 @@
     "bootstrap": "^5.0.2",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.0-beta.4",
+    "react-flow-renderer": "^9.6.6",
     "react-iframe": "^1.8.0",
     "truegrf": "file:truegrf-rs/pkg",
     "typescript": "^4.3.2"

@@ -13,3 +13,8 @@
 .layout-row > span:hover {
     background-color: #e5e5e5;
 }
+
+.modal-fixed {
+    max-width: none !important;
+    width: 1300px;
+}

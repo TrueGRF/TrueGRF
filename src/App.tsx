@@ -32,7 +32,8 @@ const startIndustries = [
                 [ 0x04, 0x00, 0x02 ],
                 [ 0x04, 0x02, 0x04 ],
             ],
-        ]
+        ],
+        placement: "anywhere",
     },
     {
         id: 1,
@@ -44,6 +45,7 @@ const startIndustries = [
                 [ 0x09, 0x08, 0x08, 0x0a ],
             ]
         ],
+        placement: "anywhere",
     },
 ]
 
@@ -105,7 +107,6 @@ function Main() {
             </Tab.Container>
             <Row>
                 <Col>
-
                 </Col>
             </Row>
         </Container>
