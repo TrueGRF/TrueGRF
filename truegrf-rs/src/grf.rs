@@ -94,7 +94,7 @@ fn traverse_nodes(cb: u16, output: &mut Vec<u8>, current_node: &NewGRFNode, node
                             output.extend(right_output);
                         },
                         "lt" => {
-                            left_output[1] = 0x20;
+                            right_output[1] = 0x20;
                             output.extend(right_output);
                             output.extend(b"\x01"); // Subtract
                             output.extend(left_output);
