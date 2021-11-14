@@ -1,5 +1,4 @@
 use serde::{Serialize, Deserialize};
-use serde_json::Value;
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -60,10 +59,10 @@ fn write_pseudo_sprite(output: &mut Vec<u8>, data: &[&[u8]]) {
     }
 }
 
-fn write_store_string(output: &mut Vec<u8>, string_counter: &mut u16, feature: u8, string: &String) -> u16 {
+fn write_store_string(output: &mut Vec<u8>, string_counter: &mut u16, feature: u8, string: &str) -> u16 {
     write_pseudo_sprite(output, &[b"\x04", &[feature], b"\xff\x01", &string_counter.to_le_bytes(), string.as_bytes(), b"\x00"]);
     *string_counter += 1;
-    return *string_counter - 1;
+    *string_counter - 1
 }
 
 fn traverse_nodes(cb: u16, output: &mut Vec<u8>, current_node: &NewGRFNode, nodes: &HashMap<String, &NewGRFNode>, reverse: &HashMap<(String, String), String>) {
@@ -157,26 +156,18 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
             let string_id = write_store_string(&mut output, &mut string_counter, 0x0a, &industry.name);
             write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x1f", &string_id.to_le_bytes()]);
 
-            if industry.layout.len() > 0 {
+            if !industry.layout.is_empty() {
                 let mut data_layout = Vec::new();
 
                 for layout in &industry.layout {
-                    let mut x : u8 = 0;
-                    let mut y : u8 = 0;
-
-                    for row in layout {
-                        for old_tile in row {
+                    for (y, row) in layout.iter().enumerate() {
+                        for (x, old_tile) in row.iter().enumerate() {
                             if *old_tile != 0xfd {
                                 data_layout.extend(x.to_le_bytes());
                                 data_layout.extend(y.to_le_bytes());
                                 data_layout.extend(old_tile.to_le_bytes());
                             }
-
-                            x += 1;
                         }
-
-                        x = 0;
-                        y += 1;
                     }
 
                     data_layout.extend(b"\x00\x80");
@@ -215,7 +206,7 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
                 let mut output_node = &NewGRFNode { ..Default::default() };
                 for node in &industry.placementCustom {
                     if node.source.is_some() && node.target.is_some() {
-                        reverse.insert((node.target.clone().unwrap(), node.targetHandle.clone().unwrap_or("".to_string())), node.source.clone().unwrap());
+                        reverse.insert((node.target.clone().unwrap(), node.targetHandle.clone().unwrap_or_else(|| "".to_string())), node.source.clone().unwrap());
                     } else {
                         nodes.insert(node.id.clone(), node);
                     }
