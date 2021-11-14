@@ -22,7 +22,6 @@ wasm-pack build
 (depends on Rust)
 
 ```bash
-cd web
 npm install
 npm run build
 ```
