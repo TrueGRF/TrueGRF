@@ -163,8 +163,8 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
                     for (y, row) in layout.iter().enumerate() {
                         for (x, old_tile) in row.iter().enumerate() {
                             if *old_tile != 0xfd {
-                                data_layout.extend(x.to_le_bytes());
-                                data_layout.extend(y.to_le_bytes());
+                                data_layout.extend((x as u8).to_le_bytes());
+                                data_layout.extend((y as u8).to_le_bytes());
                                 data_layout.extend(old_tile.to_le_bytes());
                             }
                         }
