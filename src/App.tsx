@@ -139,6 +139,16 @@ function Main() {
         setIndustryId(id);
     }
 
+    function openGame() {
+        setTab("test");
+        onGameClick();
+    }
+
+    function onGameClick() {
+        let game: any = document?.getElementById("game");
+        game.contentWindow.focus();
+    }
+
     return (
         <Container>
             <Row>
@@ -151,7 +161,7 @@ function Main() {
                 </Col>
             </Row>
             <Row>
-                <GenerateGRF industries={industries} generic={generic} openGame={() => setTab("test") } />
+                <GenerateGRF industries={industries} generic={generic} openGame={openGame} />
             </Row>
             <Tab.Container id="categories" activeKey={tab} onSelect={(eventKey) => setTab(eventKey || "generic") }>
                 <Row>
@@ -165,7 +175,7 @@ function Main() {
                                 <h5 className="mb-1">Industries</h5>
                                 <small>Create or modify industries</small>
                             </ListGroup.Item>
-                            <ListGroup.Item variant="light" action eventKey="test">
+                            <ListGroup.Item variant="light" action eventKey="test" onClick={onGameClick}>
                                 <h5 className="mb-1">Test</h5>
                                 <small>Try your NewGRF in-game</small>
                             </ListGroup.Item>
@@ -187,7 +197,7 @@ function Main() {
                                 </Row>
                             </Tab.Pane>
                             <Tab.Pane eventKey="test">
-                                <p className="lead">Test your NewGRF in-game. Press the green button first, go to NewGRF settings in-game and activate your GRF!</p>
+                                <p className="lead">Test your NewGRF in-game. Press one of the green button first above!</p>
                                 <Iframe url="openttd.html" width="966px" height="800px" id="game" />
                             </Tab.Pane>
                         </Tab.Content>
