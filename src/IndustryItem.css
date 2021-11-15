@@ -1,17 +1,22 @@
+.layout-row {
+    align-items: center;
+    display: flex;
+    height: 32px;
+}
+
 .layout {
     cursor: pointer;
     display: inline-block;
     text-align: center;
     width: 64px;
 }
-.layout-row {
-    align-items: center;
-    display: flex;
-    height: 64px;
+
+.layout:hover {
+    background-color: #e5e5e5;
 }
 
-.layout-row > span:hover {
-    background-color: #e5e5e5;
+.layout-preview {
+    position: absolute;
 }
 
 .modal-fixed {

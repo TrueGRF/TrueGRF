@@ -129,33 +129,45 @@ function IndustryItem({industry, setIndustry}: any) {
                                 </Dropdown.Menu>
                             </Dropdown>
                         </th>
-                        <td>
+                        <td style={{ position: `relative` }}>
                             <small>(layout images are an estimation; click an image to change it)</small>
                             {industry.layout[layoutSelection].map((row: any, row_index: number) => (
-                            <div key={`layout-${layoutSelection}-${row_index}`} className="layout-row">
-                                {row.map((col: any, col_index: number) => (
-                                <Dropdown onSelect={(e) => setLayout(layoutSelection, row_index, col_index, parseInt(e || "0xfd"))} key={`layout-${layoutSelection}-${row_index}-${col_index}`} as="span">
-                                    <Dropdown.Toggle as="span" bsPrefix="layout">
-                                        <Sprite old_tile_id={col} />
-                                    </Dropdown.Toggle>
+                                <div key={`layout-${layoutSelection}-${row_index}`} className="layout-row">
+                                    {row.map((col: any, col_index: number) => (
+                                        <Dropdown onSelect={(e) => setLayout(layoutSelection, row_index, col_index, parseInt(e || "0xfd"))} key={`layout-${layoutSelection}-${row_index}-${col_index}`} as="span" bsPrefix="layout">
+                                            <Dropdown.Toggle as="span" bsPrefix="layout-dropdown">
+                                                <Sprite old_tile_id={col} />
+                                            </Dropdown.Toggle>
 
-                                    <Dropdown.Menu>
-                                        <Dropdown.Item eventKey="0xfd">(none)</Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x00"><Sprite old_tile_id={0x00} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x02"><Sprite old_tile_id={0x02} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x03"><Sprite old_tile_id={0x03} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x04"><Sprite old_tile_id={0x04} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x05"><Sprite old_tile_id={0x05} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x06"><Sprite old_tile_id={0x06} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x07"><Sprite old_tile_id={0x07} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x08"><Sprite old_tile_id={0x08} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x09"><Sprite old_tile_id={0x09} /></Dropdown.Item>
-                                        <Dropdown.Item eventKey="0x0a"><Sprite old_tile_id={0x0a} /></Dropdown.Item>
-                                    </Dropdown.Menu>
-                                </Dropdown>
+                                            <Dropdown.Menu>
+                                                <Dropdown.Item eventKey="0xfd">(none)</Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x00"><Sprite old_tile_id={0x00} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x02"><Sprite old_tile_id={0x02} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x03"><Sprite old_tile_id={0x03} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x04"><Sprite old_tile_id={0x04} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x05"><Sprite old_tile_id={0x05} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x06"><Sprite old_tile_id={0x06} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x07"><Sprite old_tile_id={0x07} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x08"><Sprite old_tile_id={0x08} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x09"><Sprite old_tile_id={0x09} /></Dropdown.Item>
+                                                <Dropdown.Item eventKey="0x0a"><Sprite old_tile_id={0x0a} /></Dropdown.Item>
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    ))}
+                                </div>
+                            ))}
+
+                            <div style={{ right: `0px`, top: `20px`, position: `absolute` }}>
+                                {industry.layout[layoutSelection].map((row: any, row_index: number) => (
+                                    <>
+                                        {row.map((col: any, col_index: number) => (
+                                            <span style={{ right: `${col_index * 32 - row_index * 32}px`, top: `${col_index * 16 + row_index * 16}px`, position: `absolute` }}>
+                                                <Sprite old_tile_id={col} />
+                                            </span>
+                                        ))}
+                                    </>
                                 ))}
                             </div>
-                            ))}
                         </td>
                     </tr>
                     <tr>
