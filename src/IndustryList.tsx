@@ -11,6 +11,10 @@ function IndustryList({ onChangeIndustry }: any) {
                 <h5 className="mb-1">Power Station</h5>
                 <small>Built-in Industry</small>
             </ListGroup.Item>
+            <ListGroup.Item variant="light" action eventKey="checmicalplant" onClick={() => onChangeIndustry(2)}>
+                <h5 className="mb-2">Chemical Plant</h5>
+                <small></small>
+            </ListGroup.Item>
         </ListGroup>
     );
 }

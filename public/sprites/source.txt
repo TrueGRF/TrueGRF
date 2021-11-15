@@ -1,4 +1,8 @@
-All these files are from OpenGFX, licensed under GPLv2:
+coalmine_anim*.png and industries_misc.png:
 
 https://github.com/OpenTTD/OpenGFX
 https://github.com/OpenTTD/OpenGFX/blob/master/LICENSE
+
+chemical_plant*.png:
+https://github.com/andythenorth/firs
+https://github.com/andythenorth/firs/blob/master/license.pt

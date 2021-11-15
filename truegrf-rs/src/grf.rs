@@ -1,6 +1,8 @@
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
+mod png;
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFGeneric {
     name: String,
@@ -24,13 +26,28 @@ struct NewGRFNode {
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFSprite {
+    base64Data: String,
+    width: u16,
+    height: u16,
+    top: i16,
+    left: i16,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFIndustryTile {
+    sprite: NewGRFSprite,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFIndustry {
     id: u8,
     available: bool,
     name: String,
-    layout: Vec<Vec<Vec<u8>>>,
+    layout: Vec<Vec<Vec<u32>>>,
     placement: String,
     placementCustom: Vec<NewGRFNode>,
+    tiles: Vec<NewGRFIndustryTile>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -46,17 +63,35 @@ fn write_pseudo_sprite(output: &mut Vec<u8>, data: &[&[u8]]) {
         len += (*d).len();
     }
 
-    output.extend(&[
-        ((len >>  0) & 0xff) as u8,
-        ((len >>  8) & 0xff) as u8,
-        ((len >> 16) & 0xff) as u8,
-        ((len >> 24) & 0xff) as u8,
-    ]);
-
+    output.extend(len.to_le_bytes());
     output.extend(&[0xff]);
     for d in data {
         output.extend(*d);
     }
+}
+
+fn write_real_sprite(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, sprite: &NewGRFSprite) {
+    let sprite_num = sprites.len() as u32 + 1;
+
+    /* Write a reference to the sprite segment. */
+    output.extend(&(4 as u32).to_le_bytes());
+    output.extend(&[0xfd]);
+    output.extend(sprite_num.to_le_bytes());
+
+    let data = &png::lz77_encode(&png::convert_png_to_palette(&sprite.base64Data));
+
+    let len = data.len();
+    let mut sprite_data = Vec::new();
+
+    /* Header of the realsprite. */
+    let header: &[&[u8]] = &[&sprite_num.to_le_bytes(), &(len as u32 + 10).to_le_bytes(), b"\x04\x00", &sprite.height.to_le_bytes(), &sprite.width.to_le_bytes(), &sprite.left.to_le_bytes(), &sprite.top.to_le_bytes()];
+    for d in header {
+        sprite_data.extend(*d);
+    }
+
+    sprite_data.extend(data);
+
+    sprites.push(sprite_data);
 }
 
 fn write_store_string(output: &mut Vec<u8>, string_counter: &mut u16, feature: u8, string: &str) -> u16 {
@@ -127,45 +162,110 @@ fn traverse_nodes(cb: u16, output: &mut Vec<u8>, current_node: &NewGRFNode, node
     }
 }
 
-pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
-    let mut output = Vec::new();
+fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: NewGRFOptions) {
     let mut string_counter: u16 = 0xdc00;
 
-    /* Write GRF container version 2 header. */
-    output.extend(b"\x00\x00GRF\x82\r\n\x1a\n");
-    /* TODO -- Sprite section offset. */
-    output.extend(b"\x00\x00\x00\x00");
-    /* Compression. OpenTTD currently only support no-compression (= 0). */
-    output.extend(b"\x00");
-
     /* TODO -- Amount of sprites in the file; ignored by OpenTTD. */
-    write_pseudo_sprite(&mut output, &[b"\x02\x00\x00\x00"]);
+    write_pseudo_sprite(output, &[b"\x02\x00\x00\x00"]);
 
+    /* Action14 - Set palette to Default. */
+    write_pseudo_sprite(output, &[b"\x14CINFOBPALS\x01\x00D\x00\x00"]);
     /* Action8 - GRF metadata */
-    write_pseudo_sprite(&mut output, &[b"\x08\x08TRU1", options.generic.name.as_bytes(), b"\x00", options.generic.description.as_bytes(), b"\x00"]);
+    write_pseudo_sprite(output, &[b"\x08\x08TRU1", options.generic.name.as_bytes(), b"\x00", options.generic.description.as_bytes(), b"\x00"]);
 
     for industry in options.industries {
         if !industry.available {
-            write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x08\xff"]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x08\xff"]);
         } else {
             /* Overwrite existing industry. */
-            write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x08", &[industry.id]]);
-            write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x08\xff"]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x08", &[industry.id]]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x08\xff"]);
 
             /* Set the name of the industry. */
-            let string_id = write_store_string(&mut output, &mut string_counter, 0x0a, &industry.name);
-            write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x1f", &string_id.to_le_bytes()]);
+            let string_id = write_store_string(output, &mut string_counter, 0x0a, &industry.name);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x1f", &string_id.to_le_bytes()]);
 
             if !industry.layout.is_empty() {
+                if !industry.tiles.is_empty() {
+                    write_pseudo_sprite(output, &[b"\x01\x09", &(industry.tiles.len() as u8).to_le_bytes(), b"\x01"]);
+                    for tile in &industry.tiles {
+                        write_real_sprite(output, sprites, &tile.sprite);
+                    }
+
+                    write_pseudo_sprite(output, &[b"\x00\x09\x01\x01", &[industry.id as u8], b"\x08\x00"]);
+
+                    let cb_main: u16 = 0xfe;
+                    let failed_set: u16 = 0xfd;
+
+                    /* Number, as invalid return value at the end of the chain. */
+                    write_pseudo_sprite(output, &[b"\x02\x09", &[failed_set as u8], b"\x89\x0c\x00\x00\x00\xff\xff\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00", &failed_set.to_le_bytes()]);
+
+                    for (id, _tile) in industry.tiles.iter().enumerate() {
+                        write_pseudo_sprite(output, &[b"\x02\x09", &[id as u8], b"\x00", b"\xe6\x07\x00\x00", &(id as u8).to_le_bytes(), b"\x00\x00\x80", b"\x00\x00\x10\x10\x20"]);
+                    }
+
+                    let mut industry_layout = Vec::new();
+                    let mut layouts: u8 = 0;
+
+                    for layout in &industry.layout {
+                        let mut tile_layout = Vec::new();
+                        let mut tiles: u8 = 0;
+
+                        for (y, row) in layout.iter().enumerate() {
+                            for (x, tile_id) in row.iter().enumerate() {
+                                if *tile_id == 0xfd || *tile_id < 0xfe0000 {
+                                    continue;
+                                }
+
+                                tiles += 1;
+
+                                let tile_id = *tile_id - 0xfe0000;
+                                /* Jump to tile-id if matches. */
+                                tile_layout.extend((tile_id as u16).to_le_bytes());
+                                /* Match the exact x/y value. */
+                                tile_layout.extend((x as u8).to_le_bytes());
+                                tile_layout.extend((y as u8).to_le_bytes());
+                                tile_layout.extend(b"\x00\x00");
+                                tile_layout.extend((x as u8).to_le_bytes());
+                                tile_layout.extend((y as u8).to_le_bytes());
+                                tile_layout.extend(b"\x00\x00");
+                            }
+                        }
+
+                        /* Create the action2 for the layout and generate the snippet for the main switch. */
+                        write_pseudo_sprite(output, &[b"\x02\x09", &[layouts + 0xf0], b"\x89\x43\x00\xff\xff\x00\x00", &tiles.to_le_bytes(), &tile_layout, &failed_set.to_le_bytes()]);
+                        industry_layout.extend(((layouts + 0xf0) as u16).to_le_bytes());
+                        industry_layout.extend(((layouts + 1) as u32).to_le_bytes());
+                        industry_layout.extend(((layouts + 1) as u32).to_le_bytes());
+                        layouts += 1;
+                    }
+
+                    /* Based on layout, jump to the right action2 chain. */
+                    write_pseudo_sprite(output, &[b"\x02\x09", &[cb_main as u8], b"\x8A\x44\x00\xff\xff\x00\x00", &layouts.to_le_bytes(), &industry_layout, &failed_set.to_le_bytes()]);
+                    /* Activate the action2 chain. */
+                    write_pseudo_sprite(output, &[b"\x03\x09\x01", &[industry.id as u8], b"\x00", &cb_main.to_le_bytes()]);
+                }
+
                 let mut data_layout = Vec::new();
 
                 for layout in &industry.layout {
                     for (y, row) in layout.iter().enumerate() {
-                        for (x, old_tile) in row.iter().enumerate() {
-                            if *old_tile != 0xfd {
-                                data_layout.extend((x as u8).to_le_bytes());
-                                data_layout.extend((y as u8).to_le_bytes());
-                                data_layout.extend(old_tile.to_le_bytes());
+                        for (x, tile_id) in row.iter().enumerate() {
+                            if *tile_id == 0xfd {
+                                continue;
+                            }
+
+                            data_layout.extend((x as u8).to_le_bytes());
+                            data_layout.extend((y as u8).to_le_bytes());
+
+                            if *tile_id < 0xfe0000 {
+                                /* Default tiles. */
+                                data_layout.extend((*tile_id as u8).to_le_bytes());
+                            } else {
+                                /* If we use non-default tiles, we use a single tile-id (with the number of the industry) earlier.
+                                 * This tile-id is an action-chain that based on the location in the layout returns the right sprite. */
+                                data_layout.extend(b"\xfe");
+                                data_layout.extend((industry.id as u16).to_le_bytes());
                             }
                         }
                     }
@@ -175,7 +275,7 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
 
                 let size : u32 = data_layout.len() as u32 + 2;
 
-                write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x0a", &(industry.layout.len() as u8).to_le_bytes(), &size.to_le_bytes(), &data_layout]);
+                write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x0a", &(industry.layout.len() as u8).to_le_bytes(), &size.to_le_bytes(), &data_layout]);
             }
 
             let mut flags: u32 = 0x0;
@@ -188,7 +288,7 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
             };
 
             if flags != 0x00 {
-                write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x1a", &flags.to_le_bytes()]);
+                write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x1a", &flags.to_le_bytes()]);
             }
 
             let mut callback_flags: u8 = 0x0;
@@ -216,25 +316,50 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
                 }
 
                 /* Chain that either outputs a number if it was a graphics callback (which is an error) or a sprite when it is a non-graphics callback (which is also an error). */
-                write_pseudo_sprite(&mut output, &[b"\x02\x0a\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"]);
-                write_pseudo_sprite(&mut output, &[b"\x02\x0a", &[failed_set as u8], b"\x89\x0c\x00\x00\x00\xff\xff\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00", &failed_set.to_le_bytes()]);
+                write_pseudo_sprite(output, &[b"\x02\x0a\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"]);
+                write_pseudo_sprite(output, &[b"\x02\x0a", &[failed_set as u8], b"\x89\x0c\x00\x00\x00\xff\xff\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00", &failed_set.to_le_bytes()]);
 
-                traverse_nodes(cb28, &mut output, output_node, &nodes, &reverse);
+                traverse_nodes(cb28, output, output_node, &nodes, &reverse);
 
-                write_pseudo_sprite(&mut output, &[b"\x02\x0a", &[cb_main as u8], b"\x89\x0c\x00\xff\xff\x00\x00\x01", &cb28.to_le_bytes(), b"\x28\x00\x00\x00\x28\x00\x00\x00", &failed_set.to_le_bytes()]);
+                write_pseudo_sprite(output, &[b"\x02\x0a", &[cb_main as u8], b"\x89\x0c\x00\xff\xff\x00\x00\x01", &cb28.to_le_bytes(), b"\x28\x00\x00\x00\x28\x00\x00\x00", &failed_set.to_le_bytes()]);
 
                 /* Activate the chain. */
-                write_pseudo_sprite(&mut output, &[b"\x03\x0a\x01", &[industry.id], b"\x00", &cb_main.to_le_bytes()]);
+                write_pseudo_sprite(output, &[b"\x03\x0a\x01", &[industry.id], b"\x00", &cb_main.to_le_bytes()]);
             }
 
             if callback_flags != 0x00 {
-                write_pseudo_sprite(&mut output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x21", &[callback_flags]]);
+                write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x21", &[callback_flags]]);
             }
         }
     }
 
-    /* Final sprite marker. */
+    /* End-of-data-section marker. */
     output.extend(b"\x00\x00\x00\x00");
+}
 
-    output
+pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
+    let mut output = Vec::new();
+    let mut sprites = Vec::new();
+
+    write_segments(&mut output, &mut sprites, options);
+
+    let mut grf = Vec::new();
+    /* Write GRF container version 2 header. */
+    grf.extend(b"\x00\x00GRF\x82\r\n\x1a\n");
+    /* Sprite section offset. */
+    grf.extend((output.len() as u32 + 1).to_le_bytes());
+    /* Compression. OpenTTD currently only support no-compression (= 0). */
+    grf.extend(b"\x00");
+
+    /* Add data-section (includes end-of-data-section marker). */
+    grf.extend(output);
+
+    /* Add all sprites to sprite-section. */
+    for sprite in sprites {
+        grf.extend(sprite);
+    }
+    /* End-of-sprite-section marker. */
+    grf.extend(b"\x00\x00\x00\x00");
+
+    grf
 }

@@ -231,6 +231,80 @@ const sprite_id_to_image: {[key: number]: any} = {
         rel_x: -26,
         rel_y: -29,
     },
+
+    // Chemical plant
+    0xfe0000: {
+        filename: "chemical_plant_1.png",
+        offset_x: 150,
+        offset_y: 10,
+        width: 64,
+        height: 114,
+        rel_x: -31,
+        rel_y: -83,
+    },
+    0xfe0001: {
+        filename: "chemical_plant_1.png",
+        offset_x: 220,
+        offset_y: 10,
+        width: 64,
+        height: 114,
+        rel_x: -31,
+        rel_y: -83,
+    },
+    0xfe0002: {
+        filename: "chemical_plant_1.png",
+        offset_x: 290,
+        offset_y: 10,
+        width: 64,
+        height: 114,
+        rel_x: -31,
+        rel_y: -83,
+    },
+    0xfe0003: {
+        filename: "chemical_plant_1.png",
+        offset_x: 360,
+        offset_y: 10,
+        width: 64,
+        height: 114,
+        rel_x: -31,
+        rel_y: -83,
+    },
+    0xfe0004: {
+        filename: "chemical_plant_1.png",
+        offset_x: 430,
+        offset_y: 10,
+        width: 64,
+        height: 114,
+        rel_x: -31,
+        rel_y: -83,
+    },
+    0xfe0005: {
+        filename: "chemical_plant_1.png",
+        offset_x: 500,
+        offset_y: 10,
+        width: 64,
+        height: 66,
+        rel_x: -31,
+        rel_y: -35,
+    },
+    0xfe0006: {
+        filename: "chemical_plant_1.png",
+        offset_x: 570,
+        offset_y: 10,
+        width: 64,
+        height: 66,
+        rel_x: -31,
+        rel_y: -35,
+    },
+    0xfe0007: {
+        filename: "chemical_plant_1.png",
+        offset_x: 710,
+        offset_y: 10,
+        width: 64,
+        height: 66,
+        rel_x: -31,
+        rel_y: -35,
+    },
 }
 
 const old_tile_to_sprite_id: {[key: number] : any} = {
@@ -285,8 +359,13 @@ function Sprite(props: any) {
 
     if (props.tile_id === 0xfd) return (<span className="sprite" />);
 
-    const gfx = old_tile_to_sprite_id[props.tile_id];
-    const sprite = sprite_id_to_image[gfx.building] || sprite_id_to_image[gfx.ground];
+    let sprite: any;
+    if (props.tile_id >= 0xfe0000) {
+        sprite = sprite_id_to_image[props.tile_id];
+    } else {
+        const gfx = old_tile_to_sprite_id[props.tile_id];
+        sprite = sprite_id_to_image[gfx.building] || sprite_id_to_image[gfx.ground];
+    }
 
     const canvas = document.createElement("canvas");
     canvas.width = sprite.width;

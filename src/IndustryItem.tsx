@@ -160,6 +160,18 @@ function IndustryItem({industry, setIndustry}: any) {
                                                             <Dropdown.Item eventKey="0x0a"><Sprite tile_id={0x0a} /></Dropdown.Item>
                                                         </>
                                                     }
+                                                    {industry.id === 2 &&
+                                                        <>
+                                                            <Dropdown.Item eventKey="0xfe0000"><Sprite tile_id={0xfe0000} /></Dropdown.Item>
+                                                            <Dropdown.Item eventKey="0xfe0001"><Sprite tile_id={0xfe0001} /></Dropdown.Item>
+                                                            <Dropdown.Item eventKey="0xfe0002"><Sprite tile_id={0xfe0002} /></Dropdown.Item>
+                                                            <Dropdown.Item eventKey="0xfe0003"><Sprite tile_id={0xfe0003} /></Dropdown.Item>
+                                                            <Dropdown.Item eventKey="0xfe0004"><Sprite tile_id={0xfe0004} /></Dropdown.Item>
+                                                            <Dropdown.Item eventKey="0xfe0005"><Sprite tile_id={0xfe0005} /></Dropdown.Item>
+                                                            <Dropdown.Item eventKey="0xfe0006"><Sprite tile_id={0xfe0006} /></Dropdown.Item>
+                                                            <Dropdown.Item eventKey="0xfe0007"><Sprite tile_id={0xfe0007} /></Dropdown.Item>
+                                                        </>
+                                                    }
                                                 </Dropdown.Menu>
                                             </Dropdown>
                                         ))}
