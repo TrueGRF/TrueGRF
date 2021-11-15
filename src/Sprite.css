@@ -1,3 +1,4 @@
 .sprite {
     display: inline-block;
+    position: relative;
 }
