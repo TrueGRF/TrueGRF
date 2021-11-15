@@ -283,9 +283,9 @@ const old_tile_to_sprite_id: {[key: number] : any} = {
 function Sprite(props: any) {
     const [dataUrl, setDataUrl] = useState("");
 
-    if (props.old_tile_id === 0xfd) return (<span className="sprite" />);
+    if (props.tile_id === 0xfd) return (<span className="sprite" />);
 
-    const gfx = old_tile_to_sprite_id[props.old_tile_id];
+    const gfx = old_tile_to_sprite_id[props.tile_id];
     const sprite = sprite_id_to_image[gfx.building] || sprite_id_to_image[gfx.ground];
 
     const canvas = document.createElement("canvas");
