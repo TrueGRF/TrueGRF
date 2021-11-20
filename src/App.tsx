@@ -21,6 +21,7 @@ const startIndustries = [
         id: 0,
         available: true,
         name: "Coal Mine",
+        description: "Built-in Industry",
         layout: [
             [
                 [ 0x05, 0x06, 0x03 ],
@@ -114,6 +115,7 @@ const startIndustries = [
         id: 1,
         available: true,
         name: "Power Station",
+        description: "Built-in Industry",
         layout: [
             [
                 [ 0x07, 0x07, 0x07, 0x0a ],
@@ -128,6 +130,7 @@ const startIndustries = [
         id: 2,
         available: true,
         name: "Chemical Plant",
+        description: "",
         layout: [
             [
                 [ 0xFE0001, 0xFE0000, 0xFE0002 ],
@@ -210,7 +213,7 @@ const startIndustries = [
                 },
             },
         ],
-    },
+    }
 ]
 
 function Main() {
@@ -278,7 +281,7 @@ function Main() {
                             <Tab.Pane eventKey="industries">
                                 <Row>
                                     <Col sm={3}>
-                                        <IndustryList onChangeIndustry={onChangeIndustry} />
+                                        <IndustryList onChangeIndustry={onChangeIndustry} industries={industries} />
                                     </Col>
                                     <Col>
                                         <IndustryItem industry={industries[industryId]} setIndustry={(e: React.SetStateAction<any>) => setIndustries((prevState) => { let newState = [...prevState]; newState[industryId] = e(prevState[industryId]); return newState } )} />

@@ -1,20 +1,14 @@
 import ListGroup from 'react-bootstrap/ListGroup';
 
-function IndustryList({ onChangeIndustry }: any) {
+function IndustryList({ onChangeIndustry, industries }: any) {
      return (
-        <ListGroup defaultActiveKey="coalmine">
-            <ListGroup.Item variant="light" action eventKey="coalmine" onClick={() => onChangeIndustry(0)}>
-                <h5 className="mb-1">Coal Mine</h5>
-                <small>Built-in Industry</small>
-            </ListGroup.Item>
-            <ListGroup.Item variant="light" action eventKey="powerstation" onClick={() => onChangeIndustry(1)}>
-                <h5 className="mb-1">Power Station</h5>
-                <small>Built-in Industry</small>
-            </ListGroup.Item>
-            <ListGroup.Item variant="light" action eventKey="checmicalplant" onClick={() => onChangeIndustry(2)}>
-                <h5 className="mb-2">Chemical Plant</h5>
-                <small></small>
-            </ListGroup.Item>
+        <ListGroup defaultActiveKey="0">
+            {industries.map((industry: any, industr_id: number) => (
+                <ListGroup.Item variant="light" action eventKey={ industry.id } onClick={() => onChangeIndustry(industry.id)}>
+                    <h5 className="mb-1">{ industry.name }</h5>
+                    <small>{ industry.description }</small>
+                </ListGroup.Item>
+            ))}
         </ListGroup>
     );
 }
