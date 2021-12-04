@@ -51,8 +51,17 @@ struct NewGRFIndustry {
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFCargo {
+    id: u8,
+    available: bool,
+    name: String,
+    label: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct NewGRFOptions {
     generic: NewGRFGeneric,
+    cargoes: Vec<NewGRFCargo>,
     industries: Vec<NewGRFIndustry>,
 }
 
@@ -172,6 +181,19 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
     write_pseudo_sprite(output, &[b"\x14CINFOBPALS\x01\x00D\x00\x00"]);
     /* Action8 - GRF metadata */
     write_pseudo_sprite(output, &[b"\x08\x08TRU1", options.generic.name.as_bytes(), b"\x00", options.generic.description.as_bytes(), b"\x00"]);
+
+    for cargo in options.cargoes {
+        if !cargo.available {
+            write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x08\xff"]);
+            write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x17\x00\x00\x00\x00"]);
+        } else {
+            write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x08", &[cargo.id]]);
+            write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x17", cargo.label.as_bytes()]);
+
+            let string_id = write_store_string(output, &mut string_counter, 0x0b, &cargo.name);
+            write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x09", &string_id.to_le_bytes()]);
+        }
+    }
 
     for industry in options.industries {
         if !industry.available {

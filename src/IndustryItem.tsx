@@ -86,7 +86,7 @@ function IndustryItem({industry, setIndustry}: any) {
                                     size="sm"
                                     id="enabled"
                                     type="radio"
-                                    name="radio"
+                                    name="industry-available"
                                     value="enabled"
                                     checked={industry.available === true}
                                     onChange={() => setValue({available: true})}
@@ -98,7 +98,7 @@ function IndustryItem({industry, setIndustry}: any) {
                                     size="sm"
                                     id="disabled"
                                     type="radio"
-                                    name="radio"
+                                    name="industry-available"
                                     value="disabled"
                                     checked={industry.available === false}
                                     onChange={() => setValue({available: false})}

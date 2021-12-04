@@ -16,6 +16,26 @@ import HeaderWIP from './HeaderWIP';
 import IndustryList from './IndustryList';
 import IndustryItem from './IndustryItem';
 
+import CargoList from './CargoList';
+import CargoItem from './CargoItem';
+
+const startCargoes = [
+    {
+        id: 1,
+        available: true,
+        name: "Coal",
+        label: "COAL",
+        description: "Built-in Cargo",
+    },
+    {
+        id: 32,
+        available: true,
+        name: "Chemicals",
+        label: "RFPR",
+        description: "",
+    },
+]
+
 const startIndustries = [
     {
         id: 0,
@@ -218,7 +238,9 @@ const startIndustries = [
 
 function Main() {
     const [industries, setIndustries] = useState(startIndustries);
+    const [cargoes, setCargoes] = useState(startCargoes);
     const [industryId, setIndustryId] = useState(0);
+    const [cargoId, setCargoId] = useState(0);
 
     const [generic, setGeneric] = useState({
         name: "TrueGRF",
@@ -229,6 +251,9 @@ function Main() {
     function onChangeIndustry(id: number) {
         //setLayoutSelection(0);
         setIndustryId(id);
+    }
+    function onChangeCargo(id: number) {
+        setCargoId(id);
     }
 
     function openGame() {
@@ -253,7 +278,7 @@ function Main() {
                 </Col>
             </Row>
             <Row>
-                <GenerateGRF industries={industries} generic={generic} openGame={openGame} />
+                <GenerateGRF industries={industries} cargoes={cargoes} generic={generic} openGame={openGame} />
             </Row>
             <Tab.Container id="categories" activeKey={tab} onSelect={(eventKey) => setTab(eventKey || "generic") }>
                 <Row>
@@ -266,6 +291,10 @@ function Main() {
                             <ListGroup.Item variant="light" action eventKey="industries">
                                 <h5 className="mb-1">Industries</h5>
                                 <small>Create or modify industries</small>
+                            </ListGroup.Item>
+                            <ListGroup.Item variant="light" action eventKey="cargoes">
+                                <h5 className="mb-1">Cargoes</h5>
+                                <small>Create or modify cargoes</small>
                             </ListGroup.Item>
                             <ListGroup.Item variant="light" action eventKey="test" onClick={onGameClick}>
                                 <h5 className="mb-1">Test</h5>
@@ -285,6 +314,16 @@ function Main() {
                                     </Col>
                                     <Col>
                                         <IndustryItem industry={industries[industryId]} setIndustry={(e: React.SetStateAction<any>) => setIndustries((prevState) => { let newState = [...prevState]; newState[industryId] = e(prevState[industryId]); return newState } )} />
+                                    </Col>
+                                </Row>
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="cargoes">
+                                <Row>
+                                    <Col sm={3}>
+                                        <CargoList onChangeCargo={onChangeCargo} cargoes={cargoes} />
+                                    </Col>
+                                    <Col>
+                                        <CargoItem cargo={cargoes[cargoId]} setCargo={(e: React.SetStateAction<any>) => setCargoes((prevState) => { let newState = [...prevState]; newState[cargoId] = e(prevState[cargoId]); return newState } )} />
                                     </Col>
                                 </Row>
                             </Tab.Pane>
