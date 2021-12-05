@@ -4,7 +4,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 
-function CategoryGeneric(props: any) {
+function Generic(props: any) {
     function ChangeValue(update: any) {
         props.setGeneric((prevState: any) => ({
             ...prevState,
@@ -18,7 +18,6 @@ function CategoryGeneric(props: any) {
                 <ListGroup defaultActiveKey="generic">
                     <ListGroup.Item variant="light" action eventKey="generic">
                         <h5 className="mb-1">Generic</h5>
-                        <small>GRF ID, Description, etc</small>
                     </ListGroup.Item>
                 </ListGroup>
             </Col>
@@ -49,4 +48,4 @@ function CategoryGeneric(props: any) {
     );
 }
 
-export default CategoryGeneric;
+export default Generic;

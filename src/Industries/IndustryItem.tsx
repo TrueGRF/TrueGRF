@@ -8,43 +8,13 @@ import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 
-import Editor from './Editor';
-import Sprite from './Sprite';
+import Editor from '../Editor/Editor';
+import Sprite from '../Sprite';
+
+import DataPlacement from './DataPlacement';
+import DataType from './DataType';
 
 import './IndustryItem.css';
-
-const placementOptions: {[key: string] : any} = {
-    "anywhere": {
-        label: "Anywhere",
-    },
-    "on-water": {
-        label: "On water",
-    },
-    "in-town": {
-        label: "In town",
-    },
-    "in-large-town": {
-        label: "In large town",
-    },
-    "near-town": {
-        label: "Near town",
-    },
-    "custom": {
-        label: "Customize",
-    },
-};
-
-const typeOptions: {[key: string] : any} = {
-    "primary": {
-        label: "Primary",
-    },
-    "secondary": {
-        label: "Secondary",
-    },
-    "tertiary": {
-        label: "Tertiary",
-    },
-};
 
 function IndustryItem({industry, setIndustry}: any) {
     const [layoutSelection, setLayoutSelection] = useState(0);
@@ -169,11 +139,11 @@ function IndustryItem({industry, setIndustry}: any) {
                         <td>
                             <Dropdown onSelect={(e) => setType(e || "primary")} as="span">
                                 <Dropdown.Toggle size="sm">
-                                    {typeOptions[industry.type].label}
+                                    {DataType[industry.type].label}
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu>
-                                    {Object.entries(typeOptions).map((option: any) => (
+                                    {Object.entries(DataType).map((option) => (
                                     <Dropdown.Item key={`type-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
                                     ))}
                                 </Dropdown.Menu>
@@ -337,11 +307,11 @@ function IndustryItem({industry, setIndustry}: any) {
                         <td>
                             <Dropdown onSelect={(e) => setValue({placement: e })} as="span">
                                 <Dropdown.Toggle size="sm">
-                                    {placementOptions[industry.placement].label}
+                                    {DataPlacement[industry.placement].label}
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu>
-                                    {Object.entries(placementOptions).map((option: any) => (
+                                    {Object.entries(DataPlacement).map((option) => (
                                     <Dropdown.Item key={`placement-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
                                     ))}
                                 </Dropdown.Menu>
