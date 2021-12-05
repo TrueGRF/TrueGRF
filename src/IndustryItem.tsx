@@ -34,6 +34,18 @@ const placementOptions: {[key: string] : any} = {
     },
 };
 
+const typeOptions: {[key: string] : any} = {
+    "primary": {
+        label: "Primary",
+    },
+    "secondary": {
+        label: "Secondary",
+    },
+    "tertiary": {
+        label: "Tertiary",
+    },
+};
+
 function IndustryItem({industry, setIndustry}: any) {
     const [layoutSelection, setLayoutSelection] = useState(0);
     const [placementEditorVisible, setPlacementEditorVisible] = useState(false);
@@ -114,6 +126,99 @@ function IndustryItem({industry, setIndustry}: any) {
                             <Form.Control placeholder="Name of the industry" size="sm" value={industry.name} onChange={(e) => setValue({name: e.target.value})} />
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row">
+                            Type
+                        </th>
+                        <td>
+                            <Dropdown onSelect={(e) => setValue({ type: e })} as="span">
+                                <Dropdown.Toggle size="sm">
+                                    {typeOptions[industry.type].label}
+                                </Dropdown.Toggle>
+
+                                <Dropdown.Menu>
+                                    {Object.entries(typeOptions).map((option: any) => (
+                                    <Dropdown.Item key={`type-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </td>
+                    </tr>
+                    {industry.type === "primary" && <tr>
+                        <th scope="row">
+                            Production
+                        </th>
+                        <td>
+                            <Table>
+                                <thead>
+                                    <tr>
+                                        <th>Cargo label</th>
+                                        <th>Multiplier</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(industry.primary).map(([key, value]: any) => (
+                                    <tr key={`primary-${key}`}>
+                                        <th scope="row">{value.cargoLabel}</th>
+                                        <td>
+                                            <Form.Control size="sm" type="number" value={value.multiplier} onChange={(e) => setValue({primary: Object.values({...industry.primary, [key]: { cargoLabel: value.cargoLabel, multiplier: parseInt(e.target.value)}})})} />
+                                        </td>
+                                    </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </td>
+                    </tr>}
+                    {industry.type === "secondary" && <tr>
+                    <th scope="row">
+                            Production<br/> Acceptance<br/> Matrix
+                        </th>
+                        <td>
+                            <Table>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        {Object.entries(industry.secondary.acceptance).map(([id, acceptance]: any) => (
+                                            <th key={`secondary-acceptance-${id}`}>{acceptance.cargoLabel}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(industry.secondary.production).map(([id, production]: any) => (
+                                    <tr key={`secondary-production-${id}`}>
+                                        <th scope="row">{production.cargoLabel}</th>
+                                        {Object.entries(production.multiplier).map(([aid, value]: any) => (
+                                            <td key={`secondary-production-${id}-${aid}`}>
+                                                <Form.Control size="sm" type="number" value={value} onChange={(e) => setValue({secondary: {...industry.secondary, production: Object.values({...industry.secondary.production, [id]: { cargoLabel: production.cargoLabel, multiplier: Object.values({...production.multiplier, [aid]: parseInt(e.target.value)})}})}})} />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </td>
+                    </tr>}
+                    {industry.type === "tertiary" && <tr>
+                        <th scope="row">
+                            Acceptance
+                        </th>
+                        <td>
+                            <Table>
+                                <thead>
+                                    <tr>
+                                        <th>Cargo label</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(industry.tertiary).map(([key, value]: any) => (
+                                    <tr key={`tertiary-${key}`}>
+                                        <th scope="row">{value.cargoLabel}</th>
+                                    </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </td>
+                    </tr>}
                     <tr>
                         <th scope="row">
                             Layout

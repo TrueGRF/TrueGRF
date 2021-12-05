@@ -41,6 +41,7 @@ const startIndustries = [
         id: 0,
         available: true,
         name: "Coal Mine",
+        type: "primary",
         layout: [
             [
                 [ 0x05, 0x06, 0x03 ],
@@ -52,6 +53,12 @@ const startIndustries = [
                 [ 0x04, 0x00, 0x02 ],
                 [ 0x04, 0x02, 0x04 ],
             ],
+        ],
+        primary: [
+            {
+                cargoLabel: "COAL",
+                multiplier: 100,
+            },
         ],
         placement: "custom",
         placementCustom: [
@@ -134,11 +141,17 @@ const startIndustries = [
         id: 1,
         available: true,
         name: "Power Station",
+        type: "tertiary",
         layout: [
             [
                 [ 0x07, 0x07, 0x07, 0x0a ],
                 [ 0x09, 0x08, 0x08, 0x0a ],
             ]
+        ],
+        tertiary: [
+            {
+                cargoLabel: "COAL",
+            },
         ],
         placement: "anywhere",
         placementCustom: [],
@@ -148,6 +161,7 @@ const startIndustries = [
         id: 2,
         available: true,
         name: "Chemical Plant",
+        type: "secondary",
         description: "",
         layout: [
             [
@@ -155,6 +169,19 @@ const startIndustries = [
                 [ 0xFE0003, 0xFE0004, 0xFE0005 ],
             ]
         ],
+        secondary: {
+            acceptance: [
+                {
+                    cargoLabel: "COAL",
+                },
+            ],
+            production: [
+                {
+                    cargoLabel: "RFPR",
+                    multiplier: [ 50 ],
+                },
+            ],
+        },
         placement: "anywhere",
         placementCustom: [],
         tiles: [

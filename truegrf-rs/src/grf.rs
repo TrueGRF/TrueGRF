@@ -14,6 +14,7 @@ struct NewGRFNodeData {
     value: Option<String>,
 }
 
+#[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFNode {
     id: String,
@@ -25,6 +26,7 @@ struct NewGRFNode {
     targetHandle: Option<String>,
 }
 
+#[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFSprite {
     base64Data: String,
@@ -39,12 +41,50 @@ struct NewGRFIndustryTile {
     sprite: NewGRFSprite,
 }
 
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFIndustryPrimary {
+    cargoLabel: String,
+    multiplier: u8,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFIndustrySecondaryAcceptance {
+    cargoLabel: String,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFIndustrySecondaryProduction {
+    cargoLabel: String,
+    multiplier: Vec<u16>,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFIndustrySecondary {
+    acceptance: Vec<NewGRFIndustrySecondaryAcceptance>,
+    production: Vec<NewGRFIndustrySecondaryProduction>,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFIndustryTertiary {
+    cargoLabel: String,
+}
+
+#[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFIndustry {
     id: u8,
     available: bool,
     name: String,
+    r#type: String,
     layout: Vec<Vec<Vec<u32>>>,
+    primary: Option<Vec<NewGRFIndustryPrimary>>,
+    secondary: Option<NewGRFIndustrySecondary>,
+    tertiary: Option<Vec<NewGRFIndustryTertiary>>,
     placement: String,
     placementCustom: Vec<NewGRFNode>,
     tiles: Vec<NewGRFIndustryTile>,
@@ -197,7 +237,16 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
         write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry_id], b"\x08\xff"]);
     }
 
-    for cargo in options.cargoes {
+    /* Create CTT, which is just an iteration of the cargoes. */
+    let mut ctt_output = Vec::new();
+    let mut ctt = HashMap::new();
+    for (cargo_id, cargo) in options.cargoes.iter().enumerate() {
+        ctt_output.extend(cargo.label.as_bytes());
+        ctt.insert(cargo.label.clone(), cargo_id);
+    }
+    write_pseudo_sprite(output, &[b"\x00\x08\x01", &[options.cargoes.len() as u8], b"\x00\x09", &ctt_output]);
+
+    for cargo in &options.cargoes {
         if !cargo.available {
             continue;
         }
@@ -213,7 +262,7 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
         write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x0c", &unit_string_id.to_le_bytes()]);
     }
 
-    for industry in options.industries {
+    for industry in &options.industries {
         if !industry.available {
             continue;
         }
@@ -224,6 +273,66 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
         /* Set the name of the industry. */
         let string_id = write_store_string(output, &mut string_counter, 0x0a, &industry.name);
         write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x1f", &string_id.to_le_bytes()]);
+
+        /* Set the industry type. */
+        let industry_type: u8 = match industry.r#type.as_str() {
+            "tertiary" => 0,
+            "primary" => 2,
+            "secondary" => 3,
+            _ => 0,
+        };
+        write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x0b", &[industry_type]]);
+
+        if industry.primary.is_some() {
+            let primary = industry.primary.as_ref().unwrap();
+
+            let mut primary_production = Vec::new();
+            let mut primary_multiplier = Vec::new();
+            for primary_item in primary {
+                primary_production.extend(ctt[&primary_item.cargoLabel].to_le_bytes());
+                primary_multiplier.extend(primary_item.multiplier.to_le_bytes());
+            }
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x25", &[primary.len() as u8], &primary_production]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x26\x00"]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x27", &[primary.len() as u8], &primary_multiplier]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x28\x00\x00"]);
+        }
+
+        if industry.secondary.is_some() {
+            let secondary = industry.secondary.as_ref().unwrap();
+
+            let mut secondary_acceptance = Vec::new();
+            for acceptance in &secondary.acceptance {
+                secondary_acceptance.extend(ctt[&acceptance.cargoLabel].to_le_bytes());
+            }
+
+            let mut secondary_production = Vec::new();
+            let mut secondary_multiplier = Vec::new();
+            for production in &secondary.production {
+                secondary_production.extend(ctt[&production.cargoLabel].to_le_bytes());
+                for multiplier in &production.multiplier {
+                    secondary_multiplier.extend(multiplier.to_le_bytes());
+                }
+            }
+
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x25", &[secondary.production.len() as u8], &secondary_production]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x26", &[secondary.acceptance.len() as u8], &secondary_acceptance]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x27\x00"]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x28", &[secondary.acceptance.len() as u8], &[secondary.production.len() as u8], &secondary_multiplier]);
+        }
+
+        if industry.tertiary.is_some() {
+            let tertiary = industry.tertiary.as_ref().unwrap();
+
+            let mut tertiary_acceptance = Vec::new();
+            for tertiary_item in tertiary {
+                tertiary_acceptance.extend(ctt[&tertiary_item.cargoLabel].to_le_bytes());
+            }
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x25\x00"]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x26", &[tertiary.len() as u8], &tertiary_acceptance]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x27\x00"]);
+            write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x28\x00\x00"]);
+        };
 
         if !industry.layout.is_empty() {
             if !industry.tiles.is_empty() {

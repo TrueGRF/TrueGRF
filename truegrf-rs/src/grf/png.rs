@@ -138,6 +138,7 @@ pub fn lz77_encode(sprite: &[u8]) -> Vec<u8> {
     encoded
 }
 
+#[allow(dead_code)]
 pub fn lz77_encode_fake(sprite: &[u8]) -> Vec<u8> {
     let input_size = sprite.len() as isize;
 
