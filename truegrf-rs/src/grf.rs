@@ -55,6 +55,7 @@ struct NewGRFCargo {
     id: u8,
     available: bool,
     name: String,
+    unit: String,
     label: String,
 }
 
@@ -104,7 +105,10 @@ fn write_real_sprite(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, sprite: &
 }
 
 fn write_store_string(output: &mut Vec<u8>, string_counter: &mut u16, feature: u8, string: &str) -> u16 {
-    write_pseudo_sprite(output, &[b"\x04", &[feature], b"\xff\x01", &string_counter.to_le_bytes(), string.as_bytes(), b"\x00"]);
+    let mut parsed_string = string.to_string();
+    parsed_string = parsed_string.replace("{SIGNED_WORD}", "\x7c");
+
+    write_pseudo_sprite(output, &[b"\x04", &[feature], b"\xff\x01", &string_counter.to_le_bytes(), parsed_string.as_bytes(), b"\x00"]);
     *string_counter += 1;
     *string_counter - 1
 }
@@ -201,8 +205,12 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
         write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x08", &[cargo.id]]);
         write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x17", cargo.label.as_bytes()]);
 
-        let string_id = write_store_string(output, &mut string_counter, 0x0b, &cargo.name);
-        write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x09", &string_id.to_le_bytes()]);
+        let name_string_id = write_store_string(output, &mut string_counter, 0x0b, &cargo.name);
+        write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x09", &name_string_id.to_le_bytes()]);
+
+        let unit_string_id = write_store_string(output, &mut string_counter, 0x0b, &cargo.unit);
+        write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x0b", &unit_string_id.to_le_bytes()]);
+        write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x0c", &unit_string_id.to_le_bytes()]);
     }
 
     for industry in options.industries {

@@ -60,6 +60,12 @@ function CargoItem({cargo, setCargo}: any) {
                         </td>
                     </tr>
                     <tr>
+                        <th scope="row">Unit</th>
+                        <td>
+                            <Form.Control placeholder="Unit of the cargo" size="sm" value={cargo.unit} onChange={(e) => setValue({unit: e.target.value})} />
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Label</th>
                         <td>
                             <Form.Control placeholder="Label of the cargo" size="sm" value={cargo.label} onChange={(e) => setValue({label: e.target.value})} />

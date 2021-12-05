@@ -25,12 +25,14 @@ const startCargoes = [
         available: true,
         name: "Coal",
         label: "COAL",
+        unit: "{SIGNED_WORD} of coal",
     },
     {
         id: 32,
         available: true,
         name: "Chemicals",
         label: "RFPR",
+        unit: "{SIGNED_WORD} of chemicals",
     },
 ]
 
