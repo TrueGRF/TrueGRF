@@ -26,6 +26,7 @@ const startCargoes = [
         name: "Passengers",
         label: "PASS",
         unit: "{SIGNED_WORD} of passengers",
+        classes: 0x01,
     },
     {
         id: 2,
@@ -33,6 +34,7 @@ const startCargoes = [
         name: "Mail",
         label: "MAIL",
         unit: "{SIGNED_WORD} of mail",
+        classes: 0x02,
     },
     {
         id: 5,
@@ -40,6 +42,7 @@ const startCargoes = [
         name: "Goods",
         label: "GOOD",
         unit: "{SIGNED_WORD} of goods",
+        classes: 0x04,
     },
     {
         id: 12,
@@ -71,6 +74,7 @@ const startCargoes = [
         name: "Coal",
         label: "COAL",
         unit: "{SIGNED_WORD} of coal",
+        classes: 0x10,
     },
     {
         id: 33,
@@ -78,6 +82,7 @@ const startCargoes = [
         name: "Chemicals",
         label: "RFPR",
         unit: "{SIGNED_WORD} of chemicals",
+        classes: 0x40,
     },
 ]
 

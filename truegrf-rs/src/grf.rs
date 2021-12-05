@@ -97,6 +97,7 @@ struct NewGRFCargo {
     name: String,
     unit: String,
     label: String,
+    classes: u16,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -252,6 +253,7 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
         }
 
         write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x08", &[cargo.id]]);
+        write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x16", &cargo.classes.to_le_bytes()]);
         write_pseudo_sprite(output, &[b"\x00\x0b\x01\x01", &[cargo.id], b"\x17", cargo.label.as_bytes()]);
 
         let name_string_id = write_store_string(output, &mut string_counter, 0x0b, &cargo.name);
