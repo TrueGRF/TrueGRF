@@ -59,6 +59,42 @@ function IndustryItem({industry, setIndustry}: any) {
         });
     }
 
+    function setType(type: string) {
+        setIndustry((prevState: any) => {
+            delete prevState[prevState.type];
+
+            let update = {}
+            switch (type) {
+                case "primary":
+                    update = {
+                        type: type,
+                        primary: [],
+                    };
+                    break;
+                case "secondary":
+                    update = {
+                        type: type,
+                        secondary: {
+                            acceptance: [],
+                            production: [],
+                        },
+                    };
+                    break;
+                case "tertiary":
+                    update = {
+                        type: type,
+                        tertiary: [],
+                    };
+                    break;
+            }
+
+            return {
+                ...prevState,
+                ...update,
+            }
+        });
+    }
+
     function setLayout(layout_id: number, row: number, col: number, value: any) {
         setIndustry((prevState: any) => {
             let layout = prevState.layout;
@@ -131,7 +167,7 @@ function IndustryItem({industry, setIndustry}: any) {
                             Type
                         </th>
                         <td>
-                            <Dropdown onSelect={(e) => setValue({ type: e })} as="span">
+                            <Dropdown onSelect={(e) => setType(e || "primary")} as="span">
                                 <Dropdown.Toggle size="sm">
                                     {typeOptions[industry.type].label}
                                 </Dropdown.Toggle>
