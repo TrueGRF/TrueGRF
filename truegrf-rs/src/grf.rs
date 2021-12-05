@@ -341,7 +341,10 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
                     write_real_sprite(output, sprites, &tile.sprite);
                 }
 
+                /* Base tile on the first coalmine tile. */
                 write_pseudo_sprite(output, &[b"\x00\x09\x01\x01", &[industry.id as u8], b"\x08\x00"]);
+                /* Ensure all tiles accept all cargo the industry does. */
+                write_pseudo_sprite(output, &[b"\x00\x09\x01\x01", &[industry.id as u8], b"\x12\x02"]);
 
                 let cb_main: u16 = 0xfe;
                 let failed_set: u16 = 0xfd;
