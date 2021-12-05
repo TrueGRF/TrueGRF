@@ -6,7 +6,6 @@ function CargoList({ onChangeCargo, cargoes }: any) {
             {cargoes.map((cargo: any, cargo_id: number) => (
                 <ListGroup.Item variant="light" action eventKey={ cargo_id } key={`cargo-${cargo.id}`} onClick={() => onChangeCargo(cargo_id)}>
                     <h5 className="mb-1">{ cargo.name }</h5>
-                    <small>{ cargo.description }</small>
                 </ListGroup.Item>
             ))}
         </ListGroup>

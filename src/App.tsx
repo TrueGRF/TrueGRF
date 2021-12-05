@@ -25,14 +25,12 @@ const startCargoes = [
         available: true,
         name: "Coal",
         label: "COAL",
-        description: "Built-in Cargo",
     },
     {
         id: 32,
         available: true,
         name: "Chemicals",
         label: "RFPR",
-        description: "",
     },
 ]
 
