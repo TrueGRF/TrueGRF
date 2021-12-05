@@ -3,6 +3,8 @@ import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 
+const disabledCargoes = [0, 2, 5, 12, 20, 26];
+
 function CargoItem({cargo, setCargo}: any) {
     function setValue(update: any) {
         setCargo((prevState: any) => {
@@ -47,6 +49,7 @@ function CargoItem({cargo, setCargo}: any) {
                                     value="disabled"
                                     checked={cargo.available === false}
                                     onChange={() => setValue({available: false})}
+                                    disabled={disabledCargoes.includes(cargo.id)}
                                     >
                                         Disabled
                                 </ToggleButton>
@@ -68,7 +71,7 @@ function CargoItem({cargo, setCargo}: any) {
                     <tr>
                         <th scope="row">Label</th>
                         <td>
-                            <Form.Control placeholder="Label of the cargo" size="sm" value={cargo.label} onChange={(e) => setValue({label: e.target.value})} />
+                            <Form.Control disabled={disabledCargoes.includes(cargo.id)} placeholder="Label of the cargo" size="sm" value={cargo.label} onChange={(e) => setValue({label: e.target.value})} />
                         </td>
                     </tr>
                 </tbody>
