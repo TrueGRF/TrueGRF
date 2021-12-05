@@ -280,7 +280,7 @@ fn write_segments(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, options: New
         let industry_type: u8 = match industry.r#type.as_str() {
             "tertiary" => 0,
             "primary" => 2,
-            "secondary" => 3,
+            "secondary" => 4,
             _ => 0,
         };
         write_pseudo_sprite(output, &[b"\x00\x0a\x01\x01", &[industry.id], b"\x0b", &[industry_type]]);
