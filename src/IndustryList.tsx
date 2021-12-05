@@ -6,7 +6,6 @@ function IndustryList({ onChangeIndustry, industries }: any) {
             {industries.map((industry: any, industry_id: number) => (
                 <ListGroup.Item variant="light" action eventKey={ industry_id } key={`industry-${industry.id}`} onClick={() => onChangeIndustry(industry_id)}>
                     <h5 className="mb-1">{ industry.name }</h5>
-                    <small>{ industry.description }</small>
                 </ListGroup.Item>
             ))}
         </ListGroup>

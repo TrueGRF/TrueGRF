@@ -39,7 +39,6 @@ const startIndustries = [
         id: 0,
         available: true,
         name: "Coal Mine",
-        description: "Built-in Industry",
         layout: [
             [
                 [ 0x05, 0x06, 0x03 ],
@@ -133,7 +132,6 @@ const startIndustries = [
         id: 1,
         available: true,
         name: "Power Station",
-        description: "Built-in Industry",
         layout: [
             [
                 [ 0x07, 0x07, 0x07, 0x0a ],
