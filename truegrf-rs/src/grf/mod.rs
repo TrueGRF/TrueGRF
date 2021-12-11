@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 mod actions;
 
-use actions::{Action0, Action1, Action8, ActionTrait};
+use actions::{Action0, Action1, Action8, Action14, ActionTrait};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFGeneric {
@@ -196,8 +196,8 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
     /* TODO -- Amount of sprites in the file; ignored by OpenTTD. */
     write_pseudo_sprite(&mut output.buffer, &[b"\x02\x00\x00\x00"]);
 
-    /* Action14 - Set palette to Default. */
-    write_pseudo_sprite(&mut output.buffer, &[b"\x14CINFOBPALS\x01\x00D\x00\x00"]);
+    Action14::Url { url: &"https://truebrain.github.io/TrueGRF/".to_string() }.write(output);
+    Action14::Palette { palette: 'D' }.write(output);
     Action8::General { grfid: &"TRU1".to_string(), name: &options.generic.name, description: &options.generic.description }.write(output);
 
     /* Disable all default cargoes. */

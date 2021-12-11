@@ -1,9 +1,12 @@
 pub mod action0;
-pub use action0 as Action0;
 mod action1;
-pub use action1::Action1;
 mod action8;
+mod action14;
+
+pub use action0 as Action0;
+pub use action1::Action1;
 pub use action8::Action8;
+pub use action14::Action14;
 
 use super::Output;
 
@@ -31,6 +34,18 @@ pub enum Action {
     Action6,
     Action7,
     Action8,
+    Action9,
+    ActionA,
+    ActionB,
+    ActionC,
+    ActionD,
+    ActionE,
+    ActionF,
+    Action10,
+    Action11,
+    Action12,
+    Action13,
+    Action14,
 }
 
 #[allow(dead_code)]
