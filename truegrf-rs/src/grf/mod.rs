@@ -3,9 +3,7 @@ use std::collections::HashMap;
 
 mod actions;
 
-use actions::Action0;
-use actions::Action1;
-use actions::ActionTrait;
+use actions::{Action0, Action1, Action8, ActionTrait};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFGeneric {
@@ -200,8 +198,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
     /* Action14 - Set palette to Default. */
     write_pseudo_sprite(&mut output.buffer, &[b"\x14CINFOBPALS\x01\x00D\x00\x00"]);
-    /* Action8 - GRF metadata */
-    write_pseudo_sprite(&mut output.buffer, &[b"\x08\x08TRU1", options.generic.name.as_bytes(), b"\x00", options.generic.description.as_bytes(), b"\x00"]);
+    Action8::General { grfid: &"TRU1".to_string(), name: &options.generic.name, description: &options.generic.description }.write(output);
 
     /* Disable all default cargoes. */
     for cargo_id in 0..=11 {

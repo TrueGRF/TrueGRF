@@ -11,9 +11,11 @@ fn write_sprite(output: &mut Output, sprite: &NewGRFSprite) {
     let sprite_num = output.sprites.len() as u32 + 1;
 
     /* Write a reference to the sprite segment. */
-    output.buffer.extend(&4_u32.to_le_bytes());
-    output.buffer.extend(&[0xfd]);
-    output.buffer.extend(sprite_num.to_le_bytes());
+    output.buffer.extend(vec_list!(
+        &4_u32.to_le_bytes(),
+        [0xfd],
+        sprite_num.to_le_bytes()
+    ));
 
     let data = &png::lz77_encode(&png::convert_png_to_palette(&sprite.base64Data));
 
