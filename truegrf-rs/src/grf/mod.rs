@@ -209,7 +209,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
     }
 
     /* Disable all default industries. */
-    for industry_id in 0..36 {
+    for industry_id in 0..=36 {
         Action0::Industry::Disable { id: industry_id }.write(output);
     }
 
