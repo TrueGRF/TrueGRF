@@ -1,6 +1,5 @@
 use super::write_special as write_special_action0;
-use super::super::{ActionTrait, Feature, Output };
-use super::super::vec_list;
+use super::super::{ActionTrait, Feature, Output, vec_list };
 
 pub enum GlobalSettings<'a> {
                                                                                // 08 (unused)

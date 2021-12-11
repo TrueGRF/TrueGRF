@@ -1,8 +1,7 @@
 use bitflags::bitflags;
 
 use super::write as write_action0;
-use super::super::{ActionTrait, Feature, Output, write_string};
-use super::super::vec_list;
+use super::super::{ActionTrait, Feature, Output, vec_list, write_string};
 
 bitflags! {
     pub struct Flags : u32 {

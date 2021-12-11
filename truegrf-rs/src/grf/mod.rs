@@ -2,9 +2,9 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
 mod actions;
-mod png;
 
-use actions::action0;
+use actions::Action0;
+use actions::Action1;
 use actions::ActionTrait;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -32,7 +32,7 @@ struct NewGRFNode {
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFSprite {
+pub struct NewGRFSprite {
     base64Data: String,
     width: u16,
     height: u16,
@@ -116,6 +116,7 @@ pub struct NewGRFOptions {
 pub struct Output {
     buffer: Vec<u8>,
     string_counter: u16,
+    sprites: Vec<Vec<u8>>,
 }
 
 pub fn write_pseudo_sprite(output: &mut Vec<u8>, data: &[&[u8]]) {
@@ -129,30 +130,6 @@ pub fn write_pseudo_sprite(output: &mut Vec<u8>, data: &[&[u8]]) {
     for d in data {
         output.extend(*d);
     }
-}
-
-fn write_real_sprite(output: &mut Vec<u8>, sprites: &mut Vec<Vec<u8>>, sprite: &NewGRFSprite) {
-    let sprite_num = sprites.len() as u32 + 1;
-
-    /* Write a reference to the sprite segment. */
-    output.extend(&(4 as u32).to_le_bytes());
-    output.extend(&[0xfd]);
-    output.extend(sprite_num.to_le_bytes());
-
-    let data = &png::lz77_encode(&png::convert_png_to_palette(&sprite.base64Data));
-
-    let len = data.len();
-    let mut sprite_data = Vec::new();
-
-    /* Header of the realsprite. */
-    let header: &[&[u8]] = &[&sprite_num.to_le_bytes(), &(len as u32 + 10).to_le_bytes(), b"\x04\x00", &sprite.height.to_le_bytes(), &sprite.width.to_le_bytes(), &sprite.left.to_le_bytes(), &sprite.top.to_le_bytes()];
-    for d in header {
-        sprite_data.extend(*d);
-    }
-
-    sprite_data.extend(data);
-
-    sprites.push(sprite_data);
 }
 
 fn traverse_nodes(cb: u16, output: &mut Vec<u8>, current_node: &NewGRFNode, nodes: &HashMap<String, &NewGRFNode>, reverse: &HashMap<(String, String), String>) {
@@ -217,7 +194,7 @@ fn traverse_nodes(cb: u16, output: &mut Vec<u8>, current_node: &NewGRFNode, node
     }
 }
 
-fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewGRFOptions) {
+fn write_segments(output: &mut Output, options: NewGRFOptions) {
     /* TODO -- Amount of sprites in the file; ignored by OpenTTD. */
     write_pseudo_sprite(&mut output.buffer, &[b"\x02\x00\x00\x00"]);
 
@@ -228,12 +205,12 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
 
     /* Disable all default cargoes. */
     for cargo_id in 0..=11 {
-        action0::Cargo::Disable { id: cargo_id }.write(output);
+        Action0::Cargo::Disable { id: cargo_id }.write(output);
     }
 
     /* Disable all default industries. */
     for industry_id in 0..36 {
-        action0::Industry::Disable { id: industry_id }.write(output);
+        Action0::Industry::Disable { id: industry_id }.write(output);
     }
 
     /* Create CTT, which is just an iteration of the cargoes. */
@@ -243,19 +220,19 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
         ctt_keys.push(&cargo.label);
         ctt.insert(cargo.label.clone(), cargo_id as u8);
     }
-    action0::GlobalSettings::CargoTranslationTable { ctt: &ctt_keys }.write(output);
+    Action0::GlobalSettings::CargoTranslationTable { ctt: &ctt_keys }.write(output);
 
     for cargo in &options.cargoes {
         if !cargo.available {
             continue;
         }
 
-        action0::Cargo::Enable { id: cargo.id }.write(output);
-        action0::Cargo::Classes { id: cargo.id, classes: cargo.classes }.write(output);
-        action0::Cargo::Label { id: cargo.id, label: &cargo.label }.write(output);
-        action0::Cargo::Name { id: cargo.id, name: &cargo.name }.write(output);
-        action0::Cargo::UnitName { id: cargo.id, name: &cargo.unitName }.write(output);
-        action0::Cargo::LongName { id: cargo.id, name: &cargo.longName }.write(output);
+        Action0::Cargo::Enable { id: cargo.id }.write(output);
+        Action0::Cargo::Classes { id: cargo.id, classes: cargo.classes }.write(output);
+        Action0::Cargo::Label { id: cargo.id, label: &cargo.label }.write(output);
+        Action0::Cargo::Name { id: cargo.id, name: &cargo.name }.write(output);
+        Action0::Cargo::UnitName { id: cargo.id, name: &cargo.unitName }.write(output);
+        Action0::Cargo::LongName { id: cargo.id, name: &cargo.longName }.write(output);
     }
 
     for industry in &options.industries {
@@ -263,8 +240,8 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
             continue;
         }
 
-        action0::Industry::Enable { id: industry.id }.write(output);
-        action0::Industry::Name { id: industry.id, name: &industry.name }.write(output);
+        Action0::Industry::Enable { id: industry.id }.write(output);
+        Action0::Industry::Name { id: industry.id, name: &industry.name }.write(output);
 
         /* Set the industry type. */
         let industry_type: u8 = match industry.r#type.as_str() {
@@ -273,7 +250,7 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
             "secondary" => 4,
             _ => 0,
         };
-        action0::Industry::Type { id: industry.id, r#type: industry_type }.write(output);
+        Action0::Industry::Type { id: industry.id, r#type: industry_type }.write(output);
 
         if industry.primary.is_some() {
             let primary = industry.primary.as_ref().unwrap();
@@ -285,8 +262,8 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
                 primary_multiplier.push(primary_item.multiplier);
             }
 
-            action0::Industry::Production { id: industry.id, production: &primary_production, multiplier: &primary_multiplier }.write(output);
-            action0::Industry::Acceptance { id: industry.id, acceptance: &vec![], multiplier: &vec![] }.write(output);
+            Action0::Industry::Production { id: industry.id, production: &primary_production, multiplier: &primary_multiplier }.write(output);
+            Action0::Industry::Acceptance { id: industry.id, acceptance: &vec![], multiplier: &vec![] }.write(output);
         }
 
         if industry.secondary.is_some() {
@@ -306,8 +283,8 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
                 }
             }
 
-            action0::Industry::Production { id: industry.id, production: &secondary_production, multiplier: &vec![] }.write(output);
-            action0::Industry::Acceptance { id: industry.id, acceptance: &secondary_acceptance, multiplier: &secondary_multiplier }.write(output);
+            Action0::Industry::Production { id: industry.id, production: &secondary_production, multiplier: &vec![] }.write(output);
+            Action0::Industry::Acceptance { id: industry.id, acceptance: &secondary_acceptance, multiplier: &secondary_multiplier }.write(output);
         }
 
         if industry.tertiary.is_some() {
@@ -318,19 +295,20 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
                 tertiary_acceptance.push(ctt[&tertiary_item.cargoLabel]);
             }
 
-            action0::Industry::Production { id: industry.id, production: &vec![], multiplier: &vec![] }.write(output);
-            action0::Industry::Acceptance { id: industry.id, acceptance: &tertiary_acceptance, multiplier: &vec![] }.write(output);
+            Action0::Industry::Production { id: industry.id, production: &vec![], multiplier: &vec![] }.write(output);
+            Action0::Industry::Acceptance { id: industry.id, acceptance: &tertiary_acceptance, multiplier: &vec![] }.write(output);
         };
 
         if !industry.layout.is_empty() {
             if !industry.tiles.is_empty() {
-                write_pseudo_sprite(&mut output.buffer, &[b"\x01\x09", &(industry.tiles.len() as u8).to_le_bytes(), b"\x01"]);
+                let mut sprites = Vec::new();
                 for tile in &industry.tiles {
-                    write_real_sprite(&mut output.buffer, sprites, &tile.sprite);
+                    sprites.push(&tile.sprite);
                 }
+                Action1::IndustryTiles { sprites: &sprites }.write(output);
 
-                action0::IndustryTiles::Enable { id: industry.id }.write(output);
-                action0::IndustryTiles::Flags { id: industry.id, flags: action0::IndustryTilesFlags::INDUSTRY_ACCEPTANCE }.write(output);
+                Action0::IndustryTiles::Enable { id: industry.id }.write(output);
+                Action0::IndustryTiles::Flags { id: industry.id, flags: Action0::IndustryTilesFlags::INDUSTRY_ACCEPTANCE }.write(output);
 
                 let cb_main: u16 = 0xfe;
                 let failed_set: u16 = 0xfd;
@@ -414,26 +392,26 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
                 layouts.push(data_layout);
             }
 
-            action0::Industry::Layout { id: industry.id, layouts: &layouts }.write(output);
+            Action0::Industry::Layout { id: industry.id, layouts: &layouts }.write(output);
         }
 
-        let mut flags = action0::IndustryFlags::empty();
+        let mut flags = Action0::IndustryFlags::empty();
         match industry.placement.as_str() {
-            "on-water" => flags |= action0::IndustryFlags::ON_WATER,
-            "in-town" => flags |= action0::IndustryFlags::IN_TOWN,
-            "in-large-town" => flags |= action0::IndustryFlags::IN_LARGE_TOWN,
-            "near-town" => flags |= action0::IndustryFlags::NEAR_TOWN,
+            "on-water" => flags |= Action0::IndustryFlags::ON_WATER,
+            "in-town" => flags |= Action0::IndustryFlags::IN_TOWN,
+            "in-large-town" => flags |= Action0::IndustryFlags::IN_LARGE_TOWN,
+            "near-town" => flags |= Action0::IndustryFlags::NEAR_TOWN,
             _ => {},
         };
 
         if !flags.is_empty() {
-            action0::Industry::Flags { id: industry.id, flags }.write(output);
+            Action0::Industry::Flags { id: industry.id, flags }.write(output);
         }
 
-        let mut callback_flags = action0::IndustryCallbackFlags::empty();
+        let mut callback_flags = Action0::IndustryCallbackFlags::empty();
 
         if industry.placement.as_str() == "custom" {
-            callback_flags |= action0::IndustryCallbackFlags::CUSTOM_PLACEMENT;
+            callback_flags |= Action0::IndustryCallbackFlags::CUSTOM_PLACEMENT;
 
             let cb_main: u16 = 1;
             let failed_set: u16 = 2;
@@ -467,7 +445,7 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
         }
 
         if !callback_flags.is_empty() {
-            action0::Industry::CallbackFlags { id: industry.id, flags: callback_flags }.write(output);
+            Action0::Industry::CallbackFlags { id: industry.id, flags: callback_flags }.write(output);
         }
     }
 
@@ -476,10 +454,9 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
 }
 
 pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
-    let mut output = Output { buffer: Vec::new(), string_counter: 0xdc00 };
-    let mut sprites = Vec::new();
+    let mut output = Output { buffer: Vec::new(), string_counter: 0xdc00, sprites: Vec::new() };
 
-    write_segments(&mut output, &mut sprites, options);
+    write_segments(&mut output, options);
 
     let mut grf = Vec::new();
     /* Write GRF container version 2 header. */
@@ -493,7 +470,7 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
     grf.extend(output.buffer);
 
     /* Add all sprites to sprite-section. */
-    for sprite in sprites {
+    for sprite in output.sprites {
         grf.extend(sprite);
     }
     /* End-of-sprite-section marker. */

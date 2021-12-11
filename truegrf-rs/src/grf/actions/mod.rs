@@ -1,4 +1,7 @@
 pub mod action0;
+pub use action0 as Action0;
+mod action1;
+pub use action1::Action1;
 
 use super::Output;
 
@@ -52,10 +55,9 @@ pub trait ActionTrait {
 }
 
 pub fn write(output: &mut Output, action: Action, feature: Feature, data: &[u8]) {
-    let len = 2 + data.len();
-
-    output.buffer.extend(len.to_le_bytes());
-    output.buffer.extend(&[0xff, action as u8, feature as u8]);
+    output.buffer.extend((2 + data.len() as u32).to_le_bytes());
+    output.buffer.extend(&[0xff]);
+    output.buffer.extend(&[action as u8, feature as u8]);
     output.buffer.extend(data);
 }
 
