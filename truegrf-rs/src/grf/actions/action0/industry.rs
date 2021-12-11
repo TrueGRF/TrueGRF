@@ -20,8 +20,8 @@ bitflags! {
 }
 
 pub enum Industry<'a> {
-    Disable { id: u8 },                                                        // 08 (shared with Disable)
-    Substitute { id: u8, substitute: u8 },                                     // 08 (shared with Substitute)
+    Disable { id: u8 },                                                        // 08 (shared with Enable)
+    Enable { id: u8 },                                                         // 08 (shared with Disable)
                                                                                // 09 (unused)
     Layout { id: u8, layouts: &'a Vec<Vec<u8>> },                              // 0a
     Type { id: u8, r#type: u8 },                                               // 0b
@@ -54,9 +54,10 @@ impl<'a> ActionTrait for Industry<'a> {
                     vec_list!([0x08], [0xff]),
                 ])
             }
-            Industry::Substitute { id, substitute } => {
+            Industry::Enable { id } => {
+                /* 'Enable' creates an industry based n the built-in Coal Mine. */
                 (*id, vec![
-                    vec_list!([0x08], [substitute]),
+                    vec_list!([0x08], [0x00]),
                 ])
             }
             Industry::Layout { id, layouts } => {

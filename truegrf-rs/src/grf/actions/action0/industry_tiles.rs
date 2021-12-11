@@ -12,7 +12,7 @@ bitflags! {
 }
 
 pub enum IndustryTiles {
-    Substitute { id: u8, substitute: u8 },                                     // 08
+    Enable { id: u8 },                                                         // 08
                                                                                // 09 (unused)
                                                                                // 0a, 0b, 0c (depracated by INDUSTRY_ACCEPTANCE)
                                                                                // 0d (TODO)
@@ -27,9 +27,10 @@ pub enum IndustryTiles {
 impl ActionTrait for IndustryTiles {
     fn write(&self, output: &mut Output) {
         let (id, properties) = match self {
-            IndustryTiles::Substitute { id, substitute } => {
+            IndustryTiles::Enable { id } => {
+                /* 'Enable' creates a tile based n the built-in first Coal Mine tile. */
                 (*id, vec![
-                    vec_list!([0x08], [substitute]),
+                    vec_list!([0x08], [0x00]),
                 ])
             }
             IndustryTiles::Flags { id, flags } => {

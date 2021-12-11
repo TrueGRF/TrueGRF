@@ -4,8 +4,8 @@ use super::super::vec_list;
 
 #[allow(clippy::enum_variant_names)]
 pub enum Cargo<'a> {
-    Enable { id: u8 },                                                         // 08 (shared with Disable)
     Disable {id: u8 },                                                         // 08 (shared with Enable)
+    Enable { id: u8 },                                                         // 08 (shared with Disable)
     Name { id: u8, name: &'a str },                                            // 09, 0a
                                                                                // 0b (deprecated by 1b)
                                                                                // 0c (deprecated by 1c)
@@ -26,15 +26,15 @@ pub enum Cargo<'a> {
 impl<'a> ActionTrait for Cargo<'a> {
     fn write(&self, output: &mut Output) {
         let (id, properties) = match self {
-            Cargo::Enable { id } => {
-                (*id, vec![
-                    vec_list!([0x08], [*id]),
-                ])
-            }
             Cargo::Disable { id } => {
                 (*id, vec![
                     vec_list!([0x08], [0xff]),
                     vec_list!([0x17], [0x00, 0x00, 0x00, 0x00]),
+                ])
+            }
+            Cargo::Enable { id } => {
+                (*id, vec![
+                    vec_list!([0x08], [*id]),
                 ])
             }
             Cargo::Name { id, name} => {
@@ -46,7 +46,7 @@ impl<'a> ActionTrait for Cargo<'a> {
                 ])
             }
             Cargo::Classes { id, classes } => {
-                // If the class is passengers (0x1) or mail (0x2), it is not freight (0); otherwise, it is freight (1).
+                /* If the class is passengers (0x1) or mail (0x2), it is not freight (0); otherwise, it is freight (1). */
                 let is_freight = if classes & 0x0003 != 0 { 0 } else { 1 };
 
                 (*id, vec![

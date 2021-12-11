@@ -237,13 +237,13 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
     }
 
     /* Create CTT, which is just an iteration of the cargoes. */
-    let mut ctt_output = Vec::new();
+    let mut ctt_keys = Vec::new();
     let mut ctt = HashMap::new();
     for (cargo_id, cargo) in options.cargoes.iter().enumerate() {
-        ctt_output.extend(cargo.label.as_bytes());
+        ctt_keys.push(&cargo.label);
         ctt.insert(cargo.label.clone(), cargo_id as u8);
     }
-    write_pseudo_sprite(&mut output.buffer, &[b"\x00\x08\x01", &[options.cargoes.len() as u8], b"\x00\x09", &ctt_output]);
+    action0::GlobalSettings::CargoTranslationTable { ctt: &ctt_keys }.write(output);
 
     for cargo in &options.cargoes {
         if !cargo.available {
@@ -263,8 +263,7 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
             continue;
         }
 
-        /* Base the industry on a coal mine. */
-        action0::Industry::Substitute { id: industry.id, substitute: 0 }.write(output);
+        action0::Industry::Enable { id: industry.id }.write(output);
         action0::Industry::Name { id: industry.id, name: &industry.name }.write(output);
 
         /* Set the industry type. */
@@ -330,8 +329,7 @@ fn write_segments(output: &mut Output, sprites: &mut Vec<Vec<u8>>, options: NewG
                     write_real_sprite(&mut output.buffer, sprites, &tile.sprite);
                 }
 
-                /* Base tile on the first coalmine tile. */
-                action0::IndustryTiles::Substitute { id: industry.id, substitute: 0 }.write(output);
+                action0::IndustryTiles::Enable { id: industry.id }.write(output);
                 action0::IndustryTiles::Flags { id: industry.id, flags: action0::IndustryTilesFlags::INDUSTRY_ACCEPTANCE }.write(output);
 
                 let cb_main: u16 = 0xfe;
