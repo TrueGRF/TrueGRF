@@ -5,7 +5,8 @@ export const startCargoes = [
         available: true,
         name: "Passengers",
         label: "PASS",
-        unit: "{SIGNED_WORD} of passengers",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of passengers",
         classes: 0x01,
     },
     {
@@ -13,7 +14,8 @@ export const startCargoes = [
         available: true,
         name: "Mail",
         label: "MAIL",
-        unit: "{SIGNED_WORD} of mail",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of mail",
         classes: 0x02,
     },
     {
@@ -21,7 +23,8 @@ export const startCargoes = [
         available: true,
         name: "Goods",
         label: "GOOD",
-        unit: "{SIGNED_WORD} of goods",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of goods",
         classes: 0x04,
     },
     {
@@ -29,7 +32,8 @@ export const startCargoes = [
         available: true,
         name: "Food",
         label: "FOOD",
-        unit: "{SIGNED_WORD} of food",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of food",
         classes: 0x04 | 0x80,
     },
     {
@@ -37,7 +41,8 @@ export const startCargoes = [
         available: true,
         name: "Sweets",
         label: "SWET",
-        unit: "{SIGNED_WORD} of sweets",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of sweets",
         classes: 0x04,
     },
     {
@@ -45,7 +50,8 @@ export const startCargoes = [
         available: true,
         name: "Fuzzy Drinks",
         label: "FZDR",
-        unit: "{SIGNED_WORD} of fuzzy drinks",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of fuzzy drinks",
         classes: 0x20,
     },
     {
@@ -53,7 +59,8 @@ export const startCargoes = [
         available: true,
         name: "Coal",
         label: "COAL",
-        unit: "{SIGNED_WORD} of coal",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of coal",
         classes: 0x10,
     },
     {
@@ -61,7 +68,8 @@ export const startCargoes = [
         available: true,
         name: "Chemicals",
         label: "RFPR",
-        unit: "{SIGNED_WORD} of chemicals",
+        unitName: "something",
+        longName: "{SIGNED_WORD} of chemicals",
         classes: 0x40,
     },
 ]

@@ -67,9 +67,15 @@ function CargoItem({cargo, setCargo}: any) {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Unit</th>
+                        <th scope="row">Unit Name</th>
                         <td>
-                            <Form.Control placeholder="Unit of the cargo" size="sm" value={cargo.unit} onChange={(e) => setValue({unit: e.target.value})} />
+                            <Form.Control placeholder="Unit of the cargo" size="sm" value={cargo.unitName} onChange={(e) => setValue({unit: e.target.value})} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Long Name</th>
+                        <td>
+                            <Form.Control placeholder="Long name of the cargo" size="sm" value={cargo.longName} onChange={(e) => setValue({unit: e.target.value})} />
                         </td>
                     </tr>
                     <tr>
