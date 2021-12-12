@@ -19,6 +19,8 @@ import IndustryItem from './Industries/IndustryItem';
 import CargoList from './Cargoes/CargoList';
 import CargoItem from './Cargoes/CargoItem';
 
+import DataCargoNew from './DataCargoNew';
+
 import { startCargoes, startIndustries } from './ConfigDefault';
 
 function Main() {
@@ -39,6 +41,35 @@ function Main() {
     }
     function onChangeCargo(id: number) {
         setCargoId(id);
+    }
+    function newCargo() {
+        let newCargo = {...DataCargoNew};
+
+        /* Find first available id above 32. */
+        newCargo.id = 32;
+        for (let i = 0; i < cargoes.length; i++) {
+            if (cargoes[i].id >= newCargo.id) {
+                newCargo.id = cargoes[i].id + 1;
+            }
+        }
+
+        setCargoes((prevState: any) => {
+            return [
+                ...prevState,
+                newCargo,
+            ];
+        });
+        setCargoId(cargoes.length);
+    }
+    function deleteCargo() {
+        if (cargoId === cargoes.length - 1) {
+            setCargoId(cargoId - 1);
+        }
+        setCargoes((prevState: any) => {
+            let newState = [...prevState];
+            newState.splice(cargoId, 1);
+            return newState;
+        });
     }
 
     function openGame() {
@@ -62,7 +93,7 @@ function Main() {
                     <p className="lead">Make a selection below to modify your NewGRF.</p>
                 </Col>
             </Row>
-            <Row>
+            <Row style={{paddingBottom: "20px"}}>
                 <GenerateGRF industries={industries} cargoes={cargoes} generic={generic} openGame={openGame} />
             </Row>
             <Tab.Container id="categories" activeKey={tab} onSelect={(eventKey) => setTab(eventKey || "generic") }>
@@ -105,10 +136,10 @@ function Main() {
                             <Tab.Pane eventKey="cargoes">
                                 <Row>
                                     <Col sm={3}>
-                                        <CargoList onChangeCargo={onChangeCargo} cargoes={cargoes} />
+                                        <CargoList onChangeCargo={onChangeCargo} newCargo={newCargo} cargoes={cargoes} cargoId={cargoId} />
                                     </Col>
                                     <Col>
-                                        <CargoItem cargo={cargoes[cargoId]} setCargo={(e: React.SetStateAction<any>) => setCargoes((prevState) => { let newState = [...prevState]; newState[cargoId] = e(prevState[cargoId]); return newState } )} />
+                                        <CargoItem cargo={cargoes[cargoId]} setCargo={(e: React.SetStateAction<any>) => setCargoes((prevState) => { let newState = [...prevState]; newState[cargoId] = e(prevState[cargoId]); return newState } )} deleteCargo={deleteCargo} />
                                     </Col>
                                 </Row>
                             </Tab.Pane>
