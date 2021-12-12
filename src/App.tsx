@@ -20,6 +20,7 @@ import CargoList from './Cargoes/CargoList';
 import CargoItem from './Cargoes/CargoItem';
 
 import DataCargoNew from './DataCargoNew';
+import DataIndustryNew from './DataIndustryNew';
 
 import { startCargoes, startIndustries } from './ConfigDefault';
 
@@ -36,11 +37,29 @@ function Main() {
     const [tab, setTab] = useState("generic");
 
     function onChangeIndustry(id: number) {
-        //setLayoutSelection(0);
         setIndustryId(id);
     }
     function onChangeCargo(id: number) {
         setCargoId(id);
+    }
+    function newIndustry() {
+        let newIndustry = {...DataIndustryNew};
+
+        /* Find first available id. */
+        newIndustry.id = 0;
+        for (let i = 0; i < industries.length; i++) {
+            if (industries[i].id >= newIndustry.id) {
+                newIndustry.id = industries[i].id + 1;
+            }
+        }
+
+        setIndustries((prevState: any) => {
+            return [
+                ...prevState,
+                newIndustry,
+            ];
+        });
+        setIndustryId(industries.length);
     }
     function newCargo() {
         let newCargo = {...DataCargoNew};
@@ -60,6 +79,16 @@ function Main() {
             ];
         });
         setCargoId(cargoes.length);
+    }
+    function deleteIndustry() {
+        if (industryId === industries.length - 1) {
+            setIndustryId(industryId - 1);
+        }
+        setIndustries((prevState: any) => {
+            let newState = [...prevState];
+            newState.splice(industryId, 1);
+            return newState;
+        });
     }
     function deleteCargo() {
         if (cargoId === cargoes.length - 1) {
@@ -126,10 +155,10 @@ function Main() {
                             <Tab.Pane eventKey="industries">
                                 <Row>
                                     <Col sm={3}>
-                                        <IndustryList onChangeIndustry={onChangeIndustry} industries={industries} />
+                                        <IndustryList onChangeIndustry={onChangeIndustry} newIndustry={newIndustry} industries={industries} industryId={industryId} />
                                     </Col>
                                     <Col>
-                                        <IndustryItem industry={industries[industryId]} setIndustry={(e: React.SetStateAction<any>) => setIndustries((prevState) => { let newState = [...prevState]; newState[industryId] = e(prevState[industryId]); return newState } )} />
+                                        <IndustryItem industry={industries[industryId]} setIndustry={(e: React.SetStateAction<any>) => setIndustries((prevState) => { let newState = [...prevState]; newState[industryId] = e(prevState[industryId]); return newState } )} deleteIndustry={deleteIndustry} />
                                     </Col>
                                 </Row>
                             </Tab.Pane>

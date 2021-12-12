@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
+import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import ToggleButton from 'react-bootstrap/ToggleButton';
@@ -16,7 +17,8 @@ import DataType from './DataType';
 
 import './IndustryItem.css';
 
-function IndustryItem({industry, setIndustry}: any) {
+function IndustryItem({industry, setIndustry, deleteIndustry}: any) {
+    const [deleteShow, setDeleteShow] = useState(false);
     const [layoutSelection, setLayoutSelection] = useState(0);
     const [placementEditorVisible, setPlacementEditorVisible] = useState(false);
 
@@ -65,6 +67,18 @@ function IndustryItem({industry, setIndustry}: any) {
         });
     }
 
+    function newLayout() {
+        setIndustry((prevState: any) => {
+            let layout = [...prevState.layout];
+            layout.push([[0, 0, 0], [0, 0, 0], [0, 0, 0]]);
+
+            return {
+                ...prevState,
+                layout,
+            }
+        });
+        setLayoutSelection(industry.layout.length);
+    }
     function setLayout(layout_id: number, row: number, col: number, value: any) {
         setIndustry((prevState: any) => {
             let layout = prevState.layout;
@@ -92,7 +106,7 @@ function IndustryItem({industry, setIndustry}: any) {
             <Table>
                 <tbody>
                     <tr>
-                        <th scope="row">Index</th>
+                        <th style={{width: "180px"}} scope="row">Index</th>
                         <td>{industry.id}</td>
                     </tr>
                     <tr>
@@ -144,7 +158,7 @@ function IndustryItem({industry, setIndustry}: any) {
 
                                 <Dropdown.Menu>
                                     {Object.entries(DataType).map((option) => (
-                                    <Dropdown.Item key={`type-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
+                                    <Dropdown.Item active={option[0] === industry.type} key={`type-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
                                     ))}
                                 </Dropdown.Menu>
                             </Dropdown>
@@ -227,23 +241,23 @@ function IndustryItem({industry, setIndustry}: any) {
                     </tr>}
                     <tr>
                         <th scope="row">
-                            Layout
-                            <Dropdown onSelect={(e) => setLayoutSelection(parseInt(e || "0"))}>
-                                <Dropdown.Toggle size="sm">
-                                    Layout #{layoutSelection}
-                                </Dropdown.Toggle>
+                            <ListGroup activeKey={ layoutSelection }>
+                                <ListGroup.Item variant="dark">
+                                    <h5 className="mb-1" style={{float: "left"}}>Layouts</h5>
+                                    <Button style={{float: "right"}} variant="success" size="sm" onClick={() => newLayout()}>+</Button>
+                                </ListGroup.Item>
 
-                                <Dropdown.Menu>
-                                    {industry.layout.map((layout: any, layout_index: number) => (
-                                    <Dropdown.Item key={`layout-selection-${layout_index}`} eventKey={layout_index}>Layout #{layout_index}</Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                            </Dropdown>
+                                {industry.layout.map((layout: any, layout_id: number) => (
+                                    <ListGroup.Item variant="light" action eventKey={ layout_id } key={`layout-${layout_id}`} onClick={() => setLayoutSelection(layout_id)}>
+                                        <h5 className="mb-1">Layout #{layout_id}</h5>
+                                    </ListGroup.Item>
+                                ))}
+                            </ListGroup>
                         </th>
                         <td>
                             <small>(layout images are an estimation; click an image to change it)</small>
                             <div className="layout-container">
-                                {industry.layout[layoutSelection].map((row: any, row_index: number) => (
+                                {industry.layout.length > 0 && industry.layout[layoutSelection].map((row: any, row_index: number) => (
                                     <div key={`layout-${layoutSelection}-${row_index}`} className="layout-row">
                                         {row.map((col: any, col_index: number) => (
                                             <Dropdown onSelect={(e) => setLayout(layoutSelection, row_index, col_index, parseInt(e || "0xfd"))} key={`layout-${layoutSelection}-${row_index}-${col_index}`} as="span" bsPrefix="layout">
@@ -290,7 +304,7 @@ function IndustryItem({industry, setIndustry}: any) {
                                 ))}
 
                                 <div style={{ right: `0px`, top: `20px`, position: `absolute` }}>
-                                    {industry.layout[layoutSelection].map((row: any, row_index: number) => (
+                                    {industry.layout.length > 0 && industry.layout[layoutSelection].map((row: any, row_index: number) => (
                                         row.map((col: any, col_index: number) => (
                                             <span key={`layout-preview-${layoutSelection}-${row_index}-${col_index}`} style={{ right: `${col_index * 32 - row_index * 32}px`, top: `${col_index * 16 + row_index * 16}px`, position: `absolute` }}>
                                                 <Sprite tile_id={col} />
@@ -312,7 +326,7 @@ function IndustryItem({industry, setIndustry}: any) {
 
                                 <Dropdown.Menu>
                                     {Object.entries(DataPlacement).map((option) => (
-                                    <Dropdown.Item key={`placement-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
+                                    <Dropdown.Item active={option[0] === industry.placement} key={`placement-${option[0]}`} eventKey={option[0]}>{option[1].label}</Dropdown.Item>
                                     ))}
                                 </Dropdown.Menu>
                             </Dropdown>
@@ -334,6 +348,26 @@ function IndustryItem({industry, setIndustry}: any) {
                                     </p>
                                     <Editor elements={industry.placementCustom} setElements={setPlacementCustom} />
                                 </Modal.Body>
+                            </Modal>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <Button variant="danger" onClick={() => setDeleteShow(true)}>Delete industry</Button>
+                            <Modal show={deleteShow} onHide={() => setDeleteShow(false)}>
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Delete Industry?</Modal.Title>
+                                </Modal.Header>
+
+                                <Modal.Body>
+                                    <p>Are you sure you want to delete '{industry.name}'?</p>
+                                </Modal.Body>
+
+                                <Modal.Footer>
+                                    <Button variant="secondary" onClick={() => setDeleteShow(false)}>Close</Button>
+                                    <Button variant="danger" onClick={() => { setDeleteShow(false); deleteIndustry(); }}>Delete</Button>
+                                </Modal.Footer>
                             </Modal>
                         </td>
                     </tr>
