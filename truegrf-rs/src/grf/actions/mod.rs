@@ -1,6 +1,7 @@
 pub mod action0;
 mod action1;
 mod action2;
+mod action3;
 mod action8;
 mod action14;
 mod varaction2;
@@ -9,6 +10,7 @@ pub mod variable;
 pub use action0 as Action0;
 pub use action1::Action1;
 pub use action2::Action2;
+pub use action3::Action3;
 pub use action8::Action8;
 pub use action14::Action14;
 pub use varaction2::{VarAction2, VarAction2Switch, VarAction2Operator, VarAction2OperatorVariable};

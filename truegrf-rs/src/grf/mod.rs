@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 mod actions;
 
-use actions::{Action0, Action1, Action2, Action8, Action14, ActionTrait, Feature, VarAction2, VarAction2Switch, VarAction2Operator, VarAction2OperatorVariable, Variable};
+use actions::{Action0, Action1, Action2, Action3, Action8, Action14, ActionTrait, Feature, VarAction2, VarAction2Switch, VarAction2Operator, VarAction2OperatorVariable, Variable};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFGeneric {
@@ -346,8 +346,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                 }
 
                 VarAction2::IndustryTile { set_id: 0xfe, variable: Variable::Industry::LayoutNum.into(), switch: &layout_switch, default: failed_set }.write(output);
-                /* Activate the action2 chain. */
-                write_pseudo_sprite(&mut output.buffer, &[b"\x03\x09\x01", &[industry.id as u8], b"\x00", &cb_main.to_le_bytes()]);
+                Action3::IndustryTile { id: industry.id, set_id: cb_main as u8 }.write(output);
             }
 
             let mut layouts = Vec::new();
@@ -435,8 +434,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                 VarAction2Switch { result: cb28, left: 0x28, right: 0x28 },
             ], default: failed_set }.write(output);
 
-            /* Activate the chain. */
-            write_pseudo_sprite(&mut output.buffer, &[b"\x03\x0a\x01", &[industry.id], b"\x00", &cb_main.to_le_bytes()]);
+            Action3::Industry { id: industry.id, set_id: cb_main as u8 }.write(output);
         }
 
         if !callback_flags.is_empty() {
