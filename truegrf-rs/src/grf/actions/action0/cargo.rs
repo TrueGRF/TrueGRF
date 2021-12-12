@@ -17,7 +17,7 @@ pub enum Cargo<'a> {
                                                                                // 18, 19 (TODO)
                                                                                // 1a (TODO)
     UnitName { id: u8, name: &'a str },                                        // 1b
-    LongName { id: u8, name: &'a str },                                        // 1c
+    LongName { id: u8, unit: &'a str, name: &'a str },                         // 1c
                                                                                // 1d (TODO)
 }
 
@@ -58,14 +58,33 @@ impl<'a> ActionTrait for Cargo<'a> {
                 ])
             }
             Cargo::UnitName { id, name} => {
-                let string_id = write_string(output, Feature::Cargoes, name);
+                /* Check for magic strings that resolve to internal names. */
+                let string_id = match *name {
+                    "Passengers" => 0x004f,
+                    "Tonnes" => 0x0050,
+                    "Bags" => 0x0051,
+                    "Litres" => 0x0052,
+                    "Items" => 0x0053,
+                    "Crates" => 0x0054,
+                    _ => write_string(output, Feature::Cargoes, name),
+                };
 
                 (*id, vec![
                     vec_list!([0x1b], &string_id.to_le_bytes()),
                 ])
             }
-            Cargo::LongName { id, name } => {
-                let string_id = write_string(output, Feature::Cargoes, name);
+            Cargo::LongName { id, unit, name } => {
+                let name_prefix = match *unit {
+                    "Tonnes" => String::from("{WEIGHT} "),
+                    "Litres" => String::from("{VOLUME} "),
+                    "Passengers" => String::from("{SIGNED_WORD} "),
+                    "Bags" => String::from("{SIGNED_WORD} bags "),
+                    "Items" => String::from("{SIGNED_WORD} items "),
+                    "Crates" => String::from("{SIGNED_WORD} crates "),
+                    _ => String::from("{SIGNED_WORD} ") + &unit.to_lowercase() + " ",
+                };
+
+                let string_id = write_string(output, Feature::Cargoes, &(name_prefix + name));
 
                 (*id, vec![
                     vec_list!([0x1c], &string_id.to_le_bytes()),

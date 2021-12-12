@@ -6,6 +6,7 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 
 import DataClasses from './DataClasses';
 import DataClassesOptional from './DataClassesOptional';
+import DataUnits from './DataUnits';
 
 const disabledCargoes = [0, 2, 5, 12, 20, 26];
 
@@ -69,7 +70,17 @@ function CargoItem({cargo, setCargo}: any) {
                     <tr>
                         <th scope="row">Unit Name</th>
                         <td>
-                            <Form.Control placeholder="Unit of the cargo" size="sm" value={cargo.unitName} onChange={(e) => setValue({unit: e.target.value})} />
+                            <Dropdown onSelect={(e) => setValue({ unitName: e })} as="span">
+                                <Dropdown.Toggle size="sm">
+                                    {DataUnits.filter((val) => val.value === cargo.unitName)[0].label}
+                                </Dropdown.Toggle>
+
+                                <Dropdown.Menu>
+                                    {Object.entries(DataUnits).map(([id, option]) => (
+                                    <Dropdown.Item key={`unit-${id}`} eventKey={option.value}>{option.label}</Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
                         </td>
                     </tr>
                     <tr>

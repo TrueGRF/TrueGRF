@@ -104,7 +104,11 @@ pub fn write(output: &mut Output, action: Action, feature: Feature, data: &[u8])
 
 pub fn write_string(output: &mut Output, feature: Feature, string: &str) -> u16 {
     let mut parsed_string = string.to_string();
-    parsed_string = parsed_string.replace("{SIGNED_WORD}", "\x7c");
+    parsed_string = parsed_string.replace("{SIGNED_WORD}", "\u{e07c}");
+    parsed_string = parsed_string.replace("{VOLUME}", "\u{e087}");
+    parsed_string = parsed_string.replace("{WEIGHT}", "\u{e09a}\x0d");
+    /* Ensure OpenTTD reads the string as UTF-8. */
+    parsed_string = String::from("\u{00de}") + &parsed_string;
 
     write(output, Action::Action4, feature, &vec_list!(
         [0xff, 0x01],

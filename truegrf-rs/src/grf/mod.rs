@@ -223,7 +223,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
         Action0::Cargo::Label { id: cargo.id, label: &cargo.label }.write(output);
         Action0::Cargo::Name { id: cargo.id, name: &cargo.name }.write(output);
         Action0::Cargo::UnitName { id: cargo.id, name: &cargo.unitName }.write(output);
-        Action0::Cargo::LongName { id: cargo.id, name: &cargo.longName }.write(output);
+        Action0::Cargo::LongName { id: cargo.id, unit: &cargo.unitName, name: &cargo.longName }.write(output);
     }
 
     for industry in &options.industries {
