@@ -1,15 +1,15 @@
 mod cargo;
 mod global_settings;
 mod industry;
-mod industry_tiles;
+mod industry_tile;
 
 pub use cargo::Cargo;
-pub use global_settings::GlobalSettings;
+pub use global_settings::GlobalSetting;
 pub use industry::Industry;
 pub use industry::Flags as IndustryFlags;
 pub use industry::CallbackFlags as IndustryCallbackFlags;
-pub use industry_tiles::IndustryTiles;
-pub use industry_tiles::Flags as IndustryTilesFlags;
+pub use industry_tile::IndustryTile;
+pub use industry_tile::Flags as IndustryTileFlags;
 
 use super::{Action, Feature, Output, write as write_action};
 

@@ -1,7 +1,7 @@
 use super::write_special as write_special_action0;
 use super::super::{ActionTrait, Feature, Output, vec_list };
 
-pub enum GlobalSettings<'a> {
+pub enum GlobalSetting<'a> {
                                                                                // 08 (unused)
     CargoTranslationTable { ctt: &'a Vec<&'a String> }                         // 09
                                                                                // 0a (unused)
@@ -18,10 +18,10 @@ pub enum GlobalSettings<'a> {
                                                                                // 17 (unused)
 }
 
-impl<'a> ActionTrait for GlobalSettings<'a> {
+impl<'a> ActionTrait for GlobalSetting<'a> {
     fn write(&self, output: &mut Output) {
         let (id, numinfo, properties) = match self {
-            GlobalSettings::CargoTranslationTable { ctt } => {
+            GlobalSetting::CargoTranslationTable { ctt } => {
                 let mut data = Vec::new();
                 for cargo in *ctt {
                     data.extend(cargo.as_bytes());

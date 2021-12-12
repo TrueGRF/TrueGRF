@@ -4,7 +4,7 @@ use super::{Action, ActionTrait, Feature, Output, vec_list, write as write_actio
 mod png;
 
 pub enum Action1<'a> {
-    IndustryTiles { sprites: &'a Vec<&'a NewGRFSprite> },
+    IndustryTile { sprites: &'a Vec<&'a NewGRFSprite> },
 }
 
 fn write_sprite(output: &mut Output, sprite: &NewGRFSprite) {
@@ -47,7 +47,7 @@ fn write(output: &mut Output, feature: Feature, sprites: &[&NewGRFSprite]) {
 impl<'a> ActionTrait for Action1<'a> {
     fn write(&self, output: &mut Output) {
         match self {
-            Action1::IndustryTiles { sprites } => {
+            Action1::IndustryTile { sprites } => {
                 write(output, Feature::IndustryTiles, sprites);
             }
         }

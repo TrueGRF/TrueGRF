@@ -2,7 +2,7 @@ use super::write as write_action0;
 use super::super::{ActionTrait, Feature, Output, vec_list, write_string};
 #[allow(clippy::enum_variant_names)]
 pub enum Cargo<'a> {
-    Disable {id: u8 },                                                         // 08 (shared with Enable)
+    Disable { id: u8 },                                                        // 08 (shared with Enable)
     Enable { id: u8 },                                                         // 08 (shared with Disable)
     Name { id: u8, name: &'a str },                                            // 09, 0a
                                                                                // 0b (deprecated by 1b)

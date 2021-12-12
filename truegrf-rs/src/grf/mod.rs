@@ -1,9 +1,10 @@
 use serde::{Serialize, Deserialize};
+use core::panic;
 use std::collections::HashMap;
 
 mod actions;
 
-use actions::{Action0, Action1, Action8, Action14, ActionTrait};
+use actions::{Action0, Action1, Action2, Action8, Action14, ActionTrait, Feature, VarAction2, VarAction2Switch, VarAction2Operator, VarAction2OperatorVariable, Variable};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFGeneric {
@@ -130,42 +131,37 @@ pub fn write_pseudo_sprite(output: &mut Vec<u8>, data: &[&[u8]]) {
     }
 }
 
-fn traverse_nodes(cb: u16, output: &mut Vec<u8>, current_node: &NewGRFNode, nodes: &HashMap<String, &NewGRFNode>, reverse: &HashMap<(String, String), String>) {
+fn traverse_nodes<'a>(current_node: &NewGRFNode, nodes: &HashMap<String, &NewGRFNode>, reverse: &HashMap<(String, String), String>) -> Box<VarAction2OperatorVariable> {
     match current_node.r#type.clone().unwrap().as_str() {
         "output" => {
-            let mut body_output = Vec::new();
             let node = nodes[&reverse[&(current_node.id.clone(), "".to_string())]];
-            traverse_nodes(cb, &mut body_output, node, nodes, reverse);
-
-            write_pseudo_sprite(output, &[b"\x02\x0a", &[cb as u8], b"\x89", &body_output, b"\x01\x00\x84\x00\x00\x00\x00\xff\xff\xff\x7f\x02\x84"]);
+            traverse_nodes(node, nodes, reverse)
         }
         "compare" => {
-            let mut left_output = Vec::new();
             let left_node = nodes[&reverse[&(current_node.id.clone(), "a".to_string())]];
-            traverse_nodes(cb, &mut left_output, left_node, nodes, reverse);
+            let left = traverse_nodes(left_node, nodes, reverse);
 
-            let mut right_output = Vec::new();
             let right_node = nodes[&reverse[&(current_node.id.clone(), "b".to_string())]];
-            traverse_nodes(cb, &mut right_output, right_node, nodes, reverse);
+            let right = traverse_nodes( right_node, nodes, reverse);
 
             if let Some(d) = &current_node.data {
                 if let Some(v) = &d.value {
                     match v.as_str() {
                         "gt" => {
-                            left_output[1] = 0x20;
-                            output.extend(left_output);
-                            output.extend(b"\x01"); // Subtract
-                            output.extend(right_output);
+                            Box::new(VarAction2OperatorVariable::Operator(VarAction2Operator::Subtract { left, right }))
                         },
                         "lt" => {
-                            right_output[1] = 0x20;
-                            output.extend(right_output);
-                            output.extend(b"\x01"); // Subtract
-                            output.extend(left_output);
+                            Box::new(VarAction2OperatorVariable::Operator(VarAction2Operator::Subtract { left: right, right: left }))
                         },
-                        _ => {}
+                        _ => {
+                            panic!("Unknown compare operator: {}", v);
+                        }
                     }
+                } else {
+                    panic!("No value for compare node");
                 }
+            } else {
+                panic!("No value for compare node");
             }
         },
         "variable" => {
@@ -173,22 +169,33 @@ fn traverse_nodes(cb: u16, output: &mut Vec<u8>, current_node: &NewGRFNode, node
                 if let Some(v) = &d.value {
                     match v.as_str() {
                         "distance-to-town" => {
-                            output.extend(b"\x89\x00\xff\x00\x00\x00");
+                            Box::new(VarAction2OperatorVariable::Variable(Variable::IndustryCb28::DistanceToTown.into()))
                         },
-                        _ => {}
+                        _ => {
+                            panic!("Unknown variable: {}", v);
+                        }
                     }
+                } else {
+                    panic!("No value for variable node");
                 }
+            } else {
+                panic!("No value for variable node");
             }
         },
         "number" => {
             if let Some(d) = &current_node.data {
                 if let Some(v) = &d.value {
-                    output.extend(b"\x1a\x00");
-                    output.extend(v.parse::<u32>().unwrap().to_le_bytes());
+                    Box::new(VarAction2OperatorVariable::Variable(Variable::Global::Number(v.parse::<u32>().unwrap()).into()))
+                } else {
+                    panic!("No value for number node");
                 }
+            } else {
+                panic!("No value for number node");
             }
         },
-        _ => {}
+        _ => {
+            panic!("Unknown node type: {}", current_node.r#type.clone().unwrap());
+        }
     }
 }
 
@@ -217,7 +224,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
         ctt_keys.push(&cargo.label);
         ctt.insert(cargo.label.clone(), cargo_id as u8);
     }
-    Action0::GlobalSettings::CargoTranslationTable { ctt: &ctt_keys }.write(output);
+    Action0::GlobalSetting::CargoTranslationTable { ctt: &ctt_keys }.write(output);
 
     for cargo in &options.cargoes {
         if !cargo.available {
@@ -302,27 +309,25 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                 for tile in &industry.tiles {
                     sprites.push(&tile.sprite);
                 }
-                Action1::IndustryTiles { sprites: &sprites }.write(output);
+                Action1::IndustryTile { sprites: &sprites }.write(output);
 
-                Action0::IndustryTiles::Enable { id: industry.id }.write(output);
-                Action0::IndustryTiles::Flags { id: industry.id, flags: Action0::IndustryTilesFlags::INDUSTRY_ACCEPTANCE }.write(output);
+                Action0::IndustryTile::Enable { id: industry.id }.write(output);
+                Action0::IndustryTile::Flags { id: industry.id, flags: Action0::IndustryTileFlags::INDUSTRY_ACCEPTANCE }.write(output);
 
                 let cb_main: u16 = 0xfe;
                 let failed_set: u16 = 0xfd;
 
-                /* Number, as invalid return value at the end of the chain. */
-                write_pseudo_sprite(&mut output.buffer, &[b"\x02\x09", &[failed_set as u8], b"\x89\x0c\x00\x00\x00\xff\xff\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00", &failed_set.to_le_bytes()]);
+                /* Create a random sprite as fallback sprite. */
+                Action2::IndustryTile { set_id: failed_set as u8, ground_sprite: 0x07e6, building_sprite: 0x0, size_x: 16, size_y: 16, size_z: 32 }.write(output);
 
                 for (id, _tile) in industry.tiles.iter().enumerate() {
-                    write_pseudo_sprite(&mut output.buffer, &[b"\x02\x09", &[id as u8], b"\x00", b"\xe6\x07\x00\x00", &(id as u8).to_le_bytes(), b"\x00\x00\x80", b"\x00\x00\x10\x10\x20"]);
+                    Action2::IndustryTile { set_id: id as u8, ground_sprite: 0x07e6, building_sprite: 0x80000000 + id as u32, size_x: 16, size_y: 16, size_z: 32 }.write(output);
                 }
 
-                let mut industry_layout = Vec::new();
-                let mut layouts: u8 = 0;
+                let mut layout_switch = Vec::new();
 
-                for layout in &industry.layout {
-                    let mut tile_layout = Vec::new();
-                    let mut tiles: u8 = 0;
+                for (layout_id, layout) in industry.layout.iter().enumerate() {
+                    let mut switch = Vec::new();
 
                     for (y, row) in layout.iter().enumerate() {
                         for (x, tile_id) in row.iter().enumerate() {
@@ -330,31 +335,17 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                                 continue;
                             }
 
-                            tiles += 1;
-
-                            let tile_id = *tile_id - 0xfe0000;
-                            /* Jump to tile-id if matches. */
-                            tile_layout.extend((tile_id as u16).to_le_bytes());
-                            /* Match the exact x/y value. */
-                            tile_layout.extend((x as u8).to_le_bytes());
-                            tile_layout.extend((y as u8).to_le_bytes());
-                            tile_layout.extend(b"\x00\x00");
-                            tile_layout.extend((x as u8).to_le_bytes());
-                            tile_layout.extend((y as u8).to_le_bytes());
-                            tile_layout.extend(b"\x00\x00");
+                            let result = *tile_id - 0xfe0000;
+                            let value = x as u32 | ((y as u32) << 8);
+                            switch.push(VarAction2Switch { result: result as u16, left: value, right: value } );
                         }
                     }
 
-                    /* Create the action2 for the layout and generate the snippet for the main switch. */
-                    write_pseudo_sprite(&mut output.buffer, &[b"\x02\x09", &[layouts + 0xf0], b"\x89\x43\x00\xff\xff\x00\x00", &tiles.to_le_bytes(), &tile_layout, &failed_set.to_le_bytes()]);
-                    industry_layout.extend(((layouts + 0xf0) as u16).to_le_bytes());
-                    industry_layout.extend(((layouts + 1) as u32).to_le_bytes());
-                    industry_layout.extend(((layouts + 1) as u32).to_le_bytes());
-                    layouts += 1;
+                    VarAction2::IndustryTile { set_id: layout_id as u8 + 0xf0, variable: Variable::IndustryTile::RelativePos.into(), switch: &switch, default: failed_set }.write(output);
+                    layout_switch.push(VarAction2Switch { result: layout_id as u16 + 0xf0, left: layout_id as u32 + 1, right: layout_id as u32 + 1 });
                 }
 
-                /* Based on layout, jump to the right action2 chain. */
-                write_pseudo_sprite(&mut output.buffer, &[b"\x02\x09", &[cb_main as u8], b"\x8A\x44\x00\xff\xff\x00\x00", &layouts.to_le_bytes(), &industry_layout, &failed_set.to_le_bytes()]);
+                VarAction2::IndustryTile { set_id: 0xfe, variable: Variable::Industry::LayoutNum.into(), switch: &layout_switch, default: failed_set }.write(output);
                 /* Activate the action2 chain. */
                 write_pseudo_sprite(&mut output.buffer, &[b"\x03\x09\x01", &[industry.id as u8], b"\x00", &cb_main.to_le_bytes()]);
             }
@@ -378,7 +369,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                             data_layout.extend((*tile_id as u8).to_le_bytes());
                         } else {
                             /* If we use non-default tiles, we use a single tile-id (with the number of the industry) earlier.
-                                * This tile-id is an action-chain that based on the location in the layout returns the right sprite. */
+                             * This tile-id is an action-chain that based on the location in the layout returns the right sprite. */
                             data_layout.extend(b"\xfe");
                             data_layout.extend((industry.id as u16).to_le_bytes());
                         }
@@ -430,12 +421,19 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
             }
 
             /* Chain that either outputs a number if it was a graphics callback (which is an error) or a sprite when it is a non-graphics callback (which is also an error). */
-            write_pseudo_sprite(&mut output.buffer, &[b"\x02\x0a\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"]);
-            write_pseudo_sprite(&mut output.buffer, &[b"\x02\x0a", &[failed_set as u8], b"\x89\x0c\x00\x00\x00\xff\xff\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00", &failed_set.to_le_bytes()]);
+            Action2::Industry { set_id: failed_set as u8, subtract: &[0, 0, 0], add: &[0, 0] }.write(output);
+            VarAction2::Industry { set_id: failed_set as u8, variable: Variable::Global::CurrentCallback.into(), switch: &vec![
+                VarAction2Switch { result: 0x8000, left: 0x00, right: 0x00 },
+            ], default: failed_set }.write(output);
 
-            traverse_nodes(cb28, &mut output.buffer, output_node, &nodes, &reverse);
+            let variable = traverse_nodes( output_node, &nodes, &reverse);
+            VarAction2::Advanced { set_id: cb28 as u8, feature: Feature::Industries, related_object: false, variable, switch: &vec![
+                VarAction2Switch { result: 0x8400, left: 0x0, right: 0x7fffffff },
+            ], default: 0x8401 }.write(output);
 
-            write_pseudo_sprite(&mut output.buffer, &[b"\x02\x0a", &[cb_main as u8], b"\x89\x0c\x00\xff\xff\x00\x00\x01", &cb28.to_le_bytes(), b"\x28\x00\x00\x00\x28\x00\x00\x00", &failed_set.to_le_bytes()]);
+            VarAction2::Industry { set_id: cb_main as u8, variable: Variable::Global::CurrentCallback.into(), switch: &vec![
+                VarAction2Switch { result: cb28, left: 0x28, right: 0x28 },
+            ], default: failed_set }.write(output);
 
             /* Activate the chain. */
             write_pseudo_sprite(&mut output.buffer, &[b"\x03\x0a\x01", &[industry.id], b"\x00", &cb_main.to_le_bytes()]);
