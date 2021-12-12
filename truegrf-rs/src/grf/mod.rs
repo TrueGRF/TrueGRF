@@ -118,19 +118,6 @@ pub struct Output {
     sprites: Vec<Vec<u8>>,
 }
 
-pub fn write_pseudo_sprite(output: &mut Vec<u8>, data: &[&[u8]]) {
-    let mut len = 0;
-    for d in data {
-        len += (*d).len();
-    }
-
-    output.extend(len.to_le_bytes());
-    output.extend(&[0xff]);
-    for d in data {
-        output.extend(*d);
-    }
-}
-
 fn traverse_nodes<'a>(current_node: &NewGRFNode, nodes: &HashMap<String, &NewGRFNode>, reverse: &HashMap<(String, String), String>) -> Box<VarAction2OperatorVariable> {
     match current_node.r#type.clone().unwrap().as_str() {
         "output" => {
@@ -200,8 +187,8 @@ fn traverse_nodes<'a>(current_node: &NewGRFNode, nodes: &HashMap<String, &NewGRF
 }
 
 fn write_segments(output: &mut Output, options: NewGRFOptions) {
-    /* TODO -- Amount of sprites in the file; ignored by OpenTTD. */
-    write_pseudo_sprite(&mut output.buffer, &[b"\x02\x00\x00\x00"]);
+    /* Initial sprite; should be 4 in length, ignored by OpenTTD. */
+    output.buffer.extend([0x04, 0x00, 0x00, 0x00, 0xff, 0x02, 0x00, 0x00, 0x00]);
 
     Action14::Url { url: &"https://truebrain.github.io/TrueGRF/".to_string() }.write(output);
     Action14::Palette { palette: 'D' }.write(output);
