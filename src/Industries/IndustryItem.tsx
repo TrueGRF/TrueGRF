@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -30,6 +30,12 @@ function IndustryItem({industry, setIndustry, deleteIndustry}: any) {
             }
         });
     }
+
+    useLayoutEffect(() => {
+        if (industry.layout.length <= layoutSelection) {
+            setLayoutSelection(0);
+        }
+    }, [industry, layoutSelection]);
 
     function setType(type: string) {
         setIndustry((prevState: any) => {
@@ -257,7 +263,7 @@ function IndustryItem({industry, setIndustry, deleteIndustry}: any) {
                         <td>
                             <small>(layout images are an estimation; click an image to change it)</small>
                             <div className="layout-container">
-                                {industry.layout.length > 0 && industry.layout[layoutSelection].map((row: any, row_index: number) => (
+                                {layoutSelection < industry.layout.length && industry.layout[layoutSelection].map((row: any, row_index: number) => (
                                     <div key={`layout-${layoutSelection}-${row_index}`} className="layout-row">
                                         {row.map((col: any, col_index: number) => (
                                             <Dropdown onSelect={(e) => setLayout(layoutSelection, row_index, col_index, parseInt(e || "0xfd"))} key={`layout-${layoutSelection}-${row_index}-${col_index}`} as="span" bsPrefix="layout">
@@ -304,7 +310,7 @@ function IndustryItem({industry, setIndustry, deleteIndustry}: any) {
                                 ))}
 
                                 <div style={{ right: `0px`, top: `20px`, position: `absolute` }}>
-                                    {industry.layout.length > 0 && industry.layout[layoutSelection].map((row: any, row_index: number) => (
+                                    {layoutSelection < industry.layout.length && industry.layout[layoutSelection].map((row: any, row_index: number) => (
                                         row.map((col: any, col_index: number) => (
                                             <span key={`layout-preview-${layoutSelection}-${row_index}-${col_index}`} style={{ right: `${col_index * 32 - row_index * 32}px`, top: `${col_index * 16 + row_index * 16}px`, position: `absolute` }}>
                                                 <Sprite tile_id={col} />
