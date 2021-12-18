@@ -1,46 +1,39 @@
 {
-  "name": "web",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "bootstrap": "^5.1.3",
-    "file-saver": "^2.0.5",
-    "react": "^17.0.2",
-    "react-bootstrap": "^2.0.2",
-    "react-flow-renderer": "^9.6.11",
-    "react-iframe": "^1.8.0",
-    "truegrf": "file:truegrf-rs/pkg",
-    "typescript": "^4.4.4"
-  },
+  "name": "truegrf",
+  "version": "0.2.0",
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "svelte-kit dev",
+    "build": "rsw && node fix-new-urls && svelte-kit build",
+    "package": "svelte-kit package",
+    "preview": "svelte-kit preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. src && eslint --ignore-path .gitignore src",
+    "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. src",
+    "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
+    "smui-theme-light": "smui-theme compile static/smui.css -i src/theme",
+    "smui-theme-dark": "smui-theme compile static/smui-dark.css -i src/theme/dark"
   },
   "devDependencies": {
-    "@types/file-saver": "^2.0.4",
-    "@types/node": "^16.11.7",
-    "@types/react-dom": "^17.0.11",
-    "react-app-rewired": "^2.1.8",
-    "react-scripts": "^4.0.3",
-    "wasm-loader": "^1.3.0"
-  }
+    "@sveltejs/adapter-auto": "next",
+    "@sveltejs/adapter-static": "^1.0.0-next.22",
+    "@sveltejs/kit": "next",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-svelte3": "^3.2.1",
+    "file-saver": "^2.0.5",
+    "prettier": "^2.4.1",
+    "prettier-plugin-svelte": "^2.4.0",
+    "smui-theme": "^6.0.0-beta.9",
+    "svelte": "^3.44.0",
+    "svelte-check": "^2.2.6",
+    "svelte-material-ui": "^6.0.0-beta.9",
+    "svelte-preprocess": "^4.9.4",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3",
+    "vite-plugin-rsw": "^1.10.2"
+  },
+  "type": "module"
 }

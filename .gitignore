@@ -1,3 +1,5 @@
+/.svelte-kit
+/.rsw
 /build
 /node_modules
 /truegrf-rs/target

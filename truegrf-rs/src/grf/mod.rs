@@ -7,7 +7,7 @@ mod actions;
 use actions::{Action0, Action1, Action2, Action3, Action8, Action14, ActionTrait, Feature, VarAction2, VarAction2Switch, VarAction2Operator, VarAction2OperatorVariable, Variable};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFGeneric {
+struct NewGRFGeneral {
     name: String,
     description: String,
 }
@@ -107,7 +107,7 @@ struct NewGRFCargo {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct NewGRFOptions {
-    generic: NewGRFGeneric,
+    general: NewGRFGeneral,
     cargoes: Vec<NewGRFCargo>,
     industries: Vec<NewGRFIndustry>,
 }
@@ -192,7 +192,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
     Action14::Url { url: &"https://truebrain.github.io/TrueGRF/".to_string() }.write(output);
     Action14::Palette { palette: 'D' }.write(output);
-    Action8::General { grfid: &"TRU1".to_string(), name: &options.generic.name, description: &options.generic.description }.write(output);
+    Action8::General { grfid: &"TRU1".to_string(), name: &options.general.name, description: &options.general.description }.write(output);
 
     /* Disable all default cargoes. */
     for cargo_id in 0..=11 {
@@ -318,11 +318,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
                     for (y, row) in layout.iter().enumerate() {
                         for (x, tile_id) in row.iter().enumerate() {
-                            if *tile_id == 0xfd || *tile_id < 0xfe0000 {
-                                continue;
-                            }
-
-                            let result = *tile_id - 0xfe0000;
+                            let result = *tile_id;
                             let value = x as u32 | ((y as u32) << 8);
                             switch.push(VarAction2Switch { result: result as u16, left: value, right: value } );
                         }
@@ -350,15 +346,9 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                         data_layout.extend((x as u8).to_le_bytes());
                         data_layout.extend((y as u8).to_le_bytes());
 
-                        if *tile_id < 0xfe0000 {
-                            /* Default tiles. */
-                            data_layout.extend((*tile_id as u8).to_le_bytes());
-                        } else {
-                            /* If we use non-default tiles, we use a single tile-id (with the number of the industry) earlier.
-                             * This tile-id is an action-chain that based on the location in the layout returns the right sprite. */
-                            data_layout.extend(b"\xfe");
-                            data_layout.extend((industry.id as u16).to_le_bytes());
-                        }
+                        /* Per industry there is an Action2 chain to look up the right SpriteID; use that for all tiles in an industry. */
+                        data_layout.extend(b"\xfe");
+                        data_layout.extend((industry.id as u16).to_le_bytes());
                     }
                 }
 

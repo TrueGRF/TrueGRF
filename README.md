@@ -26,4 +26,4 @@ npm install
 npm run build
 ```
 
-Alternatively for the last step, you can do `npm start` for development.
+Alternatively for the last step, you can do `npm run dev` for development.
