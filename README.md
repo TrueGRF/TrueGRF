@@ -27,3 +27,8 @@ npm run build
 ```
 
 Alternatively for the last step, you can do `npm run dev` for development.
+
+# Included images
+
+TrueGRF comes embedded with images from the [https://github.com/andythenorth/firs](FIRS) NewGRF.
+Using these images in your NewGRF means you also have to follow the same license as found [https://github.com/andythenorth/firs/blob/master/license.pt](here).
