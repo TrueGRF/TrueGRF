@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Icon } from "@smui/common";
     import FormField from "@smui/form-field";
     import IconButton from "@smui/icon-button";
     import Slider from "@smui/slider";
@@ -56,7 +57,8 @@
             let newRow = [];
             for (let x = 0; x < layoutWidth; x++) {
                 const row = layout[parseInt(layoutTabActive)][y] || [];
-                newRow.push(row[x] || 0);
+                const cell = row[x];
+                newRow.push(cell === undefined ? -1 : cell);
             }
             newLayout.push(newRow);
         }
@@ -107,7 +109,9 @@
                         <div class="row">
                             {#each row as cell}
                                 <span class="cell sprite">
-                                    <Sprite bind:sprite={tiles[cell].sprite} />
+                                    {#if cell >= 0}
+                                        <Sprite bind:sprite={tiles[cell].sprite} />
+                                    {/if}
                                 </span>
                             {/each}
                         </div>
@@ -139,6 +143,12 @@
     <div class="filler" />
     <div class="tiles">
         <div>
+            <span
+                class={layout[layoutTabActive][tileSelectedY][tileSelectedX] === -1 ? "selected" : ""}
+                on:click={() => {layout[layoutTabActive][tileSelectedY][tileSelectedX] = -1;}}
+            >
+                <Icon class="material-icons">close</Icon>
+            </span>
             {#each tiles as tile, i}
                 <span
                     class={layout[layoutTabActive][tileSelectedY][tileSelectedX] === i ? "selected" : ""}
@@ -185,7 +195,13 @@
         display: flex;
         flex-wrap: wrap;
     }
-    .layouts .tiles > div .selected {
+    .layouts .tiles > div > span {
+        cursor: pointer;
+    }
+    .layouts .tiles > div > span:hover {
+        outline: 1px solid var(--mdc-theme-primary, #ffffff);
+    }
+    .layouts .tiles > div > span.selected {
         background-color: var(--mdc-theme-primary, #ffffff);
     }
 

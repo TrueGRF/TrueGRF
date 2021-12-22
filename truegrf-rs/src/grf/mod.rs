@@ -84,7 +84,7 @@ struct NewGRFIndustry {
     available: bool,
     name: String,
     r#type: String,
-    layout: Vec<Vec<Vec<u32>>>,
+    layout: Vec<Vec<Vec<i32>>>,
     primary: Option<Vec<NewGRFIndustryPrimary>>,
     secondary: Option<NewGRFIndustrySecondary>,
     tertiary: Option<Vec<NewGRFIndustryTertiary>>,
@@ -318,6 +318,10 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
                     for (y, row) in layout.iter().enumerate() {
                         for (x, tile_id) in row.iter().enumerate() {
+                            if *tile_id < 0 {
+                                continue;
+                            }
+
                             let result = *tile_id;
                             let value = x as u32 | ((y as u32) << 8);
                             switch.push(VarAction2Switch { result: result as u16, left: value, right: value } );
@@ -339,7 +343,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
                 for (y, row) in layout.iter().enumerate() {
                     for (x, tile_id) in row.iter().enumerate() {
-                        if *tile_id == 0xfd {
+                        if *tile_id < 0 {
                             continue;
                         }
 
