@@ -10,6 +10,7 @@
     import Button from "@smui/button";
 
     import Cargoes from "$lib/components/cargoes/index.svelte";
+    import FileSaver from "file-saver";
     import General from "$lib/components/general/index.svelte";
     import Header from "$lib/components/common/header.svelte";
     import Industries from "$lib/components/industries/index.svelte";
@@ -21,15 +22,23 @@
     let config = { ...configDefault };
 
     let categories = ["General", "Industries", "Cargoes", "Testing"];
-    let category = "Industries";
+    let category = "General";
 
-    function compileAndDownload() {
-        testing.compileAndDownload(config);
+    function compileAndDownload(event: CustomEvent) {
+        if (event.detail == "GRF") {
+            testing.compileAndDownload(config);
+        } else {
+            FileSaver.saveAs(new Blob([JSON.stringify(config)]), "truegrf_" + new Date().toISOString() + ".json");
+        }
     }
 
     function compileAndTest(event: CustomEvent) {
         category = "Testing";
         testing.compileAndTest(config, event.detail === "New-game" ? 1 : 0);
+    }
+
+    function upload(event: CustomEvent) {
+        config = event.detail;
     }
 </script>
 
@@ -53,7 +62,7 @@
         <div class="container">
             <Header bind:categories bind:category on:test={compileAndTest} on:download={compileAndDownload} />
 
-            <General bind:general={config.general} visible={category === "General"} />
+            <General bind:general={config.general} visible={category === "General"} on:upload={upload} />
             <Industries
                 bind:items={config.industries}
                 bind:cargoes={config.cargoes}

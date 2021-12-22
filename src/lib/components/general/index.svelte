@@ -2,6 +2,9 @@
     import Textfield from "@smui/textfield";
     import HelperText from "@smui/textfield/helper-text";
     import Paper, { Title, Content } from "@smui/paper";
+    import { createEventDispatcher } from "svelte";
+
+    const dispatch = createEventDispatcher();
 
     export let visible = false;
     export let general = {
@@ -9,6 +12,14 @@
         name: "",
         description: "",
     };
+
+    let uploadJSON = null;
+    $: if (uploadJSON != null && uploadJSON.length) {
+        uploadJSON[0].text().then(function (text) {
+            let json = JSON.parse(text);
+            dispatch("upload", json);
+        });
+    }
 </script>
 
 <div class="content {visible ? '' : 'hidden'}">
@@ -33,6 +44,15 @@
         <Textfield variant="outlined" bind:value={general.description} label="Description">
             <HelperText slot="helper">Description of NewGRF</HelperText>
         </Textfield>
+
+        <Paper variant="outlined" class="dangerzone">
+            <Title>Danger Zone</Title>
+            <Content>
+                <div class="title">Restore JSON backup (WARNING: all configuration will be lost)</div>
+                <div class="filler" />
+                <Textfield variant="outlined" bind:files={uploadJSON} type="file" class="file" />
+            </Content>
+        </Paper>
     </div>
 </div>
 
@@ -43,5 +63,16 @@
     }
     .right :global(.mdc-text-field:first-child) {
         margin-top: 0;
+    }
+
+    .right :global(.title) {
+        margin-top: 26px;
+    }
+
+    .right :global(.mdc-text-field input[type="file"]) {
+        margin-top: 16px;
+    }
+    .right :global(.mdc-text-field.file) {
+        width: 300px;
     }
 </style>

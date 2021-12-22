@@ -11,7 +11,9 @@
     export let category = "";
 
     let test_action = "New-game";
-    let menu: MenuComponentDev;
+    let test_menu: MenuComponentDev;
+    let download_action = "GRF";
+    let download_menu: MenuComponentDev;
 </script>
 
 <div class="title">
@@ -27,23 +29,51 @@
     </div>
     <div class="filler" />
     <div class="icons">
-        <Button variant="raised" on:click={() => dispatch("download")}>
-            <Label>Download GRF</Label>
-        </Button>
+        <Group variant="raised">
+            <Button variant="raised" on:click={() => dispatch("download", download_action)}>
+                <Label>Download: {download_action}</Label>
+            </Button>
+            <div use:GroupItem>
+                <Button
+                    on:click={() => download_menu.setOpen(true)}
+                    variant="raised"
+                    style="padding: 0; min-width: 36px;"
+                >
+                    <Icon class="material-icons" style="margin: 0;">arrow_drop_down</Icon>
+                </Button>
+                <Menu bind:this={download_menu} anchorCorner="BOTTOM_LEFT">
+                    <List>
+                        <SelectionGroup>
+                            {#each ["GRF", "JSON"] as item}
+                                <Item
+                                    on:SMUI:action={() => ((download_action = item), download_menu.setOpen(false))}
+                                    selected={download_action === item}
+                                >
+                                    <SelectionGroupIcon>
+                                        <i class="material-icons">check</i>
+                                    </SelectionGroupIcon>
+                                    <Text>{item}</Text>
+                                </Item>
+                            {/each}
+                        </SelectionGroup>
+                    </List>
+                </Menu>
+            </div>
+        </Group>
         <Group variant="raised">
             <Button variant="raised" on:click={() => dispatch("test", test_action)}>
                 <Label>Test: {test_action}</Label>
             </Button>
             <div use:GroupItem>
-                <Button on:click={() => menu.setOpen(true)} variant="raised" style="padding: 0; min-width: 36px;">
+                <Button on:click={() => test_menu.setOpen(true)} variant="raised" style="padding: 0; min-width: 36px;">
                     <Icon class="material-icons" style="margin: 0;">arrow_drop_down</Icon>
                 </Button>
-                <Menu bind:this={menu} anchorCorner="BOTTOM_LEFT">
+                <Menu bind:this={test_menu} anchorCorner="BOTTOM_LEFT">
                     <List>
                         <SelectionGroup>
                             {#each ["New-game", "Reload"] as item}
                                 <Item
-                                    on:SMUI:action={() => ((test_action = item), menu.setOpen(false))}
+                                    on:SMUI:action={() => ((test_action = item), test_menu.setOpen(false))}
                                     selected={test_action === item}
                                 >
                                     <SelectionGroupIcon>

@@ -77,7 +77,7 @@
     $: if (layoutWidth || layoutHeight) resizeLayout();
 
     function tileEditorLoadSprite(file) {
-        file.arrayBuffer().then(buffer => {
+        file.arrayBuffer().then((buffer) => {
             const blob = new Blob([buffer], { type: "image/png" });
             const sprite = new Image();
             sprite.src = URL.createObjectURL(blob);
@@ -106,7 +106,9 @@
 
                 tiles[currentTile].sprite.width = sprite.width;
                 tiles[currentTile].sprite.height = sprite.height;
-                tiles[currentTile].sprite.base64Data = canvas.toDataURL("image/png").replace("data:image/png;base64,", "");
+                tiles[currentTile].sprite.base64Data = canvas
+                    .toDataURL("image/png")
+                    .replace("data:image/png;base64,", "");
             };
         });
     }
@@ -137,9 +139,9 @@
                 top: 0,
                 left: 0,
             },
-        })
+        });
         tiles = tiles; // Trigger Svelte's update.
-        console.log(tiles);
+
         currentTile = tiles.length - 1;
         tileEditorOpen = true;
     }
@@ -235,9 +237,9 @@
                         }}
                     >
                         {#if tile.sprite.width === 0}
-                        <Icon class="material-icons">question_mark</Icon>
+                            <Icon class="material-icons">question_mark</Icon>
                         {:else}
-                        <Sprite bind:sprite={tile.sprite} noOffset />
+                            <Sprite bind:sprite={tile.sprite} noOffset />
                         {/if}
                     </span>
                     <IconButton
@@ -249,7 +251,11 @@
                     >
                 </span>
             {/each}
-            <span on:click={() => {tileEditorNew()}}>
+            <span
+                on:click={() => {
+                    tileEditorNew();
+                }}
+            >
                 <Icon class="material-icons">add</Icon>
             </span>
         </div>
@@ -261,8 +267,18 @@
             <div on:drop={tileEditorDrop} on:dragover={tileEditorDragOver} on:paste={tileEditorPaste}>
                 <Sprite bind:sprite={tiles[currentTile].sprite} noOffset /> (drag or paste a new image to replace)
                 <div class="flex">
-                    <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.left} label="Left" type="number" />
-                    <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.top} label="Top" type="number" />
+                    <Textfield
+                        variant="outlined"
+                        bind:value={tiles[currentTile].sprite.left}
+                        label="Left"
+                        type="number"
+                    />
+                    <Textfield
+                        variant="outlined"
+                        bind:value={tiles[currentTile].sprite.top}
+                        label="Top"
+                        type="number"
+                    />
                 </div>
             </div>
         </Content>
