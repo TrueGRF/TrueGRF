@@ -75,6 +75,74 @@
     $: if (layout) checkNewLayout();
     $: if (layoutTabActive) updateLayout();
     $: if (layoutWidth || layoutHeight) resizeLayout();
+
+    function tileEditorLoadSprite(file) {
+        file.arrayBuffer().then(buffer => {
+            const blob = new Blob([buffer], { type: "image/png" });
+            const sprite = new Image();
+            sprite.src = URL.createObjectURL(blob);
+            sprite.onload = () => {
+                /* Create a canvas to draw on. */
+                const canvas = document.createElement("canvas");
+                canvas.width = sprite.width;
+                canvas.height = sprite.height;
+
+                /* Get a valid context. */
+                const ctx = canvas.getContext("2d");
+                if (!ctx) throw new Error("Could not get context");
+
+                /* Draw the sprite on the canvas. */
+                ctx.drawImage(sprite, 0, 0);
+
+                /* Get the canvas data and replace transparent pixels. */
+                const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = img.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 255) {
+                        data[i + 3] = 0;
+                    }
+                }
+                ctx.putImageData(img, 0, 0);
+
+                tiles[currentTile].sprite.width = sprite.width;
+                tiles[currentTile].sprite.height = sprite.height;
+                tiles[currentTile].sprite.base64Data = canvas.toDataURL("image/png").replace("data:image/png;base64,", "");
+            };
+        });
+    }
+
+    function tileEditorDrop(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        tileEditorLoadSprite(event.dataTransfer.files[0]);
+    }
+    function tileEditorPaste(event) {
+        /* Get the Image Data */
+        tileEditorLoadSprite(event.clipboardData.files[0]);
+    }
+    function tileEditorDragOver(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        return false;
+    }
+
+    function tileEditorNew() {
+        tiles.push({
+            sprite: {
+                base64Data: "",
+                width: 0,
+                height: 0,
+                top: 0,
+                left: 0,
+            },
+        })
+        tiles = tiles; // Trigger Svelte's update.
+        console.log(tiles);
+        currentTile = tiles.length - 1;
+        tileEditorOpen = true;
+    }
 </script>
 
 <div class="layouts">
@@ -166,7 +234,11 @@
                             layout[layoutTabActive][tileSelectedY][tileSelectedX] = i;
                         }}
                     >
+                        {#if tile.sprite.width === 0}
+                        <Icon class="material-icons">question_mark</Icon>
+                        {:else}
                         <Sprite bind:sprite={tile.sprite} noOffset />
+                        {/if}
                     </span>
                     <IconButton
                         class="material-icons edit"
@@ -177,16 +249,21 @@
                     >
                 </span>
             {/each}
+            <span on:click={() => {tileEditorNew()}}>
+                <Icon class="material-icons">add</Icon>
+            </span>
         </div>
     </div>
 
     <Dialog bind:open={tileEditorOpen} class="tileEditor">
         <Title>Tile Editor</Title>
         <Content>
-            <Sprite bind:sprite={tiles[currentTile].sprite} noOffset />
-            <div class="flex">
-                <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.left} label="Left" type="number" />
-                <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.top} label="Top" type="number" />
+            <div on:drop={tileEditorDrop} on:dragover={tileEditorDragOver} on:paste={tileEditorPaste}>
+                <Sprite bind:sprite={tiles[currentTile].sprite} noOffset /> (drag or paste a new image to replace)
+                <div class="flex">
+                    <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.left} label="Left" type="number" />
+                    <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.top} label="Top" type="number" />
+                </div>
             </div>
         </Content>
         <Actions>
