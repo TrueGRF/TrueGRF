@@ -33,14 +33,14 @@
 </script>
 
 <div>
-    {#each tertiary as tertiary}
-        <Select variant="outlined" bind:value={tertiary.cargoLabel} disabled>
+    {#each tertiary as t}
+        <Select variant="outlined" bind:value={t.cargoLabel} disabled>
             {#each cargoes as cargo}
                 <Option value={cargo.label}>{cargo.name}</Option>
             {/each}
         </Select>
         <span class="empty" />
-        <IconButton class="material-icons" on:click={() => deleteTertiaryCargo(tertiary.cargoLabel)}>delete</IconButton>
+        <IconButton class="material-icons" on:click={() => deleteTertiaryCargo(t.cargoLabel)}>delete</IconButton>
     {/each}
 
     {#if tertiaryCargoesAvailable.length !== 0}

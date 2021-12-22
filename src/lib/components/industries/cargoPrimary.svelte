@@ -35,14 +35,14 @@
 </script>
 
 <div>
-    {#each primary as primary}
-        <Select variant="outlined" bind:value={primary.cargoLabel} disabled>
+    {#each primary as p}
+        <Select variant="outlined" bind:value={p.cargoLabel} disabled>
             {#each cargoes as cargo}
                 <Option value={cargo.label}>{cargo.name}</Option>
             {/each}
         </Select>
-        <Textfield variant="outlined" bind:value={primary.multiplier} label="Multiplier" type="number" />
-        <IconButton class="material-icons" on:click={() => deletePrimaryCargo(primary.cargoLabel)}>delete</IconButton>
+        <Textfield variant="outlined" bind:value={p.multiplier} label="Multiplier" type="number" />
+        <IconButton class="material-icons" on:click={() => deletePrimaryCargo(p.cargoLabel)}>delete</IconButton>
     {/each}
 
     {#if primaryCargoesAvailable.length !== 0}

@@ -38,7 +38,13 @@
     }
 
     function upload(event: CustomEvent) {
-        config = event.detail;
+        config.general = event.detail.general;
+        config.cargoes = event.detail.cargoes;
+
+        /* Delay industries, as it depends on a well loaded cargoes. */
+        setTimeout(() => {
+            config.industries = event.detail.industries;
+        }, 1);
     }
 </script>
 
