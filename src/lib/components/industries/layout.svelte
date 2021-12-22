@@ -264,17 +264,17 @@
     .layouts .layout .cell.overlay {
         width: 43.26px;
         height: 43.26px;
-        border: 1px solid #cccccc;
+        border: 1px solid var(--mdc-theme-on-surface, #cccccc);
         transform: rotateX(60deg) rotateZ(45deg);
         margin: -7px 9px 0 0;
         cursor: pointer;
     }
     .layouts .layout .cell.overlay:hover {
-        background-color: var(--mdc-theme-primary, #cccccc);
+        background-color: var(--mdc-theme-on-surface, #cccccc);
         opacity: 0.2;
     }
     .layouts .layout .cell.overlay.selected {
-        background-color: var(--mdc-theme-primary, #cccccc);
+        background-color: var(--mdc-theme-on-surface, #cccccc);
         opacity: 0.4;
     }
 </style>
