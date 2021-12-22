@@ -20,6 +20,7 @@ export const config = {
                     [2, 1, 0],
                 ],
             ],
+            primary: [],
             secondary: {
                 acceptance: [
                     {
@@ -33,6 +34,7 @@ export const config = {
                     },
                 ],
             },
+            tertiary: [],
             placement: "anywhere",
             placementCustom: [],
             tiles: [

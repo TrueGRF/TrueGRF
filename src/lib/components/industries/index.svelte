@@ -48,29 +48,6 @@
         items = items; // Trigger Svelte's update.
         selected = items.length - 1;
     }
-
-    function updateType() {
-        delete item.primary;
-        delete item.secondary;
-        delete item.tertiary;
-
-        switch (item.type) {
-            case "primary":
-                item.primary = [];
-                break;
-
-            case "secondary":
-                item.secondary = {
-                    acceptance: [],
-                    production: [],
-                };
-                break;
-
-            case "tertiary":
-                item.tertiary = [];
-                break;
-        }
-    }
 </script>
 
 <div class="content {visible ? '' : 'hidden'}">
@@ -89,7 +66,7 @@
                 <HelperText slot="helper">Name of industry</HelperText>
             </Textfield>
 
-            <Select variant="outlined" bind:value={item.type} label="Type" on:SMUISelect:change={updateType}>
+            <Select variant="outlined" bind:value={item.type} label="Type">
                 {#each types as t}
                     <Option value={t.value}>{t.name}</Option>
                 {/each}

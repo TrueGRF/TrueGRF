@@ -85,9 +85,9 @@ struct NewGRFIndustry {
     name: String,
     r#type: String,
     layout: Vec<Vec<Vec<i32>>>,
-    primary: Option<Vec<NewGRFIndustryPrimary>>,
-    secondary: Option<NewGRFIndustrySecondary>,
-    tertiary: Option<Vec<NewGRFIndustryTertiary>>,
+    primary: Vec<NewGRFIndustryPrimary>,
+    secondary: NewGRFIndustrySecondary,
+    tertiary: Vec<NewGRFIndustryTertiary>,
     placement: String,
     placementCustom: Vec<NewGRFNode>,
     tiles: Vec<NewGRFIndustryTile>,
@@ -243,12 +243,10 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
         };
         Action0::Industry::Type { id: industry.id, r#type: industry_type }.write(output);
 
-        if industry.primary.is_some() {
-            let primary = industry.primary.as_ref().unwrap();
-
+        if industry.r#type == "primary" && !industry.primary.is_empty() {
             let mut primary_production = Vec::new();
             let mut primary_multiplier = Vec::new();
-            for primary_item in primary {
+            for primary_item in &industry.primary {
                 primary_production.push(ctt[&primary_item.cargoLabel]);
                 primary_multiplier.push(primary_item.multiplier);
             }
@@ -257,17 +255,15 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
             Action0::Industry::Acceptance { id: industry.id, acceptance: &vec![], multiplier: &vec![] }.write(output);
         }
 
-        if industry.secondary.is_some() {
-            let secondary = industry.secondary.as_ref().unwrap();
-
+        if industry.r#type == "secondary" && !industry.secondary.acceptance.is_empty() && !industry.secondary.production.is_empty() {
             let mut secondary_acceptance = Vec::new();
-            for acceptance in &secondary.acceptance {
+            for acceptance in &industry.secondary.acceptance {
                 secondary_acceptance.extend(ctt[&acceptance.cargoLabel].to_le_bytes());
             }
 
             let mut secondary_production = Vec::new();
             let mut secondary_multiplier = Vec::new();
-            for production in &secondary.production {
+            for production in &industry.secondary.production {
                 secondary_production.push(ctt[&production.cargoLabel]);
                 for multiplier in &production.multiplier {
                     secondary_multiplier.push(*multiplier);
@@ -278,11 +274,9 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
             Action0::Industry::Acceptance { id: industry.id, acceptance: &secondary_acceptance, multiplier: &secondary_multiplier }.write(output);
         }
 
-        if industry.tertiary.is_some() {
-            let tertiary = industry.tertiary.as_ref().unwrap();
-
+        if industry.r#type == "tertiary" && !industry.tertiary.is_empty() {
             let mut tertiary_acceptance = Vec::new();
-            for tertiary_item in tertiary {
+            for tertiary_item in &industry.tertiary {
                 tertiary_acceptance.push(ctt[&tertiary_item.cargoLabel]);
             }
 

@@ -3,7 +3,13 @@ export const newItem = {
     name: "New industry",
     type: "primary",
     placement: "anywhere",
+    placementCustom: [],
     primary: [],
+    secondary: {
+        acceptance: [],
+        production: [],
+    },
+    tertiary: [],
     tiles: [
         {
             sprite: {
