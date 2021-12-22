@@ -10,6 +10,7 @@
     export let layout;
     export let tiles;
 
+    let lastLayout;
     let layoutTabActive = "0";
     let layoutWidth = 0;
     let layoutHeight = 0;
@@ -17,6 +18,14 @@
     let tileSelectedY = 0;
     let hideOverlay = false;
 
+    function checkNewLayout() {
+        if (layout === lastLayout) return;
+
+        /* The layout changed completely, so most likely a new industry is selected. */
+        lastLayout = layout;
+        layoutTabActive = "0";
+        updateLayout();
+    }
     function newLayout() {
         layout.push([[0]]);
         layout = layout; // Trigger Svelte's update.
@@ -35,10 +44,7 @@
             layoutTabActive = (parseInt(layoutTabActive) - 1).toString();
         }
     }
-    function updateLayout(resetActive: boolean) {
-        if (resetActive) {
-            layoutTabActive = "0";
-        }
+    function updateLayout() {
         layoutWidth = layout[parseInt(layoutTabActive)][0].length;
         layoutHeight = layout[parseInt(layoutTabActive)].length;
         tileSelectedX = 0;
@@ -59,8 +65,8 @@
         tileSelectedX = 0;
         tileSelectedY = 0;
     }
-    $: if (layout) updateLayout(true);
-    $: if (layoutTabActive) updateLayout(false);
+    $: if (layout) checkNewLayout();
+    $: if (layoutTabActive) updateLayout();
     $: if (layoutWidth || layoutHeight) resizeLayout();
 </script>
 
