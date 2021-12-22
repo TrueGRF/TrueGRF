@@ -60,9 +60,9 @@
         <span style="width: 262px; display: inline-block" />
         {#each secondary.acceptance as acceptance}
             <Select variant="outlined" bind:value={acceptance.cargoLabel}>
-                <Option value={acceptance.cargoLabel}
-                    >{cargoes[cargoes.findIndex((c) => c.label == acceptance.cargoLabel)].name}</Option
-                >
+                <Option value={acceptance.cargoLabel}>
+                    {cargoes[cargoes.findIndex((c) => c.label == acceptance.cargoLabel)].name}
+                </Option>
                 {#each secondaryAcceptanceCargoesAvailable as cargo}
                     <Option value={cargo.label}>{cargo.name}</Option>
                 {/each}

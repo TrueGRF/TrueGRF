@@ -20,7 +20,7 @@ export const newItem = {
                 left: -31,
                 top: -35,
             },
-        }
+        },
     ],
     layout: [[[0]]],
 };

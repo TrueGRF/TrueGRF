@@ -1,5 +1,7 @@
 <script lang="ts">
     import { Icon } from "@smui/common";
+    import Button, { Label } from "@smui/button";
+    import Dialog, { Title, Content, Actions } from "@smui/dialog";
     import FormField from "@smui/form-field";
     import IconButton from "@smui/icon-button";
     import Slider from "@smui/slider";
@@ -7,6 +9,7 @@
     import Switch from "@smui/switch";
     import Tab, { Label as TabLabel } from "@smui/tab";
     import TabBar from "@smui/tab-bar";
+    import Textfield from "@smui/textfield";
 
     export let layout;
     export let tiles;
@@ -18,6 +21,8 @@
     let tileSelectedX = 0;
     let tileSelectedY = 0;
     let hideOverlay = false;
+    let tileEditorOpen = false;
+    let currentTile = 0;
 
     function checkNewLayout() {
         if (layout === lastLayout) return;
@@ -144,23 +149,52 @@
     <div class="tiles">
         <div>
             <span
-                class={layout[layoutTabActive][tileSelectedY][tileSelectedX] === -1 ? "selected" : ""}
-                on:click={() => {layout[layoutTabActive][tileSelectedY][tileSelectedX] = -1;}}
+                class="selectable {layout[layoutTabActive][tileSelectedY][tileSelectedX] === -1 ? 'selected' : ''}"
+                on:click={() => {
+                    layout[layoutTabActive][tileSelectedY][tileSelectedX] = -1;
+                }}
             >
                 <Icon class="material-icons">close</Icon>
             </span>
             {#each tiles as tile, i}
-                <span
-                    class={layout[layoutTabActive][tileSelectedY][tileSelectedX] === i ? "selected" : ""}
-                    on:click={() => {
-                        layout[layoutTabActive][tileSelectedY][tileSelectedX] = i;
-                    }}
-                >
-                    <Sprite bind:sprite={tile.sprite} noOffset />
+                <span>
+                    <span
+                        class="selectable {layout[layoutTabActive][tileSelectedY][tileSelectedX] === i
+                            ? 'selected'
+                            : ''}"
+                        on:click={() => {
+                            layout[layoutTabActive][tileSelectedY][tileSelectedX] = i;
+                        }}
+                    >
+                        <Sprite bind:sprite={tile.sprite} noOffset />
+                    </span>
+                    <IconButton
+                        class="material-icons edit"
+                        on:click={() => {
+                            currentTile = i;
+                            tileEditorOpen = true;
+                        }}>edit</IconButton
+                    >
                 </span>
             {/each}
         </div>
     </div>
+
+    <Dialog bind:open={tileEditorOpen} class="tileEditor">
+        <Title>Tile Editor</Title>
+        <Content>
+            <Sprite bind:sprite={tiles[currentTile].sprite} noOffset />
+            <div class="flex">
+                <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.left} label="Left" type="number" />
+                <Textfield variant="outlined" bind:value={tiles[currentTile].sprite.top} label="Top" type="number" />
+            </div>
+        </Content>
+        <Actions>
+            <Button action="accept">
+                <Label>Save</Label>
+            </Button>
+        </Actions>
+    </Dialog>
 
     <FormField>
         <Switch bind:checked={hideOverlay} />
@@ -196,13 +230,27 @@
         flex-wrap: wrap;
     }
     .layouts .tiles > div > span {
+        position: relative;
+    }
+    .layouts .tiles > div > span {
         cursor: pointer;
     }
-    .layouts .tiles > div > span:hover {
+    .layouts .tiles > div span.selectable:hover > :global(div),
+    .layouts .tiles > div span.selectable:hover {
         outline: 1px solid var(--mdc-theme-primary, #ffffff);
     }
-    .layouts .tiles > div > span.selected {
+    .layouts .tiles > div span.selected > :global(div),
+    .layouts .tiles > div span.selected {
         background-color: var(--mdc-theme-primary, #ffffff);
+    }
+    .layouts .tiles > div > span:hover :global(.edit) {
+        display: block;
+    }
+    .layouts .tiles > div :global(.edit) {
+        display: none;
+        position: absolute;
+        top: -12px;
+        right: -12px;
     }
 
     .layouts .layout :nth-child(1) {
@@ -276,5 +324,15 @@
     .layouts .layout .cell.overlay.selected {
         background-color: var(--mdc-theme-on-surface, #cccccc);
         opacity: 0.4;
+    }
+
+    .layouts :global(.tileEditor .flex) {
+        display: flex;
+        flex-wrap: wrap;
+        width: 300px;
+    }
+    .layouts :global(.tileEditor .mdc-text-field) {
+        margin-right: 12px;
+        width: 120px;
     }
 </style>
