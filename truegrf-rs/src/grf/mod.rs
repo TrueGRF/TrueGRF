@@ -8,6 +8,7 @@ use actions::{Action0, Action1, Action2, Action3, Action8, Action14, ActionTrait
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFGeneral {
+    grfid: String,
     name: String,
     description: String,
 }
@@ -192,7 +193,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
     Action14::Url { url: &"https://truebrain.github.io/TrueGRF/".to_string() }.write(output);
     Action14::Palette { palette: 'D' }.write(output);
-    Action8::General { grfid: &"TRU1".to_string(), name: &options.general.name, description: &options.general.description }.write(output);
+    Action8::General { grfid: &options.general.grfid.to_string(), name: &options.general.name, description: &options.general.description }.write(output);
 
     /* Disable all default cargoes. */
     for cargo_id in 0..=11 {

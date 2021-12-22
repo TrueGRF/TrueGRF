@@ -49,7 +49,10 @@ const config = {
 			},
 			server: {
 				fs: {
-					allow: ["truegrf-rs"],
+					allow: [
+						"truegrf-rs",
+						".rsw"
+					],
 				},
 				...server
 			}
