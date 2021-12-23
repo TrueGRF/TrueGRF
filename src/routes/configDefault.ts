@@ -322,6 +322,9 @@ export const config = {
             longName: "passengers",
             classes: 1,
             weight: 1,
+            price: 3185,
+            penaltyLowerBound: 0,
+            penaltyLength: 24,
         },
         {
             id: 2,
@@ -332,6 +335,9 @@ export const config = {
             longName: "of mail",
             classes: 2,
             weight: 4,
+            price: 4550,
+            penaltyLowerBound: 20,
+            penaltyLength: 90,
         },
         {
             id: 5,
@@ -342,6 +348,9 @@ export const config = {
             longName: "of goods",
             classes: 4,
             weight: 8,
+            price: 6144,
+            penaltyLowerBound: 5,
+            penaltyLength: 28,
         },
         {
             id: 12,
@@ -352,6 +361,9 @@ export const config = {
             longName: "of food",
             classes: 132,
             weight: 16,
+            price: 5688,
+            penaltyLowerBound: 0,
+            penaltyLength: 30,
         },
         {
             id: 20,
@@ -362,6 +374,9 @@ export const config = {
             longName: "of sweets",
             classes: 4,
             weight: 5,
+            price: 6144,
+            penaltyLowerBound: 8,
+            penaltyLength: 40,
         },
         {
             id: 26,
@@ -372,6 +387,9 @@ export const config = {
             longName: "fizzy drinks",
             classes: 32,
             weight: 2,
+            price: 6250,
+            penaltyLowerBound: 30,
+            penaltyLength: 5,
         },
         {
             id: 32,
@@ -382,6 +400,9 @@ export const config = {
             longName: "of coal",
             classes: 16,
             weight: 16,
+            price: 3536,
+            penaltyLowerBound: 40,
+            penaltyLength: 215,
         },
         {
             id: 33,
@@ -392,6 +413,9 @@ export const config = {
             longName: "of chemicals",
             classes: 64,
             weight: 20,
+            price: 4729,
+            penaltyLowerBound: 20,
+            penaltyLength: 235,
         },
         {
             available: true,
@@ -402,6 +426,9 @@ export const config = {
             classes: 64,
             id: 34,
             weight: 14,
+            price: 4153,
+            penaltyLowerBound: 30,
+            penaltyLength: 225,
         },
         {
             available: true,
@@ -412,6 +439,9 @@ export const config = {
             classes: 16,
             id: 35,
             weight: 16,
+            price: 4235,
+            penaltyLowerBound: 30,
+            penaltyLength: 225,
         },
         {
             available: true,
@@ -422,6 +452,9 @@ export const config = {
             classes: 32,
             id: 36,
             weight: 10,
+            price: 6991,
+            penaltyLowerBound: 2,
+            penaltyLength: 32,
         },
     ],
 };

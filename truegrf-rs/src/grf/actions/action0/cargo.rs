@@ -10,7 +10,7 @@ pub enum Cargo<'a> {
                                                                                // 0d (TODO)
                                                                                // 0e (TODO)
     Weight { id: u8, weight: u8 },                                             // 0f
-                                                                               // 10, 11, 12 (TODO)
+    Price { id: u8, price: u32, penalty_lower_bound: u8, penalty_length: u8 }, // 10, 11, 12
                                                                                // 13, 14 (TODO)
     Classes { id: u8, classes: u16 },                                          // 15, 16
     Label { id: u8, label: &'a str },                                          // 17
@@ -46,6 +46,13 @@ impl<'a> ActionTrait for Cargo<'a> {
             Cargo::Weight { id, weight } => {
                 (*id, vec![
                     vec_list!([0x0f], [*weight]),
+                ])
+            }
+            Cargo::Price { id, price, penalty_lower_bound, penalty_length } => {
+                (*id, vec![
+                    vec_list!([0x10], [*penalty_lower_bound]),
+                    vec_list!([0x11], [*penalty_length]),
+                    vec_list!([0x12], &price.to_le_bytes()),
                 ])
             }
             Cargo::Classes { id, classes } => {

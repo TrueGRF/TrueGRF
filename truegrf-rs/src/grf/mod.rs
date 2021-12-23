@@ -105,6 +105,9 @@ struct NewGRFCargo {
     label: String,
     classes: u16,
     weight: u8,
+    penaltyLowerBound: u8,
+    penaltyLength: u8,
+    price: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -227,6 +230,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
         Action0::Cargo::UnitName { id: cargo.id, name: &cargo.unitName }.write(output);
         Action0::Cargo::LongName { id: cargo.id, unit: &cargo.unitName, name: &cargo.longName }.write(output);
         Action0::Cargo::Weight { id: cargo.id, weight: cargo.weight }.write(output);
+        Action0::Cargo::Price { id: cargo.id, price: cargo.price, penalty_lower_bound: cargo.penaltyLowerBound, penalty_length: cargo.penaltyLength }.write(output);
     }
 
     for industry in &options.industries {

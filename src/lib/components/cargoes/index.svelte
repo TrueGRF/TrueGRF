@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Icon } from "@smui/common";
     import Button, { Label } from "@smui/button";
     import Dialog, { Title as DialogTitle, Content as DialogContent, Actions } from "@smui/dialog";
     import FormField from "@smui/form-field";
@@ -11,6 +12,7 @@
     import Slider from "@smui/slider";
     import Switch from "@smui/switch";
     import Textfield from "@smui/textfield";
+    import Tooltip, { Wrapper } from "@smui/tooltip";
 
     import { classes, classesOptional } from "./classes";
     import { disabledCargo } from "./disabled";
@@ -22,10 +24,13 @@
 
     let selected = 0;
     let dialogDeleteOpen = false;
-    let weight = 1000.0;
 
     $: item = items[selected];
-    $: if (item.weight === undefined) item.weight = 16;
+    /* Compatibility for older JSON backups. */
+    $: if (item && item.weight === undefined) item.weight = 16;
+    $: if (item && item.price === undefined) item.price = 4112;
+    $: if (item && item.penaltyLowerBound === undefined) item.penaltyLowerBound = 0;
+    $: if (item && item.penaltyLength === undefined) item.penaltyLength = 255;
 
     /* We added "selected" and "disabled" field to the array, so we can use it directly in the components. */
     let currentClassesOptional = classesOptional.map((c) => {
@@ -42,8 +47,8 @@
     }
 
     /* CargoClasses is a bitmask. This requires a bit of glue to work correctly. */
-    let cargoClasses = "";
-    function updateCargoClass(item: any) {
+    let cargoClasses;
+    function updateCargoClass() {
         cargoClasses = (item.classes & 0x7f).toString();
         for (let i = 0; i < classesOptional.length; i++) {
             currentClassesOptional[i].selected = (item.classes & currentClassesOptional[i].value) !== 0;
@@ -59,7 +64,7 @@
             item.classes &= ~segment.value;
         }
     }
-    $: if (item) updateCargoClass(item);
+    $: if (item.classes) updateCargoClass();
     $: if (cargoClasses) item.classes = parseInt(cargoClasses);
 
     function deleteCargo() {
@@ -84,11 +89,39 @@
         selected = items.length - 1;
     }
 
-    function updateWeight(item) {
-        weight = item.weight / 16.0 * 1000;
+    /* Convert weight from kg to internal GRF value. */
+    let weight;
+    function updateWeight() {
+        weight = (item.weight / 16.0) * 1000;
     }
-    $: if (item) updateWeight(item);
-    $: item.weight = weight * 16 / 1000;
+    $: if (item.weight) updateWeight();
+    $: if (weight) item.weight = (weight * 16) / 1000;
+
+    /* Convert price per 10 units across 20 tiles to internal GRF value. */
+    let price;
+    function updatePrice() {
+        let newPrice = (item.price * 10 * 20 * 255) / (1 << 21);
+
+        /* Don't correct for small changes, as otherwise due to rounding we might not be able to indicate a certain price. */
+        if (price === undefined || Math.abs(newPrice - price) > 0.5) {
+            price = Math.round(newPrice);
+        }
+    }
+    $: if (item.price) updatePrice();
+    $: if (price) item.price = Math.round((price * (1 << 21)) / 10 / 20 / 255);
+
+    /* Convert penalty bounds from days to internal GRF value. */
+    let penaltyLowerBound;
+    let penaltyUpperBound;
+    function updatePenalty() {
+        penaltyUpperBound = (item.penaltyLowerBound + item.penaltyLength) * 2.5;
+        penaltyLowerBound = item.penaltyLowerBound * 2.5;
+    }
+    $: if (item.penaltyLowerBound || item.penaltyLength) updatePenalty();
+    $: if (penaltyLowerBound && penaltyUpperBound) {
+        item.penaltyLowerBound = penaltyLowerBound / 2.5;
+        item.penaltyLength = (penaltyUpperBound - penaltyLowerBound) / 2.5;
+    }
 </script>
 
 <div class="content {visible ? '' : 'hidden'}">
@@ -176,9 +209,60 @@
                     {:else if item.unitName === "Litres"}
                         1,000 litres
                     {/if}
-                    ({(item.weight / 16) * 1000} kg)
+                    ({weight} kg)
                 </span>
             </FormField>
+
+            <div class="flex">
+                <FormField align="end">
+                    <Slider
+                        range
+                        bind:start={penaltyLowerBound}
+                        bind:end={penaltyUpperBound}
+                        min={0}
+                        max={637.5}
+                        step={2.5}
+                        discrete
+                        tickMarks
+                        style="flex-grow: 1;"
+                    />
+                    <span slot="label">
+                        Cargo price penalty (days)
+                        <Wrapper>
+                            <Icon class="help material-icons">help</Icon>
+                            <Tooltip>
+                                The first mark indicates after how many days in transit the price of the cargo starts to
+                                drop with ~0.16% per extra day in transit.<br />
+                                The second mark indicates after how many days this becomes ~0.31% per extra day in transit.<br
+                                />
+                                The price can never drop below ~12% of the original price.
+                            </Tooltip>
+                        </Wrapper>
+                    </span>
+                </FormField>
+
+                <div>
+                    <Textfield variant="outlined" bind:value={price} label="Price" type="number" class="price">
+                        <HelperText slot="helper">
+                            Price per
+                            {#if item.unitName === "Tonnes"}
+                                10 tonnes
+                            {:else if item.unitName === "Passengers"}
+                                10 passengers
+                            {:else if item.unitName === "Bags"}
+                                10 bags
+                            {:else if item.unitName === "Items"}
+                                10 item
+                            {:else if item.unitName === "Crates"}
+                                10 crate
+                            {:else if item.unitName === "Litres"}
+                                10,000 litres
+                            {/if}
+                            across 20 tiles
+                        </HelperText>
+                    </Textfield>
+                </div>
+            </div>
 
             <Paper variant="outlined" class="dangerzone">
                 <Title>Danger Zone</Title>
@@ -228,6 +312,20 @@
     }
     .right :global(.mdc-form-field:first-child) {
         margin-top: 0px;
+    }
+    .right :global(.mdc-text-field.price) {
+        width: 250px;
+    }
+
+    .flex {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .right :global(.material-icons.help) {
+        position: relative;
+        top: 7px;
+        left: 10px;
     }
 
     .right :global(.mdc-segmented-button) {
