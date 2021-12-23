@@ -8,6 +8,7 @@
     import Paper, { Content, Title } from "@smui/paper";
     import SegmentedButton, { Segment, Label as SegmentedLabel } from "@smui/segmented-button";
     import Select, { Option } from "@smui/select";
+    import Slider from "@smui/slider";
     import Switch from "@smui/switch";
     import Textfield from "@smui/textfield";
 
@@ -23,6 +24,7 @@
     let dialogDeleteOpen = false;
 
     $: item = items[selected];
+    $: if (item.weight === undefined) item.weight = 16;
 
     /* We added "selected" and "disabled" field to the array, so we can use it directly in the components. */
     let currentClassesOptional = classesOptional.map((c) => {
@@ -112,7 +114,14 @@
                 <HelperText slot="helper">Long name of cargo</HelperText>
             </Textfield>
 
-            <Select variant="outlined" bind:value={item.unitName} label="Unit">
+            <Select
+                variant="outlined"
+                bind:value={item.unitName}
+                label="Unit"
+                on:SMUISelect:change={(event) => {
+                    if (event.detail.value === "Tonnes") item.weight = 16;
+                }}
+            >
                 {#each units as unit}
                     <Option value={unit}>{unit}</Option>
                 {/each}
@@ -134,6 +143,38 @@
                     <SegmentedLabel>{segment.name}</SegmentedLabel>
                 </Segment>
             </SegmentedButton>
+
+            <FormField align="end">
+                <Slider
+                    bind:value={item.weight}
+                    min={0}
+                    max={32}
+                    step={1}
+                    discrete
+                    style="flex-grow: 1;"
+                    valueToAriaValueTextFn={(value) => {
+                        return (value / 16).toString();
+                    }}
+                    disabled={item.unitName === "Tonnes"}
+                />
+                <span slot="label">
+                    Weight per
+                    {#if item.unitName === "Tonnes"}
+                        ton
+                    {:else if item.unitName === "Passengers"}
+                        passenger
+                    {:else if item.unitName === "Bags"}
+                        bag
+                    {:else if item.unitName === "Items"}
+                        item
+                    {:else if item.unitName === "Crates"}
+                        crate
+                    {:else if item.unitName === "Litres"}
+                        1,000 litres
+                    {/if}
+                    ({(item.weight / 16) * 1000} kg)
+                </span>
+            </FormField>
 
             <Paper variant="outlined" class="dangerzone">
                 <Title>Danger Zone</Title>
@@ -173,6 +214,12 @@
         margin-top: 12px;
         margin-right: 10px;
         width: 250px;
+    }
+    .right :global(.mdc-form-field) {
+        width: 540px;
+    }
+    .right :global(.mdc-form-field label) {
+        width: 236px;
     }
 
     .right :global(.mdc-segmented-button) {

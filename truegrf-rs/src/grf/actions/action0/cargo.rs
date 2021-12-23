@@ -9,7 +9,7 @@ pub enum Cargo<'a> {
                                                                                // 0c (deprecated by 1c)
                                                                                // 0d (TODO)
                                                                                // 0e (TODO)
-                                                                               // 0f (TODO)
+    Weight { id: u8, weight: u8 },                                             // 0f
                                                                                // 10, 11, 12 (TODO)
                                                                                // 13, 14 (TODO)
     Classes { id: u8, classes: u16 },                                          // 15, 16
@@ -41,6 +41,11 @@ impl<'a> ActionTrait for Cargo<'a> {
                 (*id, vec![
                     vec_list!([0x09], &string_id.to_le_bytes()),
                     vec_list!([0x0a], &string_id.to_le_bytes()),
+                ])
+            }
+            Cargo::Weight { id, weight } => {
+                (*id, vec![
+                    vec_list!([0x0f], [*weight]),
                 ])
             }
             Cargo::Classes { id, classes } => {
