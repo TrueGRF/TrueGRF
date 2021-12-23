@@ -325,6 +325,14 @@ export const config = {
             price: 3185,
             penaltyLowerBound: 0,
             penaltyLength: 24,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAMxJREFUKFNt0K0WgkAQBeDLOUbCxgkGgsFgJBgMRIKRQDAYDRuMBIORaDDwCASiD2DgMQxE4kbaemaWX48kzuzH3Lt46J9LRPaZ5VjFZ2+YKaUsvxtjPBky0kkq5zv9GGFAsKZTMh8hb9N5huLdLqBs7JSDd0Ai2ogWMI0qq3xCWR8dPAG26YsVz6vEc+x+W4Fh8Tq4jgw3AJIeDZdhHIf1BOWAtIVPwOc2duTogELkZeA2/oOMeM7Ryl+7jr9wjhyeQe7Dw6adPp7/8C/vxEz2TrCoIgAAAABJRU5ErkJggg==",
+            },
         },
         {
             id: 2,
@@ -338,6 +346,14 @@ export const config = {
             price: 4550,
             penaltyLowerBound: 20,
             penaltyLength: 90,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAANhJREFUKFONkKEWgkAQRd80g8FAMBD8AMIGAsFgNBIJfAAfQDAQiXzARoOBQCAa+QDCBgLBSDAQCPb1zHjgiMkp+2b3vtl3hvBn0S+n89ia1sDZu8j1fXlfRJacLZtc18EwjBifwwoWMAk9q3wlAINcvzBFR8funL24vyHWx7rHtm1xAIh42inK0JT5EvdSd3j5Prwp/Nw9MqKyLK1SSvqiKOSsqgrTJkYSNOBISXYj6vveGmMEYAPDaZqiqXIB5m9EzFODIIDWWmLoulutbtWwoWuuq/3NE98/H1wL4uQWIgAAAABJRU5ErkJggg==",
+            },
         },
         {
             id: 5,
@@ -351,6 +367,14 @@ export const config = {
             price: 6144,
             penaltyLowerBound: 5,
             penaltyLength: 28,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAALxJREFUKFNjZICCI1s6/htoaIB5Dx48YdBxyWGEyYFoRmQFF27cAMth08A4pyPgP0hSQ8cCRRFMk41PBdhksMI3b14wiIhIQBT+EGDgEBEAs3+8+cBg0rAAVaELjwaKApBCZA2MJREyYKtF/siATXHRgXgIpujJnQdgPtxnHSEW/998+MAgIgCx1kAG4hSYGIZCsOkCAmCFIEUwPlxhgokExAkCAigKn3z5gWo1LHBhGjQUFMBCFWtOgA0DAObAUi5tn6OSAAAAAElFTkSuQmCC",
+            },
         },
         {
             id: 12,
@@ -364,6 +388,14 @@ export const config = {
             price: 5688,
             penaltyLowerBound: 0,
             penaltyLength: 30,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAALRJREFUKFNjZICCEydO/FdQUADznrz4wmBioMIIkwPRjMgKHjx4AJbDpoFRIYDl/4cPfxh2dJxAURTRocLw4MEPhgcb/oBNBpv44cMHhowZPmCFKyqOYDdxAQPDf5CFHidOwBVgcwJjRELBf5BJJz5MYcDnBLjP0J0AD40ZTxhAToMrRHaCgIAAWBJEv9HQYLgD8gxMJ8wJHgsmIAcfw5OeGWA+SqCCBGAadHQ0wApqSjLAagCC8GLCrGbWAwAAAABJRU5ErkJggg==",
+            },
         },
         {
             id: 20,
@@ -377,6 +409,14 @@ export const config = {
             price: 6144,
             penaltyLowerBound: 8,
             penaltyLength: 40,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAABdJREFUKFNjZCASMBKpjmFUId6QIjp4AAppAAuXjCs4AAAAAElFTkSuQmCC",
+            },
         },
         {
             id: 26,
@@ -390,6 +430,14 @@ export const config = {
             price: 6250,
             penaltyLowerBound: 30,
             penaltyLength: 5,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAABdJREFUKFNjZCASMBKpjmFUId6QIjp4AAppAAuXjCs4AAAAAElFTkSuQmCC",
+            },
         },
         {
             id: 32,
@@ -403,6 +451,14 @@ export const config = {
             price: 3536,
             penaltyLowerBound: 40,
             penaltyLength: 215,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAMBJREFUKFONkCEOwzAMRX+kgIECg4KBgYCCggGDgR0gx+0BdoCBgYCCwYLAgoKAgYJKmewpkVq0gEj2f/7ficGfxxw551xOKSGltNNq0fU+L3PQOSIScAdXsDg55xBjrEHFWUFx29YJ7aXH9H6BmRWUgRijMnoRUS5x4gjb4caEEILC4mqYOUtRIrvrHWnZQK1FY1eM46iakdjmtOikRIog7t57DMMAGdw+8y+67FleffwyjT42ZRXp2eaM8HxU/QtTxl0pUj0D4QAAAABJRU5ErkJggg==",
+            },
         },
         {
             id: 33,
@@ -416,6 +472,14 @@ export const config = {
             price: 4729,
             penaltyLowerBound: 20,
             penaltyLength: 235,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAH1JREFUKFNjZCASMKKrO/Phz3+QmIkAC4ochsI9D/78FxAgoBCkCGYDumIUE0HWGsxgwXA1SwUDI1whzEqQQpEOAYY3FR/gNIbClAwDhjsOV8AmwhSD2HCFINNAiiQkZBiOaOzAbSK6QnRHYrUaZKqIiABDQc4SBhcFRFgCAFsdQQsOOIPdAAAAAElFTkSuQmCC",
+            },
         },
         {
             available: true,
@@ -429,6 +493,14 @@ export const config = {
             price: 4153,
             penaltyLowerBound: 30,
             penaltyLength: 225,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAIhJREFUKFNjZGBgYHDxifkPomFgz5YljMh8EJsRpEhDQ4NBQkKEYc2SGQw2LiEMN27cQFEH0shoYuPxX0BABEUCm0a4QhEREQYQPnHiCAM2jWCFIONAkiCFd+7cgLNBfJCTrly5wYDVRGSNIMVgz1DfRJCxMJ/jcuOLF28YMAIWXSNI85SeGkYAEMdC0HUSe4MAAAAASUVORK5CYII=",
+            },
         },
         {
             available: true,
@@ -442,6 +514,14 @@ export const config = {
             price: 4235,
             penaltyLowerBound: 30,
             penaltyLength: 225,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAHpJREFUKFNjZCASMBKpjoEyhVf2TPmvoCDDwKMSADcIw8Qvdzb851AQYPjx4APYVTDFcIUwU0CKbhy4wgAy8cGDJ2DFOi45jGCFyKaAJJEVwRWCTNJw0IFbBVMICw2YqWATYYpBVoI0gQCy9XCrYYphVoIUs7A4oHgUANOxQi7eJ+RCAAAAAElFTkSuQmCC",
+            },
         },
         {
             available: true,
@@ -455,6 +535,14 @@ export const config = {
             price: 6991,
             penaltyLowerBound: 2,
             penaltyLength: 32,
+            sprite: {
+                width: 10,
+                height: 10,
+                top: 0,
+                left: 0,
+                base64Data:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAM5JREFUKFONkC0SwjAQhb/McICICkTEigoEoqKykiNUIjgCR+AIHIEDICo5AAJRUVGBjKhErMCHSSDMMCBYk8nu+5tn+HNMxh0gnJqC690xDMN7n+9p0ToblpNyWc6QcsG6G2nAVFUVMslEJQ+MzlLUjnk3sgEmYC2C9z6JmR2EgwiqylY1OQkQySvAPf/GiEhovOf8Au9VEygT9nXL0B+/gVKu2PbHBO7qFr31yT75R9X45jxV3YYIiGOtTbG+asjEHOejnl+dR5eolut5ALyqV8lzc10qAAAAAElFTkSuQmCC",
+            },
         },
     ],
 };

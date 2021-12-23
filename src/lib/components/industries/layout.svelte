@@ -120,7 +120,6 @@
         tileEditorLoadSprite(event.dataTransfer.files[0]);
     }
     function tileEditorPaste(event) {
-        /* Get the Image Data */
         tileEditorLoadSprite(event.clipboardData.files[0]);
     }
     function tileEditorDragOver(event) {

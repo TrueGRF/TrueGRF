@@ -10,6 +10,7 @@
     import SegmentedButton, { Segment, Label as SegmentedLabel } from "@smui/segmented-button";
     import Select, { Option } from "@smui/select";
     import Slider from "@smui/slider";
+    import SpriteEditor from "$lib/components/common/sprite-editor.svelte";
     import Switch from "@smui/switch";
     import Textfield from "@smui/textfield";
     import Tooltip, { Wrapper } from "@smui/tooltip";
@@ -31,6 +32,14 @@
     $: if (item && item.price === undefined) item.price = 4112;
     $: if (item && item.penaltyLowerBound === undefined) item.penaltyLowerBound = 0;
     $: if (item && item.penaltyLength === undefined) item.penaltyLength = 255;
+    $: if (item && item.sprite === undefined)
+        item.sprite = {
+            width: 10,
+            height: 10,
+            top: 0,
+            left: 0,
+            base64Data: "",
+        };
 
     /* We added "selected" and "disabled" field to the array, so we can use it directly in the components. */
     let currentClassesOptional = classesOptional.map((c) => {
@@ -263,6 +272,8 @@
                     </Textfield>
                 </div>
             </div>
+
+            <SpriteEditor bind:base64Data={item.sprite.base64Data} />
 
             <Paper variant="outlined" class="dangerzone">
                 <Title>Danger Zone</Title>

@@ -3,6 +3,7 @@ use super::{ActionTrait, Action, Feature, Output, vec_list, write as write_actio
 pub enum Action3 {
     Industry { id: u8, set_id: u8 },
     IndustryTile { id: u8, set_id: u8 },
+    Cargo { id: u8, set_id: u8 },
 }
 
 fn write(output: &mut Output, feature: Feature, id: u8, set_id: u16) {
@@ -22,6 +23,9 @@ impl ActionTrait for Action3 {
             },
             Action3::IndustryTile { id, set_id } => {
                 write(output, Feature::IndustryTiles, *id, *set_id as u16);
+            }
+            Action3::Cargo { id, set_id } => {
+                write(output, Feature::Cargoes, *id, *set_id as u16);
             }
         }
     }

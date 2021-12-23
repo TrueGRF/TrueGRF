@@ -5,6 +5,7 @@ mod png;
 
 pub enum Action1<'a> {
     IndustryTile { sprites: &'a Vec<&'a NewGRFSprite> },
+    Cargo { sprite: &'a NewGRFSprite },
 }
 
 fn write_sprite(output: &mut Output, sprite: &NewGRFSprite) {
@@ -49,6 +50,9 @@ impl<'a> ActionTrait for Action1<'a> {
         match self {
             Action1::IndustryTile { sprites } => {
                 write(output, Feature::IndustryTiles, sprites);
+            }
+            Action1::Cargo { sprite } => {
+                write(output, Feature::Cargoes, &[sprite]);
             }
         }
     }

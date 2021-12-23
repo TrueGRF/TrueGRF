@@ -108,6 +108,7 @@ struct NewGRFCargo {
     penaltyLowerBound: u8,
     penaltyLength: u8,
     price: u32,
+    sprite: NewGRFSprite,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -231,6 +232,12 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
         Action0::Cargo::LongName { id: cargo.id, unit: &cargo.unitName, name: &cargo.longName }.write(output);
         Action0::Cargo::Weight { id: cargo.id, weight: cargo.weight }.write(output);
         Action0::Cargo::Price { id: cargo.id, price: cargo.price, penalty_lower_bound: cargo.penaltyLowerBound, penalty_length: cargo.penaltyLength }.write(output);
+        Action0::Cargo::Sprite { id: cargo.id }.write(output);
+
+        /* Write the cargo sprite. */
+        Action1::Cargo { sprite: &cargo.sprite }.write(output);
+        Action2::Cargo { set_id: 0, sprite: 0 }.write(output);
+        Action3::Cargo { id: cargo.id, set_id: 0 }.write(output);
     }
 
     for industry in &options.industries {

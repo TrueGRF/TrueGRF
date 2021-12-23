@@ -8,7 +8,7 @@ pub enum Cargo<'a> {
                                                                                // 0b (deprecated by 1b)
                                                                                // 0c (deprecated by 1c)
                                                                                // 0d (TODO)
-                                                                               // 0e (TODO)
+    Sprite { id: u8 },                                                         // 0e
     Weight { id: u8, weight: u8 },                                             // 0f
     Price { id: u8, price: u32, penalty_lower_bound: u8, penalty_length: u8 }, // 10, 11, 12
                                                                                // 13, 14 (TODO)
@@ -41,6 +41,11 @@ impl<'a> ActionTrait for Cargo<'a> {
                 (*id, vec![
                     vec_list!([0x09], &string_id.to_le_bytes()),
                     vec_list!([0x0a], &string_id.to_le_bytes()),
+                ])
+            }
+            Cargo::Sprite { id } => {
+                (*id, vec![
+                    vec_list!([0x0e], [0xff, 0xff]),
                 ])
             }
             Cargo::Weight { id, weight } => {
