@@ -114,8 +114,8 @@
     let penaltyLowerBound;
     let penaltyUpperBound;
     function updatePenalty() {
-        penaltyUpperBound = (item.penaltyLowerBound + item.penaltyLength) * 2.5;
         penaltyLowerBound = item.penaltyLowerBound * 2.5;
+        penaltyUpperBound = (item.penaltyLowerBound + item.penaltyLength) * 2.5;
     }
     $: if (item.penaltyLowerBound || item.penaltyLength) updatePenalty();
     $: if (penaltyLowerBound && penaltyUpperBound) {
