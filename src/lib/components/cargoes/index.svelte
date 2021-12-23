@@ -22,6 +22,7 @@
 
     let selected = 0;
     let dialogDeleteOpen = false;
+    let weight = 1000.0;
 
     $: item = items[selected];
     $: if (item.weight === undefined) item.weight = 16;
@@ -82,6 +83,12 @@
         items = items; // Trigger Svelte's update.
         selected = items.length - 1;
     }
+
+    function updateWeight(item) {
+        weight = item.weight / 16.0 * 1000;
+    }
+    $: if (item) updateWeight(item);
+    $: item.weight = weight * 16 / 1000;
 </script>
 
 <div class="content {visible ? '' : 'hidden'}">
@@ -119,7 +126,7 @@
                 bind:value={item.unitName}
                 label="Unit"
                 on:SMUISelect:change={(event) => {
-                    if (event.detail.value === "Tonnes") item.weight = 16;
+                    if (event.detail.value === "Tonnes") weight = 1000.0;
                 }}
             >
                 {#each units as unit}
@@ -146,15 +153,12 @@
 
             <FormField align="end">
                 <Slider
-                    bind:value={item.weight}
+                    bind:value={weight}
                     min={0}
-                    max={32}
-                    step={1}
+                    max={2000}
+                    step={62.5}
                     discrete
                     style="flex-grow: 1;"
-                    valueToAriaValueTextFn={(value) => {
-                        return (value / 16).toString();
-                    }}
                     disabled={item.unitName === "Tonnes"}
                 />
                 <span slot="label">
@@ -216,10 +220,14 @@
         width: 250px;
     }
     .right :global(.mdc-form-field) {
+        margin-top: 12px;
         width: 540px;
     }
     .right :global(.mdc-form-field label) {
         width: 236px;
+    }
+    .right :global(.mdc-form-field:first-child) {
+        margin-top: 0px;
     }
 
     .right :global(.mdc-segmented-button) {
