@@ -27,5 +27,8 @@
         border-radius: var(--mdc-shape-medium, 4px);
         border-style: solid;
         border-width: 1px;
+
+        height: calc(100vh - 290px);
+        overflow: auto;
     }
 </style>

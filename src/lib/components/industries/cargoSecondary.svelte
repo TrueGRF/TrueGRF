@@ -55,8 +55,8 @@
     );
 </script>
 
-<div>
-    <div>
+<div style="width: 960px; overflow: auto; padding-bottom: 12px;">
+    <div style="width: {265 * (2 + secondary.acceptance.length)}px;">
         <span style="width: 262px; display: inline-block" />
         {#each secondary.acceptance as acceptance}
             <Select variant="outlined" bind:value={acceptance.cargoLabel}>
@@ -69,7 +69,7 @@
             </Select>
         {/each}
 
-        {#if secondary.acceptance.length < 2}
+        {#if secondaryAcceptanceCargoesAvailable.length !== 0}
             <Select variant="outlined" bind:value={secondaryNewAcceptanceCargo}>
                 {#each secondaryAcceptanceCargoesAvailable as cargo}
                     <Option value={cargo.label}>{cargo.name}</Option>
@@ -78,25 +78,22 @@
         {/if}
     </div>
 
-    {#each secondary.production as production}
-        <Select variant="outlined" bind:value={production.cargoLabel} disabled>
-            {#each cargoes as cargo}
-                <Option value={cargo.label}>{cargo.name}</Option>
+    <div style="width: {80 + 265 * (2 + secondary.acceptance.length)}px;">
+        {#each secondary.production as production}
+            <Select variant="outlined" bind:value={production.cargoLabel} disabled>
+                {#each cargoes as cargo}
+                    <Option value={cargo.label}>{cargo.name}</Option>
+                {/each}
+            </Select>
+            {#each secondary.acceptance as acceptance, index}
+                <Textfield variant="outlined" bind:value={production.multiplier[index]} label="Multiplier" type="number" />
             {/each}
-        </Select>
-        {#each secondary.acceptance as acceptance, index}
-            <Textfield variant="outlined" bind:value={production.multiplier[index]} label="Multiplier" type="number" />
+            <span class="empty" />
+            <IconButton class="material-icons" on:click={() => deleteSecondaryCargo(production.cargoLabel)}
+                >delete</IconButton
+            >
         {/each}
-        {#if secondary.acceptance.length < 2}
-            <span class="empty" />
-        {/if}
-        {#if secondary.acceptance.length < 1}
-            <span class="empty" />
-        {/if}
-        <IconButton class="material-icons" on:click={() => deleteSecondaryCargo(production.cargoLabel)}
-            >delete</IconButton
-        >
-    {/each}
+    </div>
 
     {#if secondaryProductionCargoesAvailable.length !== 0}
         <Select variant="outlined" bind:value={secondaryNewProductionCargo}>

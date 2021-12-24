@@ -22,7 +22,7 @@
     let tileSelectedY = 0;
     let hideOverlay = false;
     let tileEditorOpen = false;
-    let currentTile = 0;
+    let currentTile;
 
     function checkNewLayout() {
         if (layout === lastLayout) return;
@@ -264,21 +264,23 @@
         <Title>Tile Editor</Title>
         <Content>
             <div on:drop={tileEditorDrop} on:dragover={tileEditorDragOver} on:paste={tileEditorPaste}>
-                <Sprite bind:sprite={tiles[currentTile].sprite} noOffset /> (drag or paste a new image to replace)
-                <div class="flex">
-                    <Textfield
-                        variant="outlined"
-                        bind:value={tiles[currentTile].sprite.left}
-                        label="Left"
-                        type="number"
-                    />
-                    <Textfield
-                        variant="outlined"
-                        bind:value={tiles[currentTile].sprite.top}
-                        label="Top"
-                        type="number"
-                    />
-                </div>
+                {#if currentTile !== undefined}
+                    <Sprite bind:sprite={tiles[currentTile].sprite} noOffset /> (drag or paste a new image to replace)
+                    <div class="flex">
+                        <Textfield
+                            variant="outlined"
+                            bind:value={tiles[currentTile].sprite.left}
+                            label="Left"
+                            type="number"
+                        />
+                        <Textfield
+                            variant="outlined"
+                            bind:value={tiles[currentTile].sprite.top}
+                            label="Top"
+                            type="number"
+                        />
+                    </div>
+                {/if}
             </div>
         </Content>
         <Actions>

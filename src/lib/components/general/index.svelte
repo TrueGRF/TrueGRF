@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
     import HelperText from "@smui/textfield/helper-text";
     import Paper, { Title, Content } from "@smui/paper";
@@ -19,6 +20,10 @@
             let json = JSON.parse(text);
             dispatch("upload", json);
         });
+    }
+
+    function loadTemplate(template) {
+        dispatch("load", template);
     }
 </script>
 
@@ -51,6 +56,18 @@
                 <div class="title">Restore JSON backup (WARNING: all configuration will be lost)</div>
                 <div class="filler" />
                 <Textfield variant="outlined" bind:files={uploadJSON} type="file" class="file" />
+
+                <div class="title">For when you want to start over (WARNING: all configuration will be lost)</div>
+                <div class="filler" />
+                <Button variant="raised" on:click={() => loadTemplate("empty")}>
+                    <Label>Load empty template</Label>
+                </Button>
+
+                <div class="title">When you already like FIRS4 Steeltown (WARNING: all configuration will be lost)</div>
+                <div class="filler" />
+                <Button variant="raised" on:click={() => loadTemplate("firs4-steeltown")}>
+                    <Label>Load FIRS4 Steeltown template</Label>
+                </Button>
             </Content>
         </Paper>
     </div>
@@ -74,5 +91,13 @@
     }
     .right :global(.mdc-text-field.file) {
         width: 300px;
+    }
+
+    .right :global(.smui-paper__content) {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .right :global(.smui-paper__content .mdc-button) {
+        margin-top: 12px;
     }
 </style>

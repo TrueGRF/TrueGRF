@@ -16,10 +16,11 @@
     import Industries from "$lib/components/industries/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
 
-    import { config as configDefault } from "./configDefault";
+    import { config as configEmpty } from "./configEmpty";
+    import { config as configFIRS4Steeltown } from "./configFIRS4Steeltown";
 
     let testing;
-    let config = { ...configDefault };
+    let config = JSON.parse(JSON.stringify(configFIRS4Steeltown));
 
     let categories = ["General", "Industries", "Cargoes", "Testing"];
     let category = "General";
@@ -37,14 +38,25 @@
         testing.compileAndTest(config, event.detail === "New-game" ? 1 : 0);
     }
 
-    function upload(event: CustomEvent) {
-        config.general = event.detail.general;
-        config.cargoes = event.detail.cargoes;
+    function loadConfig(newConfig) {
+        config.general = newConfig.general;
+        config.cargoes = newConfig.cargoes;
+        config.industries = newConfig.industries;
+    }
 
-        /* Delay industries, as it depends on a well loaded cargoes. */
-        setTimeout(() => {
-            config.industries = event.detail.industries;
-        }, 1);
+    function upload(event: CustomEvent) {
+        loadConfig(event.detail);
+    }
+
+    function load(event: CustomEvent) {
+        switch (event.detail) {
+            case "empty":
+                loadConfig(JSON.parse(JSON.stringify(configEmpty)));
+                break;
+            case "firs4-steeltown":
+                loadConfig(JSON.parse(JSON.stringify(configFIRS4Steeltown)));
+                break;
+        }
     }
 </script>
 
@@ -68,7 +80,7 @@
         <div class="container">
             <Header bind:categories bind:category on:test={compileAndTest} on:download={compileAndDownload} />
 
-            <General bind:general={config.general} visible={category === "General"} on:upload={upload} />
+            <General bind:general={config.general} visible={category === "General"} on:upload={upload} on:load={load} />
             <Industries
                 bind:items={config.industries}
                 bind:cargoes={config.cargoes}
