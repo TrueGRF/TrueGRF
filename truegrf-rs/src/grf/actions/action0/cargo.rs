@@ -7,11 +7,11 @@ pub enum Cargo<'a> {
     Name { id: u8, name: &'a str },                                            // 09, 0a
                                                                                // 0b (deprecated by 1b)
                                                                                // 0c (deprecated by 1c)
-                                                                               // 0d (TODO)
+    Abbreviation { id: u8, abbreviation: &'a str},                             // 0d
     Sprite { id: u8 },                                                         // 0e
     Weight { id: u8, weight: u8 },                                             // 0f
     Price { id: u8, price: u32, penalty_lower_bound: u8, penalty_length: u8 }, // 10, 11, 12
-                                                                               // 13, 14 (TODO)
+    Colour { id: u8, colour: u8 },                                             // 13, 14
     Classes { id: u8, classes: u16 },                                          // 15, 16
     Label { id: u8, label: &'a str },                                          // 17
                                                                                // 18, 19 (TODO)
@@ -43,6 +43,13 @@ impl<'a> ActionTrait for Cargo<'a> {
                     vec_list!([0x0a], &string_id.to_le_bytes()),
                 ])
             }
+            Cargo::Abbreviation { id, abbreviation } => {
+                let string_id = write_string(output, Feature::Cargoes, abbreviation);
+
+                (*id, vec![
+                    vec_list!([0x0d], &string_id.to_le_bytes()),
+                ])
+            }
             Cargo::Sprite { id } => {
                 (*id, vec![
                     vec_list!([0x0e], [0xff, 0xff]),
@@ -58,6 +65,12 @@ impl<'a> ActionTrait for Cargo<'a> {
                     vec_list!([0x10], [*penalty_lower_bound]),
                     vec_list!([0x11], [*penalty_length]),
                     vec_list!([0x12], &price.to_le_bytes()),
+                ])
+            }
+            Cargo::Colour { id, colour } => {
+                (*id, vec![
+                    vec_list!([0x13], [*colour]),
+                    vec_list!([0x14], [*colour]),
                 ])
             }
             Cargo::Classes { id, classes } => {

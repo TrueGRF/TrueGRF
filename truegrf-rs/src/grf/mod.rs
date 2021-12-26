@@ -103,8 +103,10 @@ struct NewGRFCargo {
     longName: String,
     unitName: String,
     label: String,
+    abbreviation: String,
     classes: u16,
     weight: u8,
+    colour: u8,
     penaltyLowerBound: u8,
     penaltyLength: u8,
     price: u32,
@@ -227,10 +229,12 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
         Action0::Cargo::Enable { id: cargo.id }.write(output);
         Action0::Cargo::Classes { id: cargo.id, classes: cargo.classes }.write(output);
         Action0::Cargo::Label { id: cargo.id, label: &cargo.label }.write(output);
+        Action0::Cargo::Abbreviation { id: cargo.id, abbreviation: &cargo.abbreviation }.write(output);
         Action0::Cargo::Name { id: cargo.id, name: &cargo.name }.write(output);
         Action0::Cargo::UnitName { id: cargo.id, name: &cargo.unitName }.write(output);
         Action0::Cargo::LongName { id: cargo.id, unit: &cargo.unitName, name: &cargo.longName }.write(output);
         Action0::Cargo::Weight { id: cargo.id, weight: cargo.weight }.write(output);
+        Action0::Cargo::Colour { id: cargo.id, colour: cargo.colour }.write(output);
         Action0::Cargo::Price { id: cargo.id, price: cargo.price, penalty_lower_bound: cargo.penaltyLowerBound, penalty_length: cargo.penaltyLength }.write(output);
         Action0::Cargo::Sprite { id: cargo.id }.write(output);
 

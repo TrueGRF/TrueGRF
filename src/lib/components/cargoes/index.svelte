@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { colours } from "$lib/components/common/colour-matrix";
     import { Icon } from "@smui/common";
     import Button, { Label } from "@smui/button";
     import Dialog, { Title as DialogTitle, Content as DialogContent, Actions } from "@smui/dialog";
@@ -6,6 +7,7 @@
     import HelperText from "@smui/textfield/helper-text";
     import Listing from "$lib/components/common/listing.svelte";
     import NewItem from "$lib/components/common/new-item.svelte";
+    import PalettePicker from "$lib/components/common/palette-picker.svelte";
     import Paper, { Content, Title } from "@smui/paper";
     import SegmentedButton, { Segment, Label as SegmentedLabel } from "@smui/segmented-button";
     import Select, { Option } from "@smui/select";
@@ -25,6 +27,7 @@
 
     let selected = 0;
     let dialogDeleteOpen = false;
+    let dialogColourOpen = false;
 
     $: item = items[selected];
     /* Compatibility for older JSON backups. */
@@ -40,6 +43,8 @@
             left: 0,
             base64Data: "",
         };
+    $: if (item && item.abbreviation === undefined) item.abbreviation = "??";
+    $: if (item && item.colour === undefined) item.colour = 1;
 
     /* We added "selected" and "disabled" field to the array, so we can use it directly in the components. */
     let currentClassesOptional = classesOptional.map((c) => {
@@ -163,6 +168,10 @@
                 <HelperText slot="helper">Long name of cargo</HelperText>
             </Textfield>
 
+            <Textfield variant="outlined" bind:value={item.abbreviation} label="Abbreviation" input$maxlength={2}>
+                <HelperText slot="helper">Abbreviation of cargo (2 letters)</HelperText>
+            </Textfield>
+
             <Select
                 variant="outlined"
                 bind:value={item.unitName}
@@ -193,34 +202,53 @@
                 </Segment>
             </SegmentedButton>
 
-            <FormField align="end">
-                <Slider
-                    bind:value={weight}
-                    min={0}
-                    max={2000}
-                    step={62.5}
-                    discrete
-                    style="flex-grow: 1;"
-                    disabled={item.unitName === "Tonnes"}
-                />
-                <span slot="label">
-                    Weight per
-                    {#if item.unitName === "Tonnes"}
-                        ton
-                    {:else if item.unitName === "Passengers"}
-                        passenger
-                    {:else if item.unitName === "Bags"}
-                        bag
-                    {:else if item.unitName === "Items"}
-                        item
-                    {:else if item.unitName === "Crates"}
-                        crate
-                    {:else if item.unitName === "Litres"}
-                        1,000 litres
-                    {/if}
-                    ({weight} kg)
-                </span>
-            </FormField>
+            <div class="flex">
+                <FormField align="end">
+                    <Slider
+                        bind:value={weight}
+                        min={0}
+                        max={2000}
+                        step={62.5}
+                        discrete
+                        style="flex-grow: 1;"
+                        disabled={item.unitName === "Tonnes"}
+                    />
+                    <span slot="label">
+                        Weight per
+                        {#if item.unitName === "Tonnes"}
+                            ton
+                        {:else if item.unitName === "Passengers"}
+                            passenger
+                        {:else if item.unitName === "Bags"}
+                            bag
+                        {:else if item.unitName === "Items"}
+                            item
+                        {:else if item.unitName === "Crates"}
+                            crate
+                        {:else if item.unitName === "Litres"}
+                            1,000 litres
+                        {/if}
+                        ({weight} kg)
+                    </span>
+                </FormField>
+
+                <div class="mdc-form-field mdc-form-field--align-end colour">
+                    <span>Cargo colour ({item.colour})</span>
+                    <div style="background-color: {colours[item.colour]};" on:click={() => (dialogColourOpen = true)} />
+
+                    <Dialog bind:open={dialogColourOpen}>
+                        <DialogTitle id="simple-title">Pick a colour</DialogTitle>
+                        <DialogContent id="simple-content">
+                            <PalettePicker scale={16} bind:selected={item.colour} />
+                        </DialogContent>
+                        <Actions>
+                            <Button>
+                                <Label>Close</Label>
+                            </Button>
+                        </Actions>
+                    </Dialog>
+                </div>
+            </div>
 
             <div class="flex">
                 <FormField align="end">
@@ -321,11 +349,26 @@
     .right :global(.mdc-form-field label) {
         width: 236px;
     }
-    .right :global(.mdc-form-field:first-child) {
+    .right :global(> .mdc-form-field:first-child) {
         margin-top: 0px;
     }
     .right :global(.mdc-text-field.price) {
         width: 250px;
+    }
+
+    .right .colour {
+        margin-top: 12px;
+        width: 300px;
+    }
+    .right .colour > span {
+        width: 146px;
+    }
+
+    .right .colour > div {
+        border: 1px solid var(--mdc-theme-on-surface);
+        cursor: pointer;
+        height: 48px;
+        width: 100px;
     }
 
     .flex {

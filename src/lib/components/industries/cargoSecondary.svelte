@@ -86,7 +86,12 @@
                 {/each}
             </Select>
             {#each secondary.acceptance as acceptance, index}
-                <Textfield variant="outlined" bind:value={production.multiplier[index]} label="Multiplier" type="number" />
+                <Textfield
+                    variant="outlined"
+                    bind:value={production.multiplier[index]}
+                    label="Multiplier"
+                    type="number"
+                />
             {/each}
             <span class="empty" />
             <IconButton class="material-icons" on:click={() => deleteSecondaryCargo(production.cargoLabel)}
