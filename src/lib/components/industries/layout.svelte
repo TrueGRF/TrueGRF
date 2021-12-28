@@ -159,13 +159,13 @@
     <FormField align="end">
         <Slider bind:value={layoutWidth} min={1} max={8} step={1} discrete style="flex-grow: 1;" />
         <span slot="label">
-            Width ({layoutWidth})
+            X extend (⤢) ({layoutWidth})
         </span>
     </FormField>
     <FormField align="end">
         <Slider bind:value={layoutHeight} min={1} max={8} step={1} discrete style="flex-grow: 1;" />
         <span slot="label">
-            Height ({layoutHeight})
+            Y extend (⤡) ({layoutHeight})
         </span>
     </FormField>
 
