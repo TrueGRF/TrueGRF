@@ -46,6 +46,9 @@
     $: if (item && item.abbreviation === undefined) item.abbreviation = "??";
     $: if (item && item.colour === undefined) item.colour = 1;
 
+    /* Long name is always the lowercase of the name in English. */
+    $: if (item.name) item.longName = item.name.toLowerCase();
+
     /* We added "selected" and "disabled" field to the array, so we can use it directly in the components. */
     let currentClassesOptional = classesOptional.map((c) => {
         return {
@@ -150,26 +153,33 @@
                 <span slot="label"> Available ingame?</span>
             </FormField>
 
-            <Textfield
-                variant="outlined"
-                bind:value={item.label}
-                label="Label"
-                input$maxlength={4}
-                disabled={isDisabled(item)}
-            >
-                <HelperText slot="helper">Unique label of cargo (4 letters)</HelperText>
-            </Textfield>
+            <div class="flex">
+                <div class="half">
+                    <Textfield
+                        variant="outlined"
+                        bind:value={item.label}
+                        label="Label"
+                        input$maxlength={4}
+                        disabled={isDisabled(item)}
+                    >
+                        <HelperText slot="helper">Unique label of cargo (4 letters)</HelperText>
+                    </Textfield>
+                </div>
+
+                <div class="half">
+                    <Textfield
+                        variant="outlined"
+                        bind:value={item.abbreviation}
+                        label="Abbreviation"
+                        input$maxlength={2}
+                    >
+                        <HelperText slot="helper">Abbreviation of cargo (2 letters)</HelperText>
+                    </Textfield>
+                </div>
+            </div>
 
             <Textfield variant="outlined" bind:value={item.name} label="Name">
                 <HelperText slot="helper">Name of cargo</HelperText>
-            </Textfield>
-
-            <Textfield variant="outlined" bind:value={item.longName} label="Long name">
-                <HelperText slot="helper">Long name of cargo</HelperText>
-            </Textfield>
-
-            <Textfield variant="outlined" bind:value={item.abbreviation} label="Abbreviation" input$maxlength={2}>
-                <HelperText slot="helper">Abbreviation of cargo (2 letters)</HelperText>
             </Textfield>
 
             <Select
@@ -279,7 +289,13 @@
                 </FormField>
 
                 <div>
-                    <Textfield variant="outlined" bind:value={price} label="Price" type="number" class="price">
+                    <Textfield
+                        variant="outlined"
+                        bind:value={price}
+                        label="Price in pounds"
+                        type="number"
+                        class="price"
+                    >
                         <HelperText slot="helper">
                             Price per
                             {#if item.unitName === "Tonnes"}
@@ -344,17 +360,25 @@
         margin-top: 12px;
         width: 100%;
     }
+    .right .half {
+        margin-right: 12px;
+        width: calc(50% - 7px);
+    }
+    .right .half:last-child {
+        margin-right: 0;
+    }
     .right :global(.mdc-select) {
         margin-top: 12px;
         margin-right: 10px;
-        width: 250px;
+        width: 228px;
     }
     .right :global(.mdc-form-field) {
         margin-top: 12px;
-        width: 540px;
+        margin-right: 12px;
+        width: 472px;
     }
     .right :global(.mdc-form-field label) {
-        width: 236px;
+        width: 216px;
     }
     .right :global(> .mdc-form-field:first-child) {
         margin-top: 0px;
@@ -390,10 +414,9 @@
     }
 
     .right :global(.mdc-segmented-button) {
-        margin-left: 20px;
-        width: 451px;
+        width: 472px;
     }
     .right :global(.mdc-segmented-button__segment) {
-        width: 150px;
+        width: 157px;
     }
 </style>
