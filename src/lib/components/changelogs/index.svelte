@@ -11,8 +11,9 @@
     let version = browser ? window.localStorage.getItem("version") : undefined;
 
     let dialogChangelogOpen = false;
-    let latestVersion = versions[versions.length - 1].name;
-    let currentVersionIndex = version ? versions.findIndex((c) => c.name == version) ?? 0 : 0;
+    let latestVersion = versions[0].name;
+    let currentVersionIndex = version ? versions.findIndex((c) => c.name == version) ?? versions.length : versions.length;
+    console.log(versions, currentVersionIndex);
 
     /* Make sure this is only shown the first time a user comes back. */
     window.localStorage.setItem("version", latestVersion);
@@ -33,7 +34,7 @@
     <DialogTitle id="simple-title">Changelog</DialogTitle>
     <DialogContent id="simple-content">
         {#each versions as version, i}
-            {#if i > currentVersionIndex}
+            {#if i < currentVersionIndex}
                 <h1>{version.name}</h1>
                 <SvelteMarkdown bind:source={version.body} />
             {/if}
