@@ -55,7 +55,7 @@
     );
 </script>
 
-<div style="width: 960px; overflow: auto; padding-bottom: 12px;">
+<div style="width: 924px; overflow: auto; padding-bottom: 12px;">
     <div style="width: {265 * (2 + secondary.acceptance.length)}px;">
         <span style="width: 262px; display: inline-block" />
         {#each secondary.acceptance as acceptance}
