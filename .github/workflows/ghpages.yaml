@@ -36,6 +36,12 @@ jobs:
         cd truegrf-rs
         cargo install wasm-pack
 
+    - name: Patch node-modules
+      run: |
+        for patch in $(ls patches/*.patch); do
+          patch -N -p1 < ${patch}
+        done
+
     - name: Generate changelog listing
       run: |
         sh .github/generate-changelog-listing.sh
