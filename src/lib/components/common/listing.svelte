@@ -28,7 +28,7 @@
         border-style: solid;
         border-width: 1px;
 
-        height: calc(100vh - 290px);
+        height: calc(100vh - 230px);
         overflow: auto;
     }
 </style>

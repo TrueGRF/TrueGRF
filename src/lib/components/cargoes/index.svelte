@@ -333,6 +333,13 @@
 </div>
 
 <style>
+    .right {
+        border: 1px solid var(--mdc-theme-on-surface, #fff);
+        height: calc(100vh - 180px);
+        padding: 12px;
+        overflow: auto;
+    }
+
     .right :global(.mdc-text-field) {
         margin-top: 12px;
         width: 100%;
