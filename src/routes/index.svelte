@@ -5,7 +5,7 @@
 
 <script lang="ts">
     import { base } from "$app/paths";
-    import { browser } from '$app/env';
+    import { browser } from "$app/env";
 
     import Banner, { Label } from "@smui/banner";
     import Button from "@smui/button";
@@ -23,7 +23,9 @@
     const startConfig = configFIRS4Steeltown;
 
     let testing;
-    let config = JSON.parse(browser ? window.localStorage.getItem("config") ?? JSON.stringify(startConfig) : JSON.stringify(startConfig));
+    let config = JSON.parse(
+        browser ? window.localStorage.getItem("config") ?? JSON.stringify(startConfig) : JSON.stringify(startConfig)
+    );
     let configDate = browser ? window.localStorage.getItem("configDate") : undefined;
 
     let categories = ["General", "Industries", "Cargoes", "Testing"];
@@ -82,20 +84,18 @@
 
 {#await truegrf_init(truegrf_mod) then _}
     {#if configDate}
-    <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
-        <Label slot="label">
-            Welcome back. We loaded back the configuration of your last visit.
-        </Label>
-        <Button slot="actions">OK</Button>
-    </Banner>
+        <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
+            <Label slot="label">Welcome back. We loaded back the configuration of your last visit.</Label>
+            <Button slot="actions">OK</Button>
+        </Banner>
     {:else}
-    <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
-        <Label slot="label">
-            TrueGRF is still in early alpha. Please report any bugs or suggestions on
-            <a href="https://github.com/TrueBrain/TrueGRF/issues">GitHub</a>.
-        </Label>
-        <Button slot="actions">I understand</Button>
-    </Banner>
+        <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
+            <Label slot="label">
+                TrueGRF is still in early alpha. Please report any bugs or suggestions on
+                <a href="https://github.com/TrueBrain/TrueGRF/issues">GitHub</a>.
+            </Label>
+            <Button slot="actions">I understand</Button>
+        </Banner>
     {/if}
     <Changelog />
     <div>
