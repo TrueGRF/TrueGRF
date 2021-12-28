@@ -5,10 +5,11 @@
 
 <script lang="ts">
     import { base } from "$app/paths";
+    import { browser } from '$app/env';
 
     import Banner, { Label } from "@smui/banner";
     import Button from "@smui/button";
-
+    import Changelog from "$lib/components/changelogs/index.svelte";
     import Cargoes from "$lib/components/cargoes/index.svelte";
     import FileSaver from "file-saver";
     import General from "$lib/components/general/index.svelte";
@@ -19,11 +20,22 @@
     import { config as configEmpty } from "./configEmpty";
     import { config as configFIRS4Steeltown } from "./configFIRS4Steeltown";
 
+    const startConfig = configFIRS4Steeltown;
+
     let testing;
-    let config = JSON.parse(JSON.stringify(configFIRS4Steeltown));
+    let config = JSON.parse(browser ? window.localStorage.getItem("config") ?? JSON.stringify(startConfig) : JSON.stringify(startConfig));
+    let configDate = browser ? window.localStorage.getItem("configDate") : undefined;
 
     let categories = ["General", "Industries", "Cargoes", "Testing"];
     let category = "General";
+
+    function updateLocalStorage() {
+        if (!browser) return;
+
+        window.localStorage.setItem("config", JSON.stringify(config));
+        window.localStorage.setItem("configDate", new Date().toISOString());
+    }
+    $: config, updateLocalStorage();
 
     function compileAndDownload(event: CustomEvent) {
         if (event.detail == "GRF") {
@@ -69,6 +81,14 @@
 </svelte:head>
 
 {#await truegrf_init(truegrf_mod) then _}
+    {#if configDate}
+    <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
+        <Label slot="label">
+            Welcome back. We loaded back the configuration of your last visit.
+        </Label>
+        <Button slot="actions">OK</Button>
+    </Banner>
+    {:else}
     <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
         <Label slot="label">
             TrueGRF is still in early alpha. Please report any bugs or suggestions on
@@ -76,6 +96,8 @@
         </Label>
         <Button slot="actions">I understand</Button>
     </Banner>
+    {/if}
+    <Changelog />
     <div>
         <div class="container">
             <Header bind:categories bind:category on:test={compileAndTest} on:download={compileAndDownload} />
