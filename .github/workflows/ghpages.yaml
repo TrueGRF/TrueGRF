@@ -36,13 +36,22 @@ jobs:
         cd truegrf-rs
         cargo install wasm-pack
 
+    - name: Install node-modules
+      run: |
+        npm install
+
+    - name: Patch node-modules
+      run: |
+        for patch in $(ls patches/*.patch); do
+          patch -N -p1 < ${patch}
+        done
+
     - name: Generate changelog listing
       run: |
         sh .github/generate-changelog-listing.sh
 
     - name: Install & build webapp
       run: |
-        npm install
         BASE_PATH="/TrueGRF" npm run build
 
     - name: Deploy
