@@ -25,21 +25,20 @@ pub enum Industry<'a> {
     Layout { id: u8, layouts: &'a Vec<Vec<u8>> },                              // 0a
     Type { id: u8, r#type: u8 },                                               // 0b
                                                                                // 0c, 0d, 0e (TODO)
-                                                                               // 0f (TODO)
+    FundCostMultiplier { id: u8, multiplier: u8 },                             // 0f
                                                                                // 10, 11, 12, 13 (deprecated by 25, 26, 27, 28)
-                                                                               // 14 (TODO)
-                                                                               // 15 (TODO)
-                                                                               // 16 (TODO)
-                                                                               // 17 (TODO)
-                                                                               // 18 (TODO)
-                                                                               // 19 (TODO)
+                                                                               // 14 (won't implement)
+                                                                               // 15 (won't implement)
+                                                                               // 16 (won't implement)
+    Probability { id: u8, map_gen: u8, in_game: u8 },                          // 17, 18
+    Colour { id: u8, colour: u8 },                                             // 19
     Flags { id: u8, flags: Flags },                                            // 1a
                                                                                // 1b (TODO)
                                                                                // 1c, 1d, 1e (deprecated by 28)
     Name { id: u8, name: &'a str },                                            // 1f
-                                                                               // 20 (TODO)
+    ProspectChance { id: u8, chance: u32 },                                    // 20
     CallbackFlags { id: u8, flags: CallbackFlags },                            // 21, 22
-                                                                               // 23 (TODO)
+                                                                               // 23 (won't implement)
                                                                                // 24 (TODO)
     Production { id: u8, production: &'a Vec<u8>, multiplier: &'a Vec<u8> },   // 25, 27
     Acceptance { id: u8, acceptance: &'a Vec<u8>, multiplier: &'a Vec<u16> },  // 26, 28
@@ -54,9 +53,13 @@ impl<'a> ActionTrait for Industry<'a> {
                 ])
             }
             Industry::Enable { id } => {
-                /* 'Enable' creates an industry based n the built-in Coal Mine. */
+                /* 'Enable' creates an industry based on the built-in Coal Mine. */
                 (*id, vec![
                     vec_list!([0x08], [0x00]),
+                    /* Minimal amount of cargo distributed is always 1. */
+                    vec_list!([0x14], [0x01]),
+                    /* We disable sound effects. */
+                    vec_list!([0x15], [0x00]),
                 ])
             }
             Industry::Layout { id, layouts } => {
@@ -74,6 +77,22 @@ impl<'a> ActionTrait for Industry<'a> {
                     vec_list!([0x0b], [r#type]),
                 ])
             }
+            Industry::FundCostMultiplier { id, multiplier } => {
+                (*id, vec![
+                    vec_list!([0x0f], [*multiplier]),
+                ])
+            }
+            Industry::Probability { id, map_gen, in_game } => {
+                (*id, vec![
+                    vec_list!([0x17], [*map_gen]),
+                    vec_list!([0x18], [*in_game]),
+                ])
+            }
+            Industry::Colour { id, colour } => {
+                (*id, vec![
+                    vec_list!([0x19], [*colour]),
+                ])
+            }
             Industry::Flags { id, flags } => {
                 (*id, vec![
                     vec_list!([0x1a], &flags.bits.to_le_bytes()),
@@ -84,6 +103,11 @@ impl<'a> ActionTrait for Industry<'a> {
 
                 (*id, vec![
                     vec_list!([0x1f], &string_id.to_le_bytes()),
+                ])
+            }
+            Industry::ProspectChance { id, chance } => {
+                (*id, vec![
+                    vec_list!([0x20], &chance.to_le_bytes()),
                 ])
             }
             Industry::CallbackFlags { id, flags } => {

@@ -85,6 +85,11 @@ struct NewGRFIndustry {
     available: bool,
     name: String,
     r#type: String,
+    fundCostMultiplier: u8,
+    probabilityMapGen: u8,
+    probabilityInGame: u8,
+    colour: u8,
+    prospectChance: u8,  // Scale from 0 to 100
     layout: Vec<Vec<Vec<i32>>>,
     primary: Vec<NewGRFIndustryPrimary>,
     secondary: NewGRFIndustrySecondary,
@@ -251,6 +256,9 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
         Action0::Industry::Enable { id: industry.id }.write(output);
         Action0::Industry::Name { id: industry.id, name: &industry.name }.write(output);
+        Action0::Industry::FundCostMultiplier { id: industry.id, multiplier: industry.fundCostMultiplier }.write(output);
+        Action0::Industry::Probability { id: industry.id, map_gen: industry.probabilityMapGen, in_game: industry.probabilityInGame }.write(output);
+        Action0::Industry::Colour { id: industry.id, colour: industry.colour }.write(output);
 
         /* Set the industry type. */
         let industry_type: u8 = match industry.r#type.as_str() {
@@ -271,6 +279,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
             Action0::Industry::Production { id: industry.id, production: &primary_production, multiplier: &primary_multiplier }.write(output);
             Action0::Industry::Acceptance { id: industry.id, acceptance: &vec![], multiplier: &vec![] }.write(output);
+            Action0::Industry::ProspectChance { id: industry.id, chance: industry.prospectChance as u32 * 255 * 255 * 255 / 100 * 255 }.write(output);
         }
 
         if industry.r#type == "secondary" && !industry.secondary.acceptance.is_empty() && !industry.secondary.production.is_empty() {
