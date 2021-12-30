@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { colours } from "$lib/components/common/colour-matrix";
+    import { Icon } from "@smui/common";
     import Button, { Label } from "@smui/button";
     import CargoPrimary from "$lib/components/industries/cargoPrimary.svelte";
     import CargoSecondary from "$lib/components/industries/cargoSecondary.svelte";
@@ -9,10 +11,13 @@
     import Layout from "$lib/components/industries/layout.svelte";
     import Listing from "$lib/components/common/listing.svelte";
     import NewItem from "$lib/components/common/new-item.svelte";
+    import PalettePicker from "$lib/components/common/palette-picker.svelte";
     import Paper, { Content, Title } from "@smui/paper";
     import Select, { Option } from "@smui/select";
+    import Slider from "@smui/slider";
     import Switch from "@smui/switch";
     import Textfield from "@smui/textfield";
+    import Tooltip, { Wrapper } from "@smui/tooltip";
 
     import { newItem } from "./newItem";
     import { placement } from "./placement";
@@ -24,8 +29,15 @@
 
     let selected = 0;
     let dialogDeleteOpen = false;
+    let dialogColourOpen = false;
 
     $: item = items[selected];
+
+    $: if (item && item.colour === undefined) item.colour = 1;
+    $: if (item && item.probabilityMapGen === undefined) item.probabilityMapGen = 3;
+    $: if (item && item.probabilityInGame === undefined) item.probabilityInGame = 5;
+    $: if (item && item.prospectChance === undefined) item.prospectChance = 75;
+    $: if (item && item.fundCostMultiplier === undefined) item.fundCostMultiplier = 100;
 
     function deleteIndustry() {
         items.splice(selected, 1);
@@ -77,6 +89,80 @@
                     <Option value={p.value}>{p.name}</Option>
                 {/each}
             </Select>
+
+            <div class="mdc-form-field mdc-form-field--align-end colour">
+                <span>Industry colour ({item.colour})</span>
+                <div style="background-color: {colours[item.colour]};" on:click={() => (dialogColourOpen = true)} />
+
+                <Dialog bind:open={dialogColourOpen}>
+                    <DialogTitle id="simple-title">Pick a colour</DialogTitle>
+                    <DialogContent id="simple-content">
+                        <PalettePicker scale={16} bind:selected={item.colour} />
+                    </DialogContent>
+                    <Actions>
+                        <Button>
+                            <Label>Close</Label>
+                        </Button>
+                    </Actions>
+                </Dialog>
+            </div>
+
+            <FormField align="end" class="slider">
+                <Slider bind:value={item.probabilityMapGen} min={0} max={30} step={1} discrete style="flex-grow: 1;" />
+                <span slot="label">
+                    Probability (Map Generation) ({item.probabilityMapGen})
+                    <Wrapper>
+                        <Icon class="help material-icons">help</Icon>
+                        <Tooltip>
+                            This is a relative value to other industries.<br />
+                            In other words, if industry A has this on 1, and industry B on 2, industry B has twice the chance
+                            of spawning as industry A.
+                        </Tooltip>
+                    </Wrapper>
+                </span>
+            </FormField>
+            <FormField align="end" class="slider">
+                <Slider bind:value={item.probabilityInGame} min={0} max={30} step={1} discrete style="flex-grow: 1;" />
+                <span slot="label">
+                    Probability (In Game) ({item.probabilityInGame})
+                    <Wrapper>
+                        <Icon class="help material-icons">help</Icon>
+                        <Tooltip>
+                            This is a relative value to other industries.<br />
+                            In other words, if industry A has this on 1, and industry B on 2, industry B has twice the chance
+                            of spawning as industry A.
+                        </Tooltip>
+                    </Wrapper>
+                </span>
+            </FormField>
+            {#if item.type === "primary"}
+                <FormField align="end" class="slider">
+                    <Slider
+                        bind:value={item.prospectChance}
+                        min={0}
+                        max={100}
+                        step={1}
+                        discrete
+                        style="flex-grow: 1;"
+                    />
+                    <span slot="label">
+                        Prospect Success Chance ({item.prospectChance}%)
+                    </span>
+                </FormField>
+            {/if}
+            <FormField align="end" class="slider">
+                <Slider
+                    bind:value={item.fundCostMultiplier}
+                    min={0}
+                    max={255}
+                    step={1}
+                    discrete
+                    style="flex-grow: 1;"
+                />
+                <span slot="label">
+                    Fund Cost Multiplier ({item.fundCostMultiplier})
+                </span>
+            </FormField>
 
             <Paper variant="outlined" class="cargo primary {item.type === 'primary' ? '' : 'hidden'}">
                 <Title>Cargo</Title>
@@ -142,6 +228,21 @@
         overflow: auto;
     }
 
+    .right .colour {
+        margin-top: 12px;
+        width: 300px;
+    }
+    .right .colour > span {
+        width: 146px;
+    }
+
+    .right .colour > div {
+        border: 1px solid var(--mdc-theme-on-surface);
+        cursor: pointer;
+        height: 48px;
+        width: 100px;
+    }
+
     .right :global(.mdc-text-field) {
         margin-top: 12px;
         width: 100%;
@@ -153,6 +254,12 @@
     }
     .right :global(.mdc-form-field) {
         width: 250px;
+    }
+    .right :global(.mdc-form-field.slider) {
+        width: 476px;
+    }
+    .right :global(.mdc-form-field.slider label) {
+        width: 256px;
     }
     .right :global(.mdc-tab-bar.layout) {
         display: inline-block;

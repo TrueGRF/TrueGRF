@@ -9,6 +9,11 @@ export const config = {
             id: 0,
             available: true,
             name: "Assembly Plant",
+            colour: 141,
+            fundCostMultiplier: 145,
+            probabilityMapGen: 5,
+            probabilityInGame: 1,
+            prospectChance: 0,
             layout: [
                 [
                     [0, 0, 0, 5, 4],
@@ -160,6 +165,11 @@ export const config = {
             id: 1,
             available: true,
             name: "Basic Oxygen Furnace",
+            colour: 49,
+            fundCostMultiplier: 160,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [3, 3, 3, 0],
@@ -332,6 +342,11 @@ export const config = {
             id: 2,
             available: true,
             name: "Blast Furnace",
+            colour: 10,
+            fundCostMultiplier: 190,
+            probabilityMapGen: 3,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [6, 9, -1, 9],
@@ -487,6 +502,11 @@ export const config = {
             id: 3,
             available: true,
             name: "Body Plant",
+            colour: 194,
+            fundCostMultiplier: 120,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [2, 2, 2],
@@ -588,6 +608,11 @@ export const config = {
             id: 4,
             available: true,
             name: "Builders Yard",
+            colour: 169,
+            fundCostMultiplier: 16,
+            probabilityMapGen: 9,
+            probabilityInGame: 6,
+            prospectChance: 75,
             layout: [
                 [
                     [2, 1],
@@ -684,6 +709,11 @@ export const config = {
             id: 5,
             available: true,
             name: "Bulk Terminal",
+            colour: 177,
+            fundCostMultiplier: 152,
+            probabilityMapGen: 6,
+            probabilityInGame: 2,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, -1, -1, -1, -1],
@@ -1083,6 +1113,11 @@ export const config = {
             id: 6,
             available: true,
             name: "Carbon Black Plant",
+            colour: 178,
+            fundCostMultiplier: 120,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [1, 1, 4],
@@ -1175,6 +1210,11 @@ export const config = {
             id: 7,
             available: true,
             name: "Chlor-alkali Plant",
+            colour: 191,
+            fundCostMultiplier: 170,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [4, 3, 0, 1, 2],
@@ -1325,6 +1365,11 @@ export const config = {
             id: 8,
             available: true,
             name: "Coal Mine",
+            colour: 1,
+            fundCostMultiplier: 252,
+            probabilityMapGen: 10,
+            probabilityInGame: 4,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, 5, 4],
@@ -1440,6 +1485,11 @@ export const config = {
             id: 9,
             available: true,
             name: "Coke Oven",
+            colour: 183,
+            fundCostMultiplier: 120,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [7, 9, 8, 9, 8],
@@ -1608,6 +1658,11 @@ export const config = {
             id: 10,
             available: true,
             name: "Component Factory",
+            colour: 166,
+            fundCostMultiplier: 95,
+            probabilityMapGen: 8,
+            probabilityInGame: 1,
+            prospectChance: 0,
             layout: [
                 [
                     [1, 0, 1],
@@ -1701,6 +1756,11 @@ export const config = {
             id: 11,
             available: true,
             name: "Cryo Plant",
+            colour: 189,
+            fundCostMultiplier: 45,
+            probabilityMapGen: 7,
+            probabilityInGame: 4,
+            prospectChance: 75,
             layout: [
                 [
                     [1, 2, 3, 4],
@@ -1819,6 +1879,11 @@ export const config = {
             id: 12,
             available: true,
             name: "Electric Arc Furnace",
+            colour: 186,
+            fundCostMultiplier: 160,
+            probabilityMapGen: 5,
+            probabilityInGame: 1,
+            prospectChance: 0,
             layout: [
                 [
                     [1, 0, 8, 8],
@@ -1961,6 +2026,11 @@ export const config = {
             id: 13,
             available: true,
             name: "Engine Plant",
+            colour: 45,
+            fundCostMultiplier: 120,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [2, 2, 2],
@@ -2077,6 +2147,11 @@ export const config = {
             id: 14,
             available: true,
             name: "Farm",
+            colour: 85,
+            fundCostMultiplier: 49,
+            probabilityMapGen: 15,
+            probabilityInGame: 3,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, 1, 0, -1],
@@ -2197,6 +2272,11 @@ export const config = {
             id: 15,
             available: true,
             name: "General Store",
+            colour: 168,
+            fundCostMultiplier: 15,
+            probabilityMapGen: 24,
+            probabilityInGame: 12,
+            prospectChance: 75,
             layout: [[[0]]],
             primary: [],
             secondary: {
@@ -2228,6 +2308,11 @@ export const config = {
             id: 16,
             available: true,
             name: "Glass Works",
+            colour: 151,
+            fundCostMultiplier: 95,
+            probabilityMapGen: 5,
+            probabilityInGame: 1,
+            prospectChance: 0,
             layout: [
                 [
                     [-1, 0, -1, 0],
@@ -2306,6 +2391,11 @@ export const config = {
             id: 17,
             available: true,
             name: "Iron Ore Mine",
+            colour: 55,
+            fundCostMultiplier: 232,
+            probabilityMapGen: 10,
+            probabilityInGame: 4,
+            prospectChance: 75,
             layout: [
                 [
                     [8, 8, 6, 5],
@@ -2435,6 +2525,11 @@ export const config = {
             id: 18,
             available: true,
             name: "Scrap Yard",
+            colour: 64,
+            fundCostMultiplier: 101,
+            probabilityMapGen: 14,
+            probabilityInGame: 3,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, -1, -1, -1, 4],
@@ -2564,6 +2659,11 @@ export const config = {
             id: 19,
             available: true,
             name: "Lime Kiln",
+            colour: 119,
+            fundCostMultiplier: 45,
+            probabilityMapGen: 5,
+            probabilityInGame: 1,
+            prospectChance: 0,
             layout: [
                 [
                     [1, 3],
@@ -2660,6 +2760,11 @@ export const config = {
             id: 20,
             available: true,
             name: "Limestone Mine",
+            colour: 69,
+            fundCostMultiplier: 232,
+            probabilityMapGen: 7,
+            probabilityInGame: 4,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, 3, -1, 2],
@@ -2797,6 +2902,11 @@ export const config = {
             id: 22,
             available: true,
             name: "Potash Mine",
+            colour: 125,
+            fundCostMultiplier: 232,
+            probabilityMapGen: 7,
+            probabilityInGame: 4,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, 3, -1, 2],
@@ -2938,6 +3048,11 @@ export const config = {
             id: 23,
             available: true,
             name: "Quarry",
+            colour: 194,
+            fundCostMultiplier: 210,
+            probabilityMapGen: 7,
+            probabilityInGame: 4,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, 9, 8, 7, -1],
@@ -3077,6 +3192,11 @@ export const config = {
             id: 24,
             available: true,
             name: "Sheet and Pipe Mill",
+            colour: 160,
+            fundCostMultiplier: 120,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [1, 2, 2, 1, 6, 7],
@@ -3272,6 +3392,11 @@ export const config = {
             id: 25,
             available: true,
             name: "Slag Grinding Plant",
+            colour: 19,
+            fundCostMultiplier: 100,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [7, -1, 0, 0],
@@ -3405,6 +3530,11 @@ export const config = {
             id: 26,
             available: true,
             name: "Soda Ash Mine",
+            colour: 169,
+            fundCostMultiplier: 180,
+            probabilityMapGen: 7,
+            probabilityInGame: 4,
+            prospectChance: 75,
             layout: [
                 [
                     [3, -1, 2, 1],
@@ -3556,6 +3686,11 @@ export const config = {
             id: 27,
             available: true,
             name: "Tyre Plant",
+            colour: 143,
+            fundCostMultiplier: 130,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [2, 1, 2],
@@ -3690,6 +3825,11 @@ export const config = {
             id: 28,
             available: true,
             name: "Vehicle Distributor",
+            colour: 207,
+            fundCostMultiplier: 8,
+            probabilityMapGen: 10,
+            probabilityInGame: 3,
+            prospectChance: 75,
             layout: [
                 [
                     [0, 0, 0, 1],
@@ -3737,6 +3877,11 @@ export const config = {
             id: 29,
             available: true,
             name: "Wharf",
+            colour: 37,
+            fundCostMultiplier: 152,
+            probabilityMapGen: 6,
+            probabilityInGame: 2,
+            prospectChance: 75,
             layout: [
                 [
                     [-1, -1, -1, -1, -1],
@@ -4136,6 +4281,11 @@ export const config = {
             id: 30,
             available: true,
             name: "Wire and Section Mill",
+            colour: 43,
+            fundCostMultiplier: 120,
+            probabilityMapGen: 5,
+            probabilityInGame: 0,
+            prospectChance: 0,
             layout: [
                 [
                     [0, 0, 0, 0, 0, 6],

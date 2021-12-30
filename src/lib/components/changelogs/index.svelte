@@ -15,7 +15,6 @@
     let currentVersionIndex = version
         ? versions.findIndex((c) => c.name == version) ?? versions.length
         : versions.length;
-    console.log(versions, currentVersionIndex);
 
     /* Make sure this is only shown the first time a user comes back. */
     window.localStorage.setItem("version", latestVersion);
