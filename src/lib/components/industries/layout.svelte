@@ -263,8 +263,11 @@
     <Dialog bind:open={tileEditorOpen} class="tileEditor">
         <Title>Tile Editor</Title>
         <Content>
-            <div on:drop={tileEditorDrop} on:dragover={tileEditorDragOver} on:paste={tileEditorPaste}>
-                {#if currentTile !== undefined}
+            <div on:drop={tileEditorDrop} on:dragover={tileEditorDragOver} on:paste={tileEditorPaste} style="position: relative;">
+                {#if currentTile !== undefined && currentTile >= 0 && tiles[currentTile] !== undefined}
+                    <div class="tile" style="left: {-tiles[currentTile].sprite.left - 16}px; top: {-tiles[currentTile].sprite.top}px;" />
+                    <div class="xaxis" style="top: {-tiles[currentTile].sprite.top + 16}px; width: {tiles[currentTile].sprite.width + 20}px;" />
+                    <div class="yaxis" style="left: {-tiles[currentTile].sprite.left}px; height: {tiles[currentTile].sprite.height + 20}px;" />
                     <Sprite bind:sprite={tiles[currentTile].sprite} noOffset /> (drag or paste a new image to replace)
                     <div class="flex">
                         <Textfield
@@ -408,8 +411,9 @@
         height: 43.26px;
         border: 1px solid var(--mdc-theme-on-surface, #cccccc);
         transform: rotateX(60deg) rotateZ(45deg);
-        margin: -7px 9px 0 0;
+        margin: -6px 8px 0 0;
         cursor: pointer;
+        opacity: 0.4;
     }
     .layouts .layout .cell.overlay:hover {
         background-color: var(--mdc-theme-on-surface, #cccccc);
@@ -428,5 +432,28 @@
     .layouts :global(.tileEditor .mdc-text-field) {
         margin-right: 12px;
         width: 120px;
+    }
+
+    .layouts :global(.tileEditor .tile) {
+        width: 43.26px;
+        height: 43.26px;
+        border: 1px solid var(--mdc-theme-on-surface, #cccccc);
+        transform: rotateX(60deg) rotateZ(45deg);
+        margin: -6px 0 0 -6px;
+        cursor: pointer;
+        position: absolute;
+        opacity: 0.4;
+    }
+    .layouts :global(.tileEditor .xaxis) {
+        position: absolute;
+        left: -10px;
+        border-top: 1px solid var(--mdc-theme-on-surface, #cccccc);
+        opacity: 0.4;
+    }
+    .layouts :global(.tileEditor .yaxis) {
+        position: absolute;
+        top: -10px;
+        border-left: 1px solid var(--mdc-theme-on-surface, #cccccc);
+        opacity: 0.4;
     }
 </style>
