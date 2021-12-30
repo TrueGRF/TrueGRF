@@ -743,7 +743,7 @@ export const config = {
                 production: [],
             },
             tertiary: [],
-            placement: "anywhere",
+            placement: "on-water",
             placementCustom: [],
             tiles: [
                 {
@@ -2208,7 +2208,7 @@ export const config = {
                     cargoLabel: "FOOD",
                 },
             ],
-            placement: "anywhere",
+            placement: "in-town",
             placementCustom: [],
             tiles: [
                 {
@@ -3796,7 +3796,7 @@ export const config = {
                 production: [],
             },
             tertiary: [],
-            placement: "anywhere",
+            placement: "on-water",
             placementCustom: [],
             tiles: [
                 {
