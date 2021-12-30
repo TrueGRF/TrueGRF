@@ -40,9 +40,11 @@ pub struct NewGRFSprite {
     left: i16,
 }
 
+#[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFIndustryTile {
     sprite: NewGRFSprite,
+    drawType: String,
 }
 
 #[allow(non_snake_case)]
@@ -328,8 +330,16 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                 /* Create a random sprite as fallback sprite. */
                 Action2::IndustryTile { set_id: failed_set as u8, ground_sprite: 0x07e6, building_sprite: 0x0, size_x: 16, size_y: 16, size_z: 32 }.write(output);
 
-                for (id, _tile) in industry.tiles.iter().enumerate() {
-                    Action2::IndustryTile { set_id: id as u8, ground_sprite: 0x07e6, building_sprite: 0x80000000 + id as u32, size_x: 16, size_y: 16, size_z: 32 }.write(output);
+                for (id, tile) in industry.tiles.iter().enumerate() {
+                    let ground_sprite = 0x07e6;
+                    let mut building_sprite = (1 << 31) | (id as u32);
+                    match tile.drawType.as_str() {
+                        "normal" => building_sprite |= 0 << 14,
+                        "transparent" => building_sprite |= 1 << 14,
+                        "recolour" => building_sprite |= 2 << 14,
+                        _ => {},
+                    }
+                    Action2::IndustryTile { set_id: id as u8, ground_sprite, building_sprite, size_x: 16, size_y: 16, size_z: 32 }.write(output);
                 }
 
                 let mut layout_switch = Vec::new();
