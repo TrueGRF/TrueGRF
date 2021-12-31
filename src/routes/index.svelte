@@ -21,12 +21,8 @@
     import { config as configEmpty } from "./configEmpty";
     import { config as configFIRS4Steeltown } from "./configFIRS4Steeltown";
 
-    const startConfig = configFIRS4Steeltown;
-
     let testing;
-    let config = JSON.parse(
-        browser ? window.localStorage.getItem("config") ?? JSON.stringify(startConfig) : JSON.stringify(startConfig)
-    );
+    let config = JSON.parse(JSON.stringify(configEmpty));
     let configDate = browser ? window.localStorage.getItem("configDate") : undefined;
 
     let categories = ["General", "Industries", "Cargoes", "Testing"];
@@ -54,6 +50,41 @@
     }
 
     function loadConfig(newConfig) {
+        switch (newConfig.version) {
+            case undefined:
+                for (let industry of newConfig.industries) {
+                    if (industry.colour === undefined) industry.colour = 1;
+                    if (industry.probabilityMapGen === undefined) industry.probabilityMapGen = 3;
+                    if (industry.probabilityInGame === undefined) industry.probabilityInGame = 5;
+                    if (industry.prospectChance === undefined) industry.prospectChance = 75;
+                    if (industry.fundCostMultiplier === undefined) industry.fundCostMultiplier = 100;
+                    for (let tile in industry.tiles) {
+                        if (industry.tiles[tile].drawType === undefined) industry.tiles[tile].drawType = "normal";
+                    }
+                }
+                for (let cargo of newConfig.cargoes) {
+                    if (cargo.weight === undefined) cargo.weight = 16;
+                    if (cargo.price === undefined) cargo.price = 4112;
+                    if (cargo.penaltyLowerBound === undefined) cargo.penaltyLowerBound = 0;
+                    if (cargo.penaltyLength === undefined) cargo.penaltyLength = 255;
+                    if (cargo.sprite === undefined)
+                        cargo.sprite = {
+                            width: 10,
+                            height: 10,
+                            left: 0,
+                            top: 0,
+                            base64Data: "",
+                        };
+                    if (cargo.abbreviation === undefined) cargo.abbreviation = "??";
+                    if (cargo.colour === undefined) cargo.colour = 1;
+                }
+                /* fallthrough */
+
+            default:
+                break;
+        }
+
+        config.version = 1;
         config.general = newConfig.general;
         config.cargoes = newConfig.cargoes;
         config.industries = newConfig.industries;
@@ -72,6 +103,11 @@
                 loadConfig(JSON.parse(JSON.stringify(configFIRS4Steeltown)));
                 break;
         }
+    }
+
+    if (browser) {
+        let localStorageConfig = window.localStorage.getItem("config");
+        if (localStorageConfig) loadConfig(JSON.parse(localStorageConfig));
     }
 
     /* We initialize with tabs hidden; this means SMUI cannot calculate the
