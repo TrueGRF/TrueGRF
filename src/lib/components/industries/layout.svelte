@@ -263,11 +263,27 @@
     <Dialog bind:open={tileEditorOpen} class="tileEditor">
         <Title>Tile Editor</Title>
         <Content>
-            <div on:drop={tileEditorDrop} on:dragover={tileEditorDragOver} on:paste={tileEditorPaste} style="position: relative;">
+            <div
+                on:drop={tileEditorDrop}
+                on:dragover={tileEditorDragOver}
+                on:paste={tileEditorPaste}
+                style="position: relative;"
+            >
                 {#if currentTile !== undefined && currentTile >= 0 && tiles[currentTile] !== undefined}
-                    <div class="tile" style="left: {-tiles[currentTile].sprite.left - 16}px; top: {-tiles[currentTile].sprite.top}px;" />
-                    <div class="xaxis" style="top: {-tiles[currentTile].sprite.top + 16}px; width: {tiles[currentTile].sprite.width + 20}px;" />
-                    <div class="yaxis" style="left: {-tiles[currentTile].sprite.left}px; height: {tiles[currentTile].sprite.height + 20}px;" />
+                    <div
+                        class="tile"
+                        style="left: {-tiles[currentTile].sprite.left - 16}px; top: {-tiles[currentTile].sprite.top}px;"
+                    />
+                    <div
+                        class="xaxis"
+                        style="top: {-tiles[currentTile].sprite.top + 16}px; width: {tiles[currentTile].sprite.width +
+                            20}px;"
+                    />
+                    <div
+                        class="yaxis"
+                        style="left: {-tiles[currentTile].sprite.left}px; height: {tiles[currentTile].sprite.height +
+                            20}px;"
+                    />
                     <Sprite bind:sprite={tiles[currentTile].sprite} noOffset /> (drag or paste a new image to replace)
                     <div class="flex">
                         <Textfield
