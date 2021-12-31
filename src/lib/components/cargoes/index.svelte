@@ -1,17 +1,16 @@
 <script lang="ts">
-    import { colours } from "$lib/components/common/colour-matrix";
     import { Icon } from "@smui/common";
     import Button, { Label } from "@smui/button";
+    import ColourPicker from "$lib/components/common/colour-picker.svelte";
     import Dialog, { Title as DialogTitle, Content as DialogContent, Actions } from "@smui/dialog";
     import FormField from "@smui/form-field";
     import HelperText from "@smui/textfield/helper-text";
     import Listing from "$lib/components/common/listing.svelte";
     import NewItem from "$lib/components/common/new-item.svelte";
-    import PalettePicker from "$lib/components/common/palette-picker.svelte";
     import Paper, { Content, Title } from "@smui/paper";
     import SegmentedButton, { Segment, Label as SegmentedLabel } from "@smui/segmented-button";
     import Select, { Option } from "@smui/select";
-    import Slider from "@smui/slider";
+    import Slider from "$lib/components/common/slider.svelte";
     import SpriteEditor from "$lib/components/common/sprite-editor.svelte";
     import Switch from "@smui/switch";
     import Textfield from "@smui/textfield";
@@ -27,7 +26,6 @@
 
     let selected = 0;
     let dialogDeleteOpen = false;
-    let dialogColourOpen = false;
 
     $: item = items[selected];
     /* Compatibility for older JSON backups. */
@@ -213,16 +211,7 @@
             </SegmentedButton>
 
             <div class="flex">
-                <FormField align="end">
-                    <Slider
-                        bind:value={weight}
-                        min={0}
-                        max={2000}
-                        step={62.5}
-                        discrete
-                        style="flex-grow: 1;"
-                        disabled={item.unitName === "Tonnes"}
-                    />
+                <Slider bind:value={weight} min={0} max={2000} step={62.5} disabled={item.unitName === "Tonnes"}>
                     <span slot="label">
                         Weight per
                         {#if item.unitName === "Tonnes"}
@@ -240,53 +229,32 @@
                         {/if}
                         ({weight} kg)
                     </span>
-                </FormField>
+                </Slider>
 
-                <div class="mdc-form-field mdc-form-field--align-end colour">
-                    <span>Cargo colour ({item.colour})</span>
-                    <div style="background-color: {colours[item.colour]};" on:click={() => (dialogColourOpen = true)} />
-
-                    <Dialog bind:open={dialogColourOpen}>
-                        <DialogTitle id="simple-title">Pick a colour</DialogTitle>
-                        <DialogContent id="simple-content">
-                            <PalettePicker scale={16} bind:selected={item.colour} />
-                        </DialogContent>
-                        <Actions>
-                            <Button>
-                                <Label>Close</Label>
-                            </Button>
-                        </Actions>
-                    </Dialog>
-                </div>
+                <ColourPicker bind:colour={item.colour}>
+                    Cargo colour ({item.colour})
+                </ColourPicker>
             </div>
 
             <div class="flex">
-                <FormField align="end">
-                    <Slider
-                        range
-                        bind:start={penaltyLowerBound}
-                        bind:end={penaltyUpperBound}
-                        min={0}
-                        max={637.5}
-                        step={2.5}
-                        discrete
-                        tickMarks
-                        style="flex-grow: 1;"
-                    />
-                    <span slot="label">
-                        Cargo price penalty (days)
-                        <Wrapper>
-                            <Icon class="help material-icons">help</Icon>
-                            <Tooltip>
-                                The first mark indicates after how many days in transit the price of the cargo starts to
-                                drop with ~0.16% per extra day in transit.<br />
-                                The second mark indicates after how many days this becomes ~0.31% per extra day in transit.<br
-                                />
-                                The price can never drop below ~12% of the original price.
-                            </Tooltip>
-                        </Wrapper>
+                <Slider
+                    range
+                    bind:start={penaltyLowerBound}
+                    bind:end={penaltyUpperBound}
+                    min={0}
+                    max={637.5}
+                    step={2.5}
+                    tickMarks
+                >
+                    <span slot="label"> Cargo price penalty (days) </span>
+                    <span slot="help">
+                        The first mark indicates after how many days in transit the price of the cargo starts to drop
+                        with ~0.16% per extra day in transit.<br />
+                        The second mark indicates after how many days this becomes ~0.31% per extra day in transit.<br
+                        />
+                        The price can never drop below ~12% of the original price.
                     </span>
-                </FormField>
+                </Slider>
 
                 <div>
                     <Textfield
@@ -387,30 +355,9 @@
         width: 250px;
     }
 
-    .right .colour {
-        margin-top: 12px;
-        width: 300px;
-    }
-    .right .colour > span {
-        width: 146px;
-    }
-
-    .right .colour > div {
-        border: 1px solid var(--mdc-theme-on-surface);
-        cursor: pointer;
-        height: 48px;
-        width: 100px;
-    }
-
     .flex {
         display: flex;
         flex-wrap: wrap;
-    }
-
-    .right :global(.material-icons.help) {
-        position: relative;
-        top: 7px;
-        left: 10px;
     }
 
     .right :global(.mdc-segmented-button) {
