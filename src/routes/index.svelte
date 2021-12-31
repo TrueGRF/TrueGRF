@@ -7,6 +7,7 @@
     import { base } from "$app/paths";
     import { browser } from "$app/env";
 
+    import { setContext } from "svelte";
     import Banner, { Label } from "@smui/banner";
     import Button from "@smui/button";
     import Changelog from "$lib/components/changelogs/index.svelte";
@@ -72,6 +73,18 @@
                 break;
         }
     }
+
+    /* We initialize with tabs hidden; this means SMUI cannot calculate the
+     * width of components, which in result render poorly. So, when we switch
+     * category update the layout of all components. */
+    let layouts = [];
+    function updateLayouts() {
+        setTimeout(() => layouts.forEach((layout) => layout()), 1);
+    }
+    $: category, updateLayouts();
+    setContext("SMUI:addLayoutListener", (layout) => {
+        layouts.push(layout);
+    });
 </script>
 
 <svelte:head>
