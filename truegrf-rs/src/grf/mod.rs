@@ -36,15 +36,39 @@ pub struct NewGRFSprite {
     base64Data: String,
     width: u16,
     height: u16,
-    top: i16,
     left: i16,
+    top: i16,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFDefaultSprite {
+    id: u32,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+enum NewGRFSpriteContainer {
+    Sprite(NewGRFSprite),
+    DefaultSprite(NewGRFDefaultSprite),
+}
+impl Default for NewGRFSpriteContainer {
+    fn default() -> Self { NewGRFSpriteContainer::DefaultSprite(NewGRFDefaultSprite { id: 0 } ) }
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+struct NewGRFIndustryTileSprite {
+    sprite: NewGRFSpriteContainer,
+    drawType: String,
+    alwaysDraw: bool,
 }
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFIndustryTile {
-    sprite: NewGRFSprite,
-    drawType: String,
+    sprites: Vec<NewGRFIndustryTileSprite>,
 }
 
 #[allow(non_snake_case)]
@@ -315,12 +339,6 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
 
         if !industry.layout.is_empty() {
             if !industry.tiles.is_empty() {
-                let mut sprites = Vec::new();
-                for tile in &industry.tiles {
-                    sprites.push(&tile.sprite);
-                }
-                Action1::IndustryTile { sprites: &sprites }.write(output);
-
                 Action0::IndustryTile::Enable { id: industry.id }.write(output);
                 Action0::IndustryTile::Flags { id: industry.id, flags: Action0::IndustryTileFlags::INDUSTRY_ACCEPTANCE }.write(output);
 
@@ -328,18 +346,44 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                 let failed_set: u16 = 0xfd;
 
                 /* Create a random sprite as fallback sprite. */
-                Action2::IndustryTile { set_id: failed_set as u8, ground_sprite: 0x07e6, building_sprite: 0x0, size_x: 16, size_y: 16, size_z: 32 }.write(output);
+                Action2::IndustryTile { set_id: failed_set as u8, ground_sprite: 0x07e6, building_sprites: &[0], size_x: 16, size_y: 16, size_z: 32 }.write(output);
 
                 for (id, tile) in industry.tiles.iter().enumerate() {
-                    let ground_sprite = 0x07e6;
-                    let mut building_sprite = (1 << 31) | (id as u32);
-                    match tile.drawType.as_str() {
-                        "normal" => building_sprite |= 0 << 14,
-                        "transparent" => building_sprite |= 1 << 14,
-                        "recolour" => building_sprite |= 2 << 14,
-                        _ => {},
+                    let mut sprites = Vec::new();
+
+                    let mut ground_sprite = 0;
+                    let mut building_sprites = Vec::new();
+                    for sprite in &tile.sprites {
+                        let mut id = match &sprite.sprite {
+                            NewGRFSpriteContainer::DefaultSprite(sprite) => {
+                                sprite.id
+                            },
+                            NewGRFSpriteContainer::Sprite(sprite) => {
+                                sprites.push(sprite);
+                                (1 << 31) | (sprites.len() as u32 - 1)
+                            },
+                        };
+
+                        match sprite.drawType.as_str() {
+                            "normal" => id |= 0 << 14,
+                            "transparent" => id |= 1 << 14,
+                            "recolour" => id |= 2 << 14,
+                            _ => {},
+                        }
+
+                        if sprite.alwaysDraw {
+                            id |= 1 << 30;
+                        }
+
+                        if ground_sprite == 0 {
+                            ground_sprite = id;
+                        } else {
+                            building_sprites.push(id);
+                        }
                     }
-                    Action2::IndustryTile { set_id: id as u8, ground_sprite, building_sprite, size_x: 16, size_y: 16, size_z: 32 }.write(output);
+
+                    Action1::IndustryTile { sprites: &sprites }.write(output);
+                    Action2::IndustryTile { set_id: id as u8, ground_sprite, building_sprites: &building_sprites, size_x: 16, size_y: 16, size_z: 32 }.write(output);
                 }
 
                 let mut layout_switch = Vec::new();

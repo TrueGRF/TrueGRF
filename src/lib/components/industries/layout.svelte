@@ -22,7 +22,10 @@
     let tileSelectedY = 0;
     let hideOverlay = false;
     let tileEditorOpen = false;
-    let currentTile;
+    let currentTile = 0;
+
+    let layerTabActive = "Ground";
+    let layers = ["Ground", "Building"];
 
     function checkNewLayout() {
         if (layout === lastLayout) return;
@@ -104,11 +107,17 @@
                 }
                 ctx.putImageData(img, 0, 0);
 
-                tiles[currentTile].sprite.width = sprite.width;
-                tiles[currentTile].sprite.height = sprite.height;
-                tiles[currentTile].sprite.base64Data = canvas
-                    .toDataURL("image/png")
-                    .replace("data:image/png;base64,", "");
+                if (currentSprite.sprite.id !== undefined) {
+                    delete currentSprite.sprite.id;
+                    currentSprite.sprite.left = -31;
+                    currentSprite.sprite.top = 0;
+                }
+
+                currentSprite.sprite.width = sprite.width;
+                currentSprite.sprite.height = sprite.height;
+                currentSprite.sprite.base64Data = canvas.toDataURL("image/png").replace("data:image/png;base64,", "");
+
+                tiles[currentTile].sprites[layer] = tiles[currentTile].sprites[layer]; // Trigger Svelte's update.
             };
         });
     }
@@ -131,19 +140,37 @@
 
     function tileEditorNew() {
         tiles.push({
-            sprite: {
-                base64Data: "",
-                width: 0,
-                height: 0,
-                top: 0,
-                left: 0,
-            },
+            sprites: [
+                {
+                    sprite: {
+                        id: 3924,
+                    },
+                    drawType: "normal",
+                    alwaysDraw: true,
+                },
+                {
+                    sprite: {
+                        base64Data: "",
+                        width: 0,
+                        height: 0,
+                        top: 0,
+                        left: 0,
+                    },
+                    drawType: "normal",
+                    alwaysDraw: false,
+                },
+            ],
         });
         tiles = tiles; // Trigger Svelte's update.
 
         currentTile = tiles.length - 1;
+        layerTabActive = "Building";
         tileEditorOpen = true;
     }
+
+    $: layer = layers.indexOf(layerTabActive);
+    $: currentSprite =
+        tiles && tiles[currentTile] && tiles[currentTile].sprites[layer] ? tiles[currentTile].sprites[layer] : {};
 </script>
 
 <div class="layouts">
@@ -184,7 +211,9 @@
                             {#each row as cell}
                                 <span class="cell sprite">
                                     {#if cell >= 0}
-                                        <Sprite bind:sprite={tiles[cell].sprite} />
+                                        {#each tiles[cell].sprites as sprite}
+                                            <Sprite bind:sprite={sprite.sprite} />
+                                        {/each}
                                     {/if}
                                 </span>
                             {/each}
@@ -235,16 +264,31 @@
                             layout[layoutTabActive][tileSelectedY][tileSelectedX] = i;
                         }}
                     >
-                        {#if tile.sprite.width === 0}
+                        {#if tile.sprites[1].sprite.width === 0}
                             <Icon class="material-icons">question_mark</Icon>
                         {:else}
-                            <Sprite bind:sprite={tile.sprite} noOffset />
+                            <div
+                                style="width: {Math.max(
+                                    ...tile.sprites.map((sprite) => sprite.sprite.width ?? 0)
+                                )}px; height: {Math.max(
+                                    ...tile.sprites.map(
+                                        (sprite) => (sprite.sprite.height ?? 0) + (sprite.sprite.top ?? 0)
+                                    )
+                                )}px; margin-top: {Math.max(
+                                    ...tile.sprites.map((sprite) => -(sprite.sprite.top ?? 0))
+                                )}px; position: relative;"
+                            >
+                                {#each tile.sprites as sprite}
+                                    <Sprite bind:sprite={sprite.sprite} />
+                                {/each}
+                            </div>
                         {/if}
                     </span>
                     <IconButton
                         class="material-icons edit"
                         on:click={() => {
                             currentTile = i;
+                            layerTabActive = "Building";
                             tileEditorOpen = true;
                         }}>edit</IconButton
                     >
@@ -260,9 +304,21 @@
         </div>
     </div>
 
-    <Dialog bind:open={tileEditorOpen} class="tileEditor">
+    <Dialog
+        bind:open={tileEditorOpen}
+        class="tileEditor"
+        surface$style="width: 850px; height: 600px; max-width: calc(100vw - 32px);"
+    >
         <Title>Tile Editor</Title>
         <Content>
+            <TabBar tabs={layers} let:tab bind:active={layerTabActive} class="layout">
+                <Tab {tab}>
+                    <TabLabel>
+                        {tab}
+                    </TabLabel>
+                </Tab>
+            </TabBar>
+
             <div
                 on:drop={tileEditorDrop}
                 on:dragover={tileEditorDragOver}
@@ -271,34 +327,31 @@
             >
                 {#if currentTile !== undefined && currentTile >= 0 && tiles[currentTile] !== undefined}
                     <div
-                        class="tile"
-                        style="left: {-tiles[currentTile].sprite.left - 16}px; top: {-tiles[currentTile].sprite.top}px;"
-                    />
-                    <div
-                        class="xaxis"
-                        style="top: {-tiles[currentTile].sprite.top + 16}px; width: {tiles[currentTile].sprite.width +
-                            20}px;"
-                    />
-                    <div
-                        class="yaxis"
-                        style="left: {-tiles[currentTile].sprite.left}px; height: {tiles[currentTile].sprite.height +
-                            20}px;"
-                    />
-                    <Sprite bind:sprite={tiles[currentTile].sprite} noOffset /> (drag or paste a new image to replace)
-                    <div class="flex">
-                        <Textfield
-                            variant="outlined"
-                            bind:value={tiles[currentTile].sprite.left}
-                            label="Left"
-                            type="number"
-                        />
-                        <Textfield
-                            variant="outlined"
-                            bind:value={tiles[currentTile].sprite.top}
-                            label="Top"
-                            type="number"
-                        />
+                        style="position: relative; height: 140px; width: 350px; margin-top: 140px; margin-left: 350px;"
+                    >
+                        <div class="tile" style="left: 16px;" />
+                        <div class="xaxis" style="top: 16px; width: {64 + 16 + 4}px;" />
+                        <div class="yaxis" style="left: 32px; height: {32 + 16 + 4}px;" />
+                        <Sprite bind:sprite={currentSprite.sprite} />
                     </div>
+                    (drag or paste a new image to replace)
+                    {#if layer != 0}
+                        <div class="flex">
+                            <Textfield
+                                variant="outlined"
+                                bind:value={currentSprite.sprite.left}
+                                label="Left"
+                                type="number"
+                            />
+                            <Textfield
+                                variant="outlined"
+                                bind:value={currentSprite.sprite.top}
+                                label="Top"
+                                type="number"
+                            />
+                        </div>
+                        (the grid lines should be just visible at the bottom)
+                    {/if}
                 {/if}
             </div>
         </Content>
@@ -343,10 +396,10 @@
         flex-wrap: wrap;
     }
     .layouts .tiles > div > span {
-        position: relative;
-    }
-    .layouts .tiles > div > span {
         cursor: pointer;
+        margin-top: auto;
+        padding: 5px;
+        position: relative;
     }
     .layouts .tiles > div span.selectable:hover > :global(div),
     .layouts .tiles > div span.selectable:hover {

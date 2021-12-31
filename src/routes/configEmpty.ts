@@ -1,5 +1,5 @@
 export const config = {
-    version: 1,
+    version: 2,
     general: { grfid: "TRU1", name: "TrueGRF", description: "Your first NewGRF with TrueGRF" },
     industries: [],
     cargoes: [

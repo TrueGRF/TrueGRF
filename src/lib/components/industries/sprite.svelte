@@ -1,24 +1,21 @@
 <script lang="ts">
+    import { spriteDefaults } from "./spriteDefaults";
+
     export let sprite;
-    export let noOffset = false;
 </script>
 
-{#if noOffset}
-    <div class="sprite">
-        {#if sprite}
-            <img src="data:image/png;base64,{sprite.base64Data}" alt="" />
-        {/if}
+{#if sprite.id !== undefined}
+    <div class="sprite" style="left: {-31 + 32}px; top: 0px;">
+        <img src="data:image/png;base64,{spriteDefaults[sprite.id]}" alt="" />
     </div>
 {:else}
     <div class="sprite" style="left: {sprite.left + 32}px; top: {sprite.top}px;">
-        {#if sprite}
-            <img src="data:image/png;base64,{sprite.base64Data}" alt="" />
-        {/if}
+        <img src="data:image/png;base64,{sprite.base64Data}" alt="" />
     </div>
 {/if}
 
 <style>
     .sprite {
-        position: relative;
+        position: absolute;
     }
 </style>
