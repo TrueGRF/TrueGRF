@@ -78,13 +78,35 @@
                     if (cargo.abbreviation === undefined) cargo.abbreviation = "??";
                     if (cargo.colour === undefined) cargo.colour = 1;
                 }
-                /* fallthrough */
+            /* fallthrough */
+
+            case 1:
+                for (let industry of newConfig.industries) {
+                    for (let tile in industry.tiles) {
+                        industry.tiles[tile].sprites = [
+                            {
+                                sprite: {
+                                    id: 3924,
+                                },
+                                drawType: "normal",
+                                alwaysDraw: true,
+                            },
+                            {
+                                sprite: industry.tiles[tile].sprite,
+                                drawType: "normal",
+                                alwaysDraw: false,
+                            },
+                        ];
+                        delete industry.tiles[tile].sprite;
+                    }
+                }
+            /* fallthrough */
 
             default:
                 break;
         }
 
-        config.version = 1;
+        config.version = 2;
         config.general = newConfig.general;
         config.cargoes = newConfig.cargoes;
         config.industries = newConfig.industries;

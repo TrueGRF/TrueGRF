@@ -2,7 +2,7 @@ use super::{ActionTrait, Action, Feature, Output, vec_list, write as write_actio
 
 pub enum Action2<'a> {
     Industry { set_id: u8, subtract: &'a [u16; 3], add: &'a [u16; 2] },
-    IndustryTile { set_id: u8, ground_sprite: u32, building_sprite: u32, size_x: u8, size_y: u8, size_z: u8 },
+    IndustryTile { set_id: u8, ground_sprite: u32, building_sprites: &'a [u32], size_x: u8, size_y: u8, size_z: u8 },
     Cargo { set_id: u8, sprite: u16 },
 }
 
@@ -24,12 +24,17 @@ impl<'a> ActionTrait for Action2<'a> {
                     [0x00]
                 ));
             },
-            Action2::IndustryTile { set_id, ground_sprite, building_sprite, size_x, size_y, size_z } => {
+            Action2::IndustryTile { set_id, ground_sprite, building_sprites, size_x, size_y, size_z } => {
+                let mut data = Vec::new();
+                for sprite in *building_sprites {
+                    data.extend(&sprite.to_le_bytes());
+                    data.extend([0x00, 0x00, 0x00, *size_x, *size_y, *size_z]);
+                }
+
                 write(output, Feature::IndustryTiles, *set_id, &vec_list!(
-                    [0x00],
+                    [building_sprites.len() as u8],
                     &ground_sprite.to_le_bytes(),
-                    &building_sprite.to_le_bytes(),
-                    [0x00, 0x00, *size_x, *size_y, *size_z]
+                    data
                 ));
             }
             Action2::Cargo { set_id, sprite } => {
