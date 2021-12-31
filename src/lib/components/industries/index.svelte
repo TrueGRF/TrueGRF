@@ -29,12 +29,6 @@
 
     $: item = items[selected];
 
-    $: if (item && item.colour === undefined) item.colour = 1;
-    $: if (item && item.probabilityMapGen === undefined) item.probabilityMapGen = 3;
-    $: if (item && item.probabilityInGame === undefined) item.probabilityInGame = 5;
-    $: if (item && item.prospectChance === undefined) item.prospectChance = 75;
-    $: if (item && item.fundCostMultiplier === undefined) item.fundCostMultiplier = 100;
-
     function deleteIndustry() {
         items.splice(selected, 1);
         items = items; // Trigger Svelte's update.

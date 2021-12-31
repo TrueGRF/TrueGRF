@@ -28,21 +28,6 @@
     let dialogDeleteOpen = false;
 
     $: item = items[selected];
-    /* Compatibility for older JSON backups. */
-    $: if (item && item.weight === undefined) item.weight = 16;
-    $: if (item && item.price === undefined) item.price = 4112;
-    $: if (item && item.penaltyLowerBound === undefined) item.penaltyLowerBound = 0;
-    $: if (item && item.penaltyLength === undefined) item.penaltyLength = 255;
-    $: if (item && item.sprite === undefined)
-        item.sprite = {
-            width: 10,
-            height: 10,
-            top: 0,
-            left: 0,
-            base64Data: "",
-        };
-    $: if (item && item.abbreviation === undefined) item.abbreviation = "??";
-    $: if (item && item.colour === undefined) item.colour = 1;
 
     /* Long name is always the lowercase of the name in English. */
     $: if (item.name) item.longName = item.name.toLowerCase();

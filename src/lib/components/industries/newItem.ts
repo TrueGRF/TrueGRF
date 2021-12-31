@@ -3,6 +3,11 @@ export const newItem = {
     name: "New industry",
     type: "primary",
     placement: "anywhere",
+    colour: 1,
+    probabilityMapGen: 3,
+    probabilityInGame: 5,
+    prospectChance: 75,
+    fundCostMultiplier: 100,
     placementCustom: [],
     primary: [],
     secondary: {
