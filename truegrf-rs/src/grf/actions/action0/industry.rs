@@ -14,7 +14,12 @@ bitflags! {
 
 bitflags! {
     pub struct CallbackFlags : u16 {
-        const CUSTOM_PLACEMENT = 0x08;
+        const PRODUCTION_CARGO_ARRIVAL = 0x0002;
+        const PRODUCTION_EVERY_256_TICKS = 0x0004;
+        const PLACEMENT = 0x0008;
+        const PRODUCTION_CHANGE_RANDOM = 0x0010;
+        const PRODUCTION_CHANGE_MONTHLY = 0x0020;
+        const PRODUCTION_INITIAL = 0x4000;
     }
 }
 
@@ -94,8 +99,12 @@ impl<'a> ActionTrait for Industry<'a> {
                 ])
             }
             Industry::Flags { id, flags } => {
+                let mut flags = flags.bits;
+
+                flags |= 0x40000; // Always enable bit 18 (new format for callbacks).
+
                 (*id, vec![
-                    vec_list!([0x1a], &flags.bits.to_le_bytes()),
+                    vec_list!([0x1a], &flags.to_le_bytes()),
                 ])
             }
             Industry::Name { id, name } => {

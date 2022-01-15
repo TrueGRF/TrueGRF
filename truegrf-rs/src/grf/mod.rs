@@ -1,10 +1,25 @@
 use serde::{Serialize, Deserialize};
-use core::panic;
 use std::collections::HashMap;
 
 mod actions;
 
-use actions::{Action0, Action1, Action2, Action3, Action8, Action14, ActionTrait, Feature, VarAction2, VarAction2Switch, VarAction2Operator, VarAction2OperatorVariable, Variable};
+use actions::{
+    Action0,
+    Action1,
+    Action2,
+    Action2IndustryIO,
+    Action2Failed,
+    Action2RPN,
+    Action3,
+    Action8,
+    Action14,
+    ActionTrait,
+    Feature,
+    VarAction2,
+    VarAction2Operator,
+    VarAction2Switch,
+    Variable,
+};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFGeneral {
@@ -73,39 +88,6 @@ struct NewGRFIndustryTile {
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFIndustryPrimary {
-    cargoLabel: String,
-    multiplier: u8,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFIndustrySecondaryAcceptance {
-    cargoLabel: String,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFIndustrySecondaryProduction {
-    cargoLabel: String,
-    multiplier: Vec<u16>,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFIndustrySecondary {
-    acceptance: Vec<NewGRFIndustrySecondaryAcceptance>,
-    production: Vec<NewGRFIndustrySecondaryProduction>,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFIndustryTertiary {
-    cargoLabel: String,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug, Default)]
 struct NewGRFIndustry {
     id: u8,
     available: bool,
@@ -117,12 +99,12 @@ struct NewGRFIndustry {
     colour: u8,
     prospectChance: u8,  // Scale from 0 to 100
     layout: Vec<Vec<Vec<i32>>>,
-    primary: Vec<NewGRFIndustryPrimary>,
-    secondary: NewGRFIndustrySecondary,
-    tertiary: Vec<NewGRFIndustryTertiary>,
+    cargoAcceptance: Vec<String>,
+    cargoProduction: Vec<String>,
     placement: String,
     placementCustom: Vec<NewGRFNode>,
     tiles: Vec<NewGRFIndustryTile>,
+    callbacks: String,
 }
 
 #[allow(non_snake_case)]
@@ -157,75 +139,77 @@ pub struct Output {
     sprites: Vec<Vec<u8>>,
 }
 
-fn traverse_nodes<'a>(current_node: &NewGRFNode, nodes: &HashMap<String, &NewGRFNode>, reverse: &HashMap<(String, String), String>) -> Box<VarAction2OperatorVariable> {
-    match current_node.r#type.clone().unwrap().as_str() {
-        "output" => {
-            let node = nodes[&reverse[&(current_node.id.clone(), "".to_string())]];
-            traverse_nodes(node, nodes, reverse)
-        }
-        "compare" => {
-            let left_node = nodes[&reverse[&(current_node.id.clone(), "a".to_string())]];
-            let left = traverse_nodes(left_node, nodes, reverse);
+fn write_rpn_chain(output: &mut Output, cb: u8, chain: &Action2RPN::Chain, has_callback: bool) {
+    /* Some chains have a callback as return value (instead of a value). These
+     * callbacks are already defined before we enter this function on "cb". As
+     * such, we cannot use "cb" for other chains, as it will overwrite the
+     * callback chain. This in fact is just a bit of lazy programming, as what
+     * we should be doing is defining the callback chain just before we write
+     * the last chain. But this is for now far easier to program. See for
+     * example the Action2::Industry callback. */
+    let cb_child = cb + if has_callback { 1 } else { 0 };
 
-            let right_node = nodes[&reverse[&(current_node.id.clone(), "b".to_string())]];
-            let right = traverse_nodes( right_node, nodes, reverse);
-
-            if let Some(d) = &current_node.data {
-                if let Some(v) = &d.value {
-                    match v.as_str() {
-                        "gt" => {
-                            Box::new(VarAction2OperatorVariable::Operator(VarAction2Operator::Subtract { left, right }))
-                        },
-                        "lt" => {
-                            Box::new(VarAction2OperatorVariable::Operator(VarAction2Operator::Subtract { left: right, right: left }))
-                        },
-                        _ => {
-                            panic!("Unknown compare operator: {}", v);
-                        }
-                    }
-                } else {
-                    panic!("No value for compare node");
-                }
-            } else {
-                panic!("No value for compare node");
-            }
-        },
-        "variable" => {
-            if let Some(d) = &current_node.data {
-                if let Some(v) = &d.value {
-                    match v.as_str() {
-                        "distance-to-town" => {
-                            Box::new(VarAction2OperatorVariable::Variable(Variable::IndustryCb28::DistanceToTown.into()))
-                        },
-                        _ => {
-                            panic!("Unknown variable: {}", v);
-                        }
-                    }
-                } else {
-                    panic!("No value for variable node");
-                }
-            } else {
-                panic!("No value for variable node");
-            }
-        },
-        "number" => {
-            if let Some(d) = &current_node.data {
-                if let Some(v) = &d.value {
-                    Box::new(VarAction2OperatorVariable::Variable(Variable::Global::Number(v.parse::<u32>().unwrap()).into()))
-                } else {
-                    panic!("No value for number node");
-                }
-            } else {
-                panic!("No value for number node");
-            }
-        },
-        _ => {
-            panic!("Unknown node type: {}", current_node.r#type.clone().unwrap());
-        }
+    for (i, child) in chain.children.iter().enumerate() {
+        write_rpn_chain(output, cb_child + i as u8, child, false);
     }
+
+    /* Rewrite the switch with the correct setids in the result entries. */
+    let mut switch = Vec::new();
+    for case in &chain.switch {
+        /* Use "cb" instead of "cb_child", as switches already take care of correcting for the + 1 by the caller. */
+        switch.push(VarAction2Switch { result: case.result + cb as u16, left: case.left, right: case.right });
+    }
+
+    /* Rewrite the body to point to correct setids. */
+    let mut body = Vec::new();
+    for operator in &chain.body {
+        let result = match operator {
+            VarAction2Operator::Head(Variable::Variable { variable: 0x7e, parameter, shift: _, mask: _ }) => {
+                /* Procedure entries refer to local setids; fix them to use the correct setid. */
+                VarAction2Operator::Head(Variable::Global::Procedure(parameter.unwrap() + cb_child).into())
+            },
+            _ => operator.clone(),
+        };
+        body.push(result);
+    }
+
+    VarAction2::Advanced {
+        set_id: cb,
+        feature: Feature::Industries,
+        related_object: false,
+        variable: &body,
+        switch: &switch,
+        default: cb as u16
+    }.write(output);
 }
 
-fn write_segments(output: &mut Output, options: NewGRFOptions) {
+fn industry_callback(output: &mut Output, cb: u8, rpn: &mut Action2RPN::Function, ctt: &HashMap<String, u8>) {
+    let mut inputs = Vec::new();
+    let mut outputs = Vec::new();
+    for input in &rpn.result.industry_inputs {
+        match input.1 {
+            Action2RPN::Register::Temporary(register) => inputs.push(Action2IndustryIO { cargo: ctt[input.0], register: *register }),
+            Action2RPN::Register::Persistent(_) => panic!("Persistent registers not supported"),
+        }
+    }
+    for output in &rpn.result.industry_outputs {
+        match output.1 {
+            Action2RPN::Register::Temporary(register) => outputs.push(Action2IndustryIO { cargo: ctt[output.0], register: *register }),
+            Action2RPN::Register::Persistent(_) => panic!("Persistent registers not supported"),
+        }
+    }
+
+    Action2::Industry { set_id: cb, inputs: &inputs, outputs: &outputs }.write(output);
+
+    /* Ensure our action2 callback is called when done with the callback. */
+    rpn.chain.switch = vec![
+        VarAction2Switch { result: 0, left: 0x0, right: 0xffffffff },
+    ];
+
+    write_rpn_chain(output, cb, &rpn.chain, true);
+}
+
+fn write_segments(output: &mut Output, options: NewGRFOptions) -> Result<(), String> {
     /* Initial sprite; should be 4 in length, ignored by OpenTTD. */
     output.buffer.extend([0x04, 0x00, 0x00, 0x00, 0xff, 0x02, 0x00, 0x00, 0x00]);
 
@@ -280,6 +264,9 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
             continue;
         }
 
+        let mut flags = Action0::IndustryFlags::empty();
+        let mut callback_flags = Action0::IndustryCallbackFlags::empty();
+
         Action0::Industry::Enable { id: industry.id }.write(output);
         Action0::Industry::Name { id: industry.id, name: &industry.name }.write(output);
         Action0::Industry::FundCostMultiplier { id: industry.id, multiplier: industry.fundCostMultiplier }.write(output);
@@ -295,58 +282,33 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
         };
         Action0::Industry::Type { id: industry.id, r#type: industry_type }.write(output);
 
-        if industry.r#type == "primary" && !industry.primary.is_empty() {
-            let mut primary_production = Vec::new();
-            let mut primary_multiplier = Vec::new();
-            for primary_item in &industry.primary {
-                primary_production.push(ctt[&primary_item.cargoLabel]);
-                primary_multiplier.push(primary_item.multiplier);
-            }
+        let mut cargo_production = Vec::new();
+        let mut cargo_production_multiplier = Vec::new();
+        for cargo in &industry.cargoProduction {
+            cargo_production.push(ctt[cargo]);
+            cargo_production_multiplier.push(0);
+        }
+        let mut cargo_acceptance = Vec::new();
+        for cargo in &industry.cargoAcceptance {
+            cargo_acceptance.push(ctt[cargo]);
+        }
 
-            Action0::Industry::Production { id: industry.id, production: &primary_production, multiplier: &primary_multiplier }.write(output);
-            Action0::Industry::Acceptance { id: industry.id, acceptance: &vec![], multiplier: &vec![] }.write(output);
+        Action0::Industry::Production { id: industry.id, production: &cargo_production, multiplier: &cargo_production_multiplier }.write(output);
+        Action0::Industry::Acceptance { id: industry.id, acceptance: &cargo_acceptance, multiplier: &vec![] }.write(output);
+
+        if industry.r#type == "primary" {
             Action0::Industry::ProspectChance { id: industry.id, chance: industry.prospectChance as u32 * 255 * 255 * 255 / 100 * 255 }.write(output);
         }
-
-        if industry.r#type == "secondary" && !industry.secondary.acceptance.is_empty() && !industry.secondary.production.is_empty() {
-            let mut secondary_acceptance = Vec::new();
-            for acceptance in &industry.secondary.acceptance {
-                secondary_acceptance.extend(ctt[&acceptance.cargoLabel].to_le_bytes());
-            }
-
-            let mut secondary_production = Vec::new();
-            let mut secondary_multiplier = Vec::new();
-            for production in &industry.secondary.production {
-                secondary_production.push(ctt[&production.cargoLabel]);
-                for multiplier in &production.multiplier {
-                    secondary_multiplier.push(*multiplier);
-                }
-            }
-
-            Action0::Industry::Production { id: industry.id, production: &secondary_production, multiplier: &vec![] }.write(output);
-            Action0::Industry::Acceptance { id: industry.id, acceptance: &secondary_acceptance, multiplier: &secondary_multiplier }.write(output);
-        }
-
-        if industry.r#type == "tertiary" && !industry.tertiary.is_empty() {
-            let mut tertiary_acceptance = Vec::new();
-            for tertiary_item in &industry.tertiary {
-                tertiary_acceptance.push(ctt[&tertiary_item.cargoLabel]);
-            }
-
-            Action0::Industry::Production { id: industry.id, production: &vec![], multiplier: &vec![] }.write(output);
-            Action0::Industry::Acceptance { id: industry.id, acceptance: &tertiary_acceptance, multiplier: &vec![] }.write(output);
-        };
 
         if !industry.layout.is_empty() {
             if !industry.tiles.is_empty() {
                 Action0::IndustryTile::Enable { id: industry.id }.write(output);
                 Action0::IndustryTile::Flags { id: industry.id, flags: Action0::IndustryTileFlags::INDUSTRY_ACCEPTANCE }.write(output);
 
-                let cb_main: u16 = 0xfe;
-                let failed_set: u16 = 0xfd;
+                let failed_set: u8 = 0xfd;
+                Action2Failed::IndustryTile { set_id: failed_set }.write(output);
 
-                /* Create a random sprite as fallback sprite. */
-                Action2::IndustryTile { set_id: failed_set as u8, ground_sprite: 0x07e6, building_sprites: &[0], size_x: 16, size_y: 16, size_z: 32 }.write(output);
+                let cb_main: u8 = 0xfe;
 
                 for (id, tile) in industry.tiles.iter().enumerate() {
                     let mut sprites = Vec::new();
@@ -403,12 +365,12 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
                         }
                     }
 
-                    VarAction2::IndustryTile { set_id: layout_id as u8 + 0xf0, variable: Variable::IndustryTile::RelativePos.into(), switch: &switch, default: failed_set }.write(output);
+                    VarAction2::IndustryTile { set_id: layout_id as u8 + 0xf0, variable: Variable::IndustryTile::RelativePos.into(), switch: &switch, default: failed_set as u16 }.write(output);
                     layout_switch.push(VarAction2Switch { result: layout_id as u16 + 0xf0, left: layout_id as u32 + 1, right: layout_id as u32 + 1 });
                 }
 
-                VarAction2::IndustryTile { set_id: 0xfe, variable: Variable::Industry::LayoutNum.into(), switch: &layout_switch, default: failed_set }.write(output);
-                Action3::IndustryTile { id: industry.id, set_id: cb_main as u8 }.write(output);
+                VarAction2::IndustryTile { set_id: cb_main, variable: Variable::Industry::LayoutNum.into(), switch: &layout_switch, default: failed_set as u16 }.write(output);
+                Action3::IndustryTile { id: industry.id, set_id: cb_main }.write(output);
             }
 
             let mut layouts = Vec::new();
@@ -438,7 +400,71 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
             Action0::Industry::Layout { id: industry.id, layouts: &layouts }.write(output);
         }
 
-        let mut flags = Action0::IndustryFlags::empty();
+        let failed_set = 0xfd;
+        Action2Failed::Industry { set_id: 0xfd }.write(output);
+
+        let mut callbacks = Vec::new();
+
+        match Action2RPN::parse(&industry.callbacks, &ctt) {
+            Ok(mut functions) => {
+                let mut callbacks_info2 = Vec::new();
+
+                static INDUSTRY_CALLBACKS_0: &[(&str, u32, Action0::IndustryCallbackFlags)] = &[
+                    ("cb:production_cargo_arrival", 0, Action0::IndustryCallbackFlags::PRODUCTION_CARGO_ARRIVAL),
+                    ("cb:production_every_256_ticks", 1, Action0::IndustryCallbackFlags::PRODUCTION_EVERY_256_TICKS),
+                ];
+
+                for (name, switch_value, flag) in INDUSTRY_CALLBACKS_0 {
+                    if let Some(function) = functions.get_mut(&name.to_string()) {
+                        callback_flags |= *flag;
+
+                        let cb = (callbacks.len() + callbacks_info2.len()) as u8;
+                        industry_callback(output, cb, function, &ctt);
+
+                        /* ExtraCallbackInfo2 = 0 means the cargo arrival callback. */
+                        callbacks_info2.push(VarAction2Switch { result: cb as u16, left: *switch_value, right: *switch_value });
+                    }
+                }
+
+                if !callbacks_info2.is_empty() {
+                    let cb = callbacks.len() as u8;
+                    VarAction2::Industry { set_id: cb as u8, variable: Variable::Global::ExtraCallbackInfo2.into(), switch: &callbacks_info2, default: failed_set }.write(output);
+                    callbacks.push(VarAction2Switch { result: cb as u16, left: 0x0, right: 0x0 });
+                }
+
+                static INDUSTRY_CALLBACKS: &[(&str, u32, Action0::IndustryCallbackFlags)] = &[
+                    ("cb:production_change_monthly", 0x29, Action0::IndustryCallbackFlags::PRODUCTION_CHANGE_MONTHLY),
+                    ("cb:production_change_random", 0x35, Action0::IndustryCallbackFlags::PRODUCTION_CHANGE_RANDOM),
+                    ("cb:production_initial", 0x15f, Action0::IndustryCallbackFlags::PRODUCTION_INITIAL),
+                ];
+
+                for (name, switch_value, flag) in INDUSTRY_CALLBACKS {
+                    if let Some(function) = functions.get_mut(&name.to_string()) {
+                        callback_flags |= *flag;
+
+                        if let Some(register) = &function.result.value {
+                            function.chain.push(
+                                match register {
+                                    Action2RPN::Register::Temporary(register) => VarAction2Operator::Head(Variable::Register::Temporary(*register).into()),
+                                    Action2RPN::Register::Persistent(register) => VarAction2Operator::Head(Variable::Register::Persistent(*register).into()),
+                                }
+                            );
+                        } else {
+                            return Err(format!("Parse error in industry '{}' callbacks: no return value for {}", industry.name, name));
+                        }
+
+                        let cb = callbacks.len() as u8;
+                        write_rpn_chain(output, cb, &function.chain, false);
+
+                        callbacks.push(VarAction2Switch { result: cb as u16, left: *switch_value, right: *switch_value });
+                    }
+                }
+            },
+            Err(e) => {
+                return Err(format!("Parse error in industry '{}' callbacks: {}", industry.name, e));
+            },
+        }
+
         match industry.placement.as_str() {
             "on-water" => flags |= Action0::IndustryFlags::ON_WATER,
             "in-town" => flags |= Action0::IndustryFlags::IN_TOWN,
@@ -447,65 +473,39 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) {
             _ => {},
         };
 
-        if !flags.is_empty() {
-            Action0::Industry::Flags { id: industry.id, flags }.write(output);
-        }
-
-        let mut callback_flags = Action0::IndustryCallbackFlags::empty();
-
         if industry.placement.as_str() == "custom" {
-            callback_flags |= Action0::IndustryCallbackFlags::CUSTOM_PLACEMENT;
+            // callback_flags |= Action0::IndustryCallbackFlags::PLACEMENT;
 
-            let cb_main: u16 = 1;
-            let failed_set: u16 = 2;
-            let cb28: u16 = 3;
+            let cb = callbacks.len() as u16;
 
-            let mut reverse: HashMap<(String, String), String> = HashMap::new();
-            let mut nodes: HashMap<String, &NewGRFNode> = HashMap::new();
+            // TODO
+            // let variable = traverse_nodes( output_node, &nodes, &reverse);
+            // VarAction2::Advanced { set_id: cb28 as u8, feature: Feature::Industries, related_object: false, variable, switch: &vec![
+            //     VarAction2Switch { result: 0x8400, left: 0x0, right: 0x7fffffff },
+            // ], default: 0x8401 }.write(output);
 
-            let mut output_node = &NewGRFNode { ..Default::default() };
-            for node in &industry.placementCustom {
-                if node.source.is_some() && node.target.is_some() {
-                    reverse.insert((node.target.clone().unwrap(), node.targetHandle.clone().unwrap_or_else(|| "".to_string())), node.source.clone().unwrap());
-                } else {
-                    nodes.insert(node.id.clone(), node);
-                }
-                if node.r#type.is_some() && node.r#type.as_ref() == Some(&"output".to_string()) {
-                    output_node = node;
-                }
-            }
-
-            /* Chain that either outputs a number if it was a graphics callback (which is an error) or a sprite when it is a non-graphics callback (which is also an error). */
-            Action2::Industry { set_id: failed_set as u8, subtract: &[0, 0, 0], add: &[0, 0] }.write(output);
-            VarAction2::Industry { set_id: failed_set as u8, variable: Variable::Global::CurrentCallback.into(), switch: &vec![
-                VarAction2Switch { result: 0x8000, left: 0x00, right: 0x00 },
-            ], default: failed_set }.write(output);
-
-            let variable = traverse_nodes( output_node, &nodes, &reverse);
-            VarAction2::Advanced { set_id: cb28 as u8, feature: Feature::Industries, related_object: false, variable, switch: &vec![
-                VarAction2Switch { result: 0x8400, left: 0x0, right: 0x7fffffff },
-            ], default: 0x8401 }.write(output);
-
-            VarAction2::Industry { set_id: cb_main as u8, variable: Variable::Global::CurrentCallback.into(), switch: &vec![
-                VarAction2Switch { result: cb28, left: 0x28, right: 0x28 },
-            ], default: failed_set }.write(output);
-
-            Action3::Industry { id: industry.id, set_id: cb_main as u8 }.write(output);
+            callbacks.push(VarAction2Switch { result: cb, left: 0x28, right: 0x28 });
         }
 
-        if !callback_flags.is_empty() {
-            Action0::Industry::CallbackFlags { id: industry.id, flags: callback_flags }.write(output);
-        }
+        /* Switch to handle all callbacks. */
+        let cb_main: u16 = 0xfe;
+        VarAction2::Industry { set_id: cb_main as u8, variable: Variable::Global::CurrentCallback.into(), switch: &callbacks, default: failed_set }.write(output);
+        Action3::Industry { id: industry.id, set_id: cb_main as u8 }.write(output);
+
+        Action0::Industry::Flags { id: industry.id, flags }.write(output);
+        Action0::Industry::CallbackFlags { id: industry.id, flags: callback_flags }.write(output);
     }
 
     /* End-of-data-section marker. */
     output.buffer.extend(b"\x00\x00\x00\x00");
+
+    Ok(())
 }
 
-pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
+pub fn write_grf(options: NewGRFOptions) -> Result<Vec<u8>, String> {
     let mut output = Output { buffer: Vec::new(), string_counter: 0xdc00, sprites: Vec::new() };
 
-    write_segments(&mut output, options);
+    write_segments(&mut output, options)?;
 
     let mut grf = Vec::new();
     /* Write GRF container version 2 header. */
@@ -525,5 +525,5 @@ pub fn write_grf(options: NewGRFOptions) -> Vec<u8> {
     /* End-of-sprite-section marker. */
     grf.extend(b"\x00\x00\x00\x00");
 
-    grf
+    Ok(grf)
 }

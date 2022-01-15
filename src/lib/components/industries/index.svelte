@@ -1,8 +1,7 @@
 <script lang="ts">
+    import { Icon } from "@smui/common";
     import Button, { Label } from "@smui/button";
-    import CargoPrimary from "$lib/components/industries/cargoPrimary.svelte";
-    import CargoSecondary from "$lib/components/industries/cargoSecondary.svelte";
-    import CargoTertiary from "$lib/components/industries/cargoTertiary.svelte";
+    import Chip, { Set, TrailingAction, Text } from "@smui/chips";
     import ColourPicker from "$lib/components/common/colour-picker.svelte";
     import Dialog, { Title as DialogTitle, Content as DialogContent, Actions } from "@smui/dialog";
     import FormField from "@smui/form-field";
@@ -15,6 +14,7 @@
     import Slider from "$lib/components/common/slider.svelte";
     import Switch from "@smui/switch";
     import Textfield from "@smui/textfield";
+    import Tooltip, { Wrapper } from "@smui/tooltip";
 
     import { newItem } from "./newItem";
     import { placement } from "./placement";
@@ -26,6 +26,9 @@
 
     let selected = 0;
     let dialogDeleteOpen = false;
+
+    let newCargoAcceptance = "";
+    let newCargoProduction = "";
 
     $: item = items[selected];
 
@@ -50,6 +53,33 @@
         items = items; // Trigger Svelte's update.
         selected = items.length - 1;
     }
+
+    function addCargoAcceptance() {
+        item.cargoAcceptance.push(newCargoAcceptance);
+        item.cargoAcceptance = item.cargoAcceptance; // Trigger Svelte's update.
+
+        /* Delay resetting the value as otherwise Svelte doesn't propagate the new change. */
+        setTimeout(() => {
+            newCargoAcceptance = "";
+        }, 1);
+    }
+    function addCargoProduction() {
+        item.cargoProduction.push(newCargoProduction);
+        item.cargoProduction = item.cargoProduction; // Trigger Svelte's update.
+
+        /* Delay resetting the value as otherwise Svelte doesn't propagate the new change. */
+        setTimeout(() => {
+            newCargoProduction = "";
+        }, 1);
+    }
+
+    $: if (newCargoAcceptance) addCargoAcceptance();
+    $: if (newCargoProduction) addCargoProduction();
+
+    $: cargoAcceptanceAvailable =
+        item && cargoes.filter((cargo) => item.cargoAcceptance.findIndex((c) => c == cargo.label) === -1);
+    $: cargoProductionAvailable =
+        item && cargoes.filter((cargo) => item.cargoProduction.findIndex((c) => c == cargo.label) === -1);
 </script>
 
 <div class="content {visible ? '' : 'hidden'}">
@@ -117,30 +147,55 @@
                 </span>
             </Slider>
 
-            <Paper variant="outlined" class="cargo primary {item.type === 'primary' ? '' : 'hidden'}">
-                <Title>Cargo</Title>
-                <Content>
-                    {#if item.type == "primary"}
-                        <CargoPrimary bind:cargoes bind:primary={item.primary} />
-                    {/if}
-                </Content>
-            </Paper>
-            <Paper variant="outlined" class="cargo secondary {item.type === 'secondary' ? '' : 'hidden'}">
-                <Title>Cargo</Title>
-                <Content>
-                    {#if item.type == "secondary"}
-                        <CargoSecondary bind:cargoes bind:secondary={item.secondary} />
-                    {/if}
-                </Content>
-            </Paper>
-            <Paper variant="outlined" class="cargo tertiary {item.type === 'tertiary' ? '' : 'hidden'}">
-                <Title>Cargo</Title>
-                <Content>
-                    {#if item.type == "tertiary"}
-                        <CargoTertiary bind:cargoes bind:tertiary={item.tertiary} />
-                    {/if}
-                </Content>
-            </Paper>
+            <div class="cargo mdc-form-field">
+                <span>Cargo acceptance:</span>
+                <Set chips={item.cargoAcceptance} let:chip input>
+                    <Chip {chip} on:SMUIChip:removal={() => (item.cargoAcceptance = item.cargoAcceptance)}>
+                        <Text>{chip}: {cargoes[cargoes.findIndex((c) => c.label == chip)].name}</Text>
+                        <TrailingAction icon$class="material-icons">cancel</TrailingAction>
+                    </Chip>
+                </Set>
+                {#if cargoAcceptanceAvailable.length !== 0}
+                    <Select variant="outlined" bind:value={newCargoAcceptance}>
+                        {#each cargoAcceptanceAvailable as cargo}
+                            <Option value={cargo.label}>{cargo.label}: {cargo.name}</Option>
+                        {/each}
+                    </Select>
+                {/if}
+            </div>
+
+            <div class="cargo mdc-form-field">
+                <span>Cargo production:</span>
+                <Set chips={item.cargoProduction} let:chip input>
+                    <Chip {chip} on:SMUIChip:removal={() => (item.cargoProduction = item.cargoProduction)}>
+                        <Text>{chip}: {cargoes[cargoes.findIndex((c) => c.label == chip)].name}</Text>
+                        <TrailingAction icon$class="material-icons">cancel</TrailingAction>
+                    </Chip>
+                </Set>
+                {#if cargoProductionAvailable.length !== 0}
+                    <Select variant="outlined" bind:value={newCargoProduction}>
+                        {#each cargoProductionAvailable as cargo}
+                            <Option value={cargo.label}>{cargo.label}: {cargo.name}</Option>
+                        {/each}
+                    </Select>
+                {/if}
+            </div>
+
+            <Textfield
+                variant="outlined"
+                bind:value={item.callbacks}
+                label="Callbacks Scripting"
+                textarea
+                style="height: 200px;"
+            />
+            <Wrapper>
+                <Icon class="help material-icons">help</Icon>
+                <Tooltip>
+                    Callbacks Scripting is done in a language specifically designed for TrueGRF.
+                    See <a target="_new" href="https://github.com/TrueBrain/TrueGRF/blob/main/truegrf-rs/src/grf/actions/action2_rpn/README.md">here</a> for documentation on the language.
+                    Use FIRS4 Steeltown template as a reference.
+                </Tooltip>
+            </Wrapper>
 
             <Layout bind:layout={item.layout} bind:tiles={item.tiles} />
 
@@ -188,6 +243,7 @@
     .right :global(.mdc-select) {
         margin-top: 12px;
         margin-right: 10px;
+        min-width: 250px;
         width: 250px;
     }
     .right :global(.mdc-form-field) {
@@ -205,25 +261,15 @@
         width: calc(100% - 53px);
     }
 
-    .right :global(.cargo) {
-        margin-top: 12px;
+    .cargo :global(.mdc-chip-set) {
+        display: inline-flex;
+        width: 100%;
     }
-    .right :global(.cargo.primary .mdc-text-field),
-    .right :global(.cargo.tertiary .mdc-text-field),
-    .right :global(.cargo.primary .empty),
-    .right :global(.cargo.tertiary .empty) {
-        display: inline-block;
-        width: calc(100% - 317px);
+    .right .cargo {
+        width: 100%;
     }
-    .right :global(.cargo.secondary .mdc-text-field),
-    .right :global(.cargo.secondary .empty) {
-        display: inline-block;
-        margin-right: 12px;
-        width: 250px;
-    }
-    .right :global(.cargo .mdc-icon-button) {
-        color: var(--mdc-theme-error, #ff0000);
-        position: relative;
-        top: -5px;
+    .right .cargo > span {
+        min-width: 270px;
+        width: 270px;
     }
 </style>

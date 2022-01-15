@@ -6,31 +6,163 @@ pub struct VarAction2Switch {
     pub right: u32,
 }
 
-pub enum VarAction2OperatorVariable {
-    Variable(Variable::Variable),
-    Operator(VarAction2Operator),
-}
-
+#[allow(non_camel_case_types)]
 pub enum VarAction2Operator {
-    Subtract { left: Box<VarAction2OperatorVariable>, right: Box<VarAction2OperatorVariable> },
+    Head(Variable::Variable),
+
+    Add(Variable::Variable),
+    Subtract(Variable::Variable),
+    Multiply(Variable::Variable),
+    Divide(Variable::Variable),
+    Modulo(Variable::Variable),
+
+    Min(Variable::Variable),
+    Max(Variable::Variable),
+
+    And(Variable::Variable),
+    Or(Variable::Variable),
+    Xor(Variable::Variable),
+
+    Compare(Variable::Variable),
+
+    StoreTemporary(Variable::Variable),
+    StorePersistent(Variable::Variable),
 }
 
-impl VarAction2OperatorVariable {
-    pub fn get_buffer(&self) -> Vec<u8> {
-        match self {
-            VarAction2OperatorVariable::Variable(var) => var.get_buffer(),
-            VarAction2OperatorVariable::Operator(op) => {
-                match op {
-                    VarAction2Operator::Subtract { left, right } => {
-                        let mut buffer = left.get_buffer();
-                        buffer[1] |= 0x20; // Mark as advanced.
-                        buffer.push(0x01); // Subtract.
-                        buffer.extend(right.get_buffer());
-                        buffer
-                    }
-                }
-            }
+pub type VarAction2Chain = Vec<VarAction2Operator>;
+
+pub fn varaction2_common(operator: u8, variable: &Variable::Variable, flags: u8) -> Vec<u8> {
+    let mut buffer = vec![operator];
+    buffer.extend(variable.get_buffer(flags));
+    buffer
+}
+
+impl Clone for VarAction2Switch {
+    fn clone(&self) -> Self {
+        Self {
+            result: self.result,
+            left: self.left,
+            right: self.right,
         }
+    }
+}
+
+impl Clone for VarAction2Operator {
+    fn clone(&self) -> Self {
+        match self {
+            VarAction2Operator::Head(variable) => VarAction2Operator::Head(*variable),
+
+            VarAction2Operator::Add(variable) => VarAction2Operator::Add(*variable),
+            VarAction2Operator::Subtract(variable) => VarAction2Operator::Subtract(*variable),
+            VarAction2Operator::Multiply(variable) => VarAction2Operator::Multiply(*variable),
+            VarAction2Operator::Divide(variable) => VarAction2Operator::Divide(*variable),
+            VarAction2Operator::Modulo(variable) => VarAction2Operator::Modulo(*variable),
+
+            VarAction2Operator::Min(variable) => VarAction2Operator::Min(*variable),
+            VarAction2Operator::Max(variable) => VarAction2Operator::Max(*variable),
+
+            VarAction2Operator::And(variable) => VarAction2Operator::And(*variable),
+            VarAction2Operator::Or(variable) => VarAction2Operator::Or(*variable),
+            VarAction2Operator::Xor(variable) => VarAction2Operator::Xor(*variable),
+
+            VarAction2Operator::Compare(variable) => VarAction2Operator::Compare(*variable),
+
+            VarAction2Operator::StoreTemporary(variable) => VarAction2Operator::StoreTemporary(*variable),
+            VarAction2Operator::StorePersistent(variable) => VarAction2Operator::StorePersistent(*variable),
+        }
+    }
+}
+
+impl VarAction2Operator {
+    fn get_buffer(&self, first: bool, last: bool) -> Vec<u8> {
+        let flags = if last { 0 } else { 0x20 };
+
+        match self {
+            VarAction2Operator::Add(variable) => {
+                if first { panic!("Add operator can't be first in chain!"); }
+                varaction2_common(0x00, variable, flags)
+            },
+            VarAction2Operator::Subtract(variable) => {
+                if first { panic!("Subtract operator can't be first in chain!"); }
+                varaction2_common(0x01, variable, flags)
+            },
+            VarAction2Operator::Min(variable) => {
+                if first { panic!("Min operator can't be first in chain!"); }
+                varaction2_common(0x02, variable, flags)
+            },
+            VarAction2Operator::Max(variable) => {
+                if first { panic!("Max operator can't be first in chain!"); }
+                varaction2_common(0x03, variable, flags)
+            },
+            // 04, unsigned min
+            // 05, unsigned max
+            VarAction2Operator::Divide(variable) => {
+                if first { panic!("Divide operator can't be first in chain!"); }
+                varaction2_common(0x06, variable, flags)
+            },
+            VarAction2Operator::Modulo(variable) => {
+                if first { panic!("Modulo operator can't be first in chain!"); }
+                varaction2_common(0x07, variable, flags)
+            },
+            // 08, unsigned divide
+            // 09, unsigned modulo
+            VarAction2Operator::Multiply(variable) => {
+                if first { panic!("Multiply operator can't be first in chain!"); }
+                varaction2_common(0x0a, variable, flags)
+            },
+            VarAction2Operator::And(variable) => {
+                if first { panic!("And operator can't be first in chain!"); }
+                varaction2_common(0x0b, variable, flags)
+            },
+            VarAction2Operator::Or(variable) => {
+                if first { panic!("Or operator can't be first in chain!"); }
+                varaction2_common(0x0c, variable, flags)
+            },
+            VarAction2Operator::Xor(variable) => {
+                if first { panic!("Xor operator can't be first in chain!"); }
+                varaction2_common(0x0d, variable, flags)
+            },
+            VarAction2Operator::StoreTemporary(variable) => {
+                if first { panic!("StoreTemporary operator can't be first in chain!"); }
+                varaction2_common(0x0e, variable, flags)
+            },
+            VarAction2Operator::Head(variable) => {
+                /* This allows for two chains be stiched together by just putting one after the other. */
+                if first {
+                    variable.get_buffer(flags)
+                } else {
+                    varaction2_common(0x0f, variable, flags)
+                }
+            },
+            VarAction2Operator::StorePersistent(variable) => {
+                if first { panic!("StorePersistent operator can't be first in chain!"); }
+                varaction2_common(0x10, variable, flags)
+            },
+            // TODO -- 11, ror / rot
+            VarAction2Operator::Compare(variable) => {
+                if first { panic!("Compare operator can't be first in chain!"); }
+                varaction2_common(0x12, variable, flags)
+            },
+            // 13, unsigned compare
+            // TODO -- 14, lshift
+            // 15, unsigned rshift
+            // TODO -- 16, rshift
+        }
+    }
+}
+
+pub trait VarAction2ChainAction {
+    fn get_buffer(&self) -> Vec<u8>;
+}
+
+impl VarAction2ChainAction for VarAction2Chain {
+    fn get_buffer(&self) -> Vec<u8> {
+        let mut buffer = Vec::new();
+        let last = self.len() - 1;
+        for (i, operator) in self.iter().enumerate() {
+            buffer.extend(operator.get_buffer(i == 0, i == last));
+        }
+        buffer
     }
 }
 
@@ -79,7 +211,7 @@ impl From<Variable::Industry> for IndustryVariable {
 // }
 
 pub enum VarAction2<'a> {
-    Advanced { set_id: u8, feature: Feature, related_object: bool, variable: Box<VarAction2OperatorVariable>, switch: &'a Vec<VarAction2Switch>, default: u16 },
+    Advanced { set_id: u8, feature: Feature, related_object: bool, variable: &'a VarAction2Chain, switch: &'a Vec<VarAction2Switch>, default: u16 },
     Industry { set_id: u8, variable: IndustryVariable, switch: &'a Vec<VarAction2Switch>, default: u16 },
     IndustryTile { set_id: u8, variable: IndustryTileVariable, switch: &'a Vec<VarAction2Switch>, default: u16 },
 }
@@ -108,7 +240,7 @@ impl<'a> ActionTrait for VarAction2<'a> {
             VarAction2::Industry { set_id, variable, switch, default } => {
                 match variable {
                     IndustryVariable::Primary(variable) => {
-                        write(output, Feature::IndustryTiles, *set_id, false, &variable.get_buffer(), switch, *default);
+                        write(output, Feature::IndustryTiles, *set_id, false, &variable.get_buffer(0), switch, *default);
                     },
                     // IndustryVariable::Related(variable) => {
                     //     write(output, Feature::IndustryTiles, *set_id, true, &variable.get_buffer(), switch, *default);
@@ -118,10 +250,10 @@ impl<'a> ActionTrait for VarAction2<'a> {
             VarAction2::IndustryTile { set_id, variable, switch, default } => {
                 match variable {
                     IndustryTileVariable::Primary(variable) => {
-                        write(output, Feature::IndustryTiles, *set_id, false, &variable.get_buffer(), switch, *default);
+                        write(output, Feature::IndustryTiles, *set_id, false, &variable.get_buffer(0), switch, *default);
                     },
                     IndustryTileVariable::Related(variable) => {
-                        write(output, Feature::IndustryTiles, *set_id, true, &variable.get_buffer(), switch, *default);
+                        write(output, Feature::IndustryTiles, *set_id, true, &variable.get_buffer(0), switch, *default);
                     },
                 }
             }

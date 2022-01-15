@@ -5,17 +5,29 @@
 
     export let visible = false;
 
-    export const compileAndDownload = (config) => {
-        const newgrf_data = compile(config);
+    let error = "";
 
-        FileSaver.saveAs(new Blob([newgrf_data]), "truegrf_" + new Date().toISOString() + ".grf");
+    export const compileAndDownload = (config) => {
+        const result = compile(config);
+        if (result.getError()) {
+            error = result.getError();
+            return;
+        }
+        error = "";
+
+        FileSaver.saveAs(new Blob([result.getOutput()]), "truegrf_" + new Date().toISOString() + ".grf");
     };
 
     export const compileAndTest = (config, newgame_seed) => {
-        const newgrf_data = compile(config);
+        const result = compile(config);
+        if (result.getError()) {
+            error = result.getError();
+            return;
+        }
+        error = "";
 
         const game: any = document?.getElementById("game");
-        game.contentWindow.openttd_inject_truegrf(newgrf_data, newgame_seed);
+        game.contentWindow.openttd_inject_truegrf(result.getOutput(), newgame_seed);
     };
 </script>
 
@@ -39,7 +51,17 @@
         </Paper>
     </div>
     <div class="right">
-        <iframe src="openttd.html" width="1000px" height="800px" id="game" class="game" title="Testing" />
+        {#if error}
+            <Paper variant="outlined">
+                <Title>Error compiling GRF</Title>
+                <Content>
+                    {error}
+                </Content>
+            </Paper>
+        {/if}
+        <div class:hidden={error !== ""}>
+            <iframe src="openttd.html" width="1000px" height="800px" id="game" class="game" title="Testing" />
+        </div>
     </div>
 </div>
 
