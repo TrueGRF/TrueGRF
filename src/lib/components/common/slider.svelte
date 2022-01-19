@@ -3,11 +3,13 @@
     import FormField from "@smui/form-field";
     import Slider from "@smui/slider";
     import Tooltip, { Wrapper } from "@smui/tooltip";
+
+    export let value = 0;
 </script>
 
 <span class="tg-slider-root">
     <FormField align="end" class="tg-slider">
-        <Slider {...$$restProps} discrete />
+        <Slider bind:value {...$$restProps} discrete />
         <span slot="label">
             <slot name="label" />
             {#if $$slots.help}
