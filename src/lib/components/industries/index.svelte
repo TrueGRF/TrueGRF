@@ -191,9 +191,11 @@
             <Wrapper>
                 <Icon class="help material-icons">help</Icon>
                 <Tooltip>
-                    Callbacks Scripting is done in a language specifically designed for TrueGRF.
-                    See <a target="_new" href="https://github.com/TrueBrain/TrueGRF/blob/main/truegrf-rs/src/grf/actions/action2_rpn/README.md">here</a> for documentation on the language.
-                    Use FIRS4 Steeltown template as a reference.
+                    Callbacks Scripting is done in a language specifically designed for TrueGRF. See <a
+                        target="_new"
+                        href="https://github.com/TrueBrain/TrueGRF/blob/main/truegrf-rs/src/grf/actions/action2_rpn/README.md"
+                        >here</a
+                    > for documentation on the language. Use FIRS4 Steeltown template as a reference.
                 </Tooltip>
             </Wrapper>
 

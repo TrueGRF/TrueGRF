@@ -138,9 +138,11 @@
                     delete industry.primary;
                     delete industry.secondary;
                     delete industry.tertiary;
+                    delete industry.placementCustom;
 
                     industry.cargoAcceptance = [];
                     industry.cargoProduction = [];
+                    industry.callbacks = "";
                 }
             /* fallthrough */
 

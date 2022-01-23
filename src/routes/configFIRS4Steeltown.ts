@@ -27,7 +27,6 @@ export const config = {
             cargoAcceptance: ["VPTS", "VBOD", "VENG", "TYRE"],
             cargoProduction: ["VEHI", "ENSP", "FMSP"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -356,7 +355,6 @@ export const config = {
             cargoAcceptance: ["IRON", "MNO2", "QLME", "O2__"],
             cargoProduction: ["STCB", "STAL", "SLAG"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -671,7 +669,6 @@ export const config = {
             cargoAcceptance: ["IORE", "COKE", "LIME"],
             cargoProduction: ["IRON", "CSTI", "SLAG"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -980,7 +977,6 @@ export const config = {
             cargoAcceptance: ["STSH", "COAT", "GLAS"],
             cargoProduction: ["VBOD"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -1185,7 +1181,6 @@ export const config = {
             cargoAcceptance: ["CMNT", "PIPE", "STSE", "STWR", "SAND", "LIME", "GLAS"],
             cargoProduction: [],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -1348,7 +1343,6 @@ export const config = {
             cargoAcceptance: ["FOOD", "POTA", "CHLO"],
             cargoProduction: ["MNO2", "RUBR", "PLAS", "FECR", "ALUM"],
             placement: "on-water",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2143,7 +2137,6 @@ export const config = {
             cargoAcceptance: ["CTAR"],
             cargoProduction: ["CBLK"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2339,7 +2332,6 @@ export const config = {
             cargoAcceptance: ["SALT"],
             cargoProduction: ["ACID", "CHLO", "LYE_"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2616,7 +2608,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["COAL"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2808,7 +2799,6 @@ export const config = {
             cargoAcceptance: ["COAL"],
             cargoProduction: ["COKE", "CTAR", "SULP"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -3116,7 +3106,6 @@ export const config = {
             cargoAcceptance: ["STST", "PLAS", "STAL", "POWR"],
             cargoProduction: ["VPTS"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -3302,7 +3291,6 @@ export const config = {
             cargoAcceptance: [],
             cargoProduction: ["O2__"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -3527,7 +3515,6 @@ export const config = {
             cargoAcceptance: ["SCMT", "FECR", "QLME", "O2__"],
             cargoProduction: ["STCB", "STST", "SLAG"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -3813,7 +3800,6 @@ export const config = {
             cargoAcceptance: ["CSTI", "ALUM", "SAND"],
             cargoProduction: ["VENG"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4047,7 +4033,6 @@ export const config = {
             cargoAcceptance: ["FMSP"],
             cargoProduction: ["FOOD"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4251,7 +4236,6 @@ export const config = {
             cargoAcceptance: ["FOOD"],
             cargoProduction: [],
             placement: "in-town",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4318,7 +4302,6 @@ export const config = {
             cargoAcceptance: ["SAND", "SASH"],
             cargoProduction: ["GLAS"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4457,7 +4440,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["IORE"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4724,7 +4706,6 @@ export const config = {
             cargoAcceptance: [],
             cargoProduction: ["SCMT"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4967,7 +4948,6 @@ export const config = {
             cargoAcceptance: ["LIME"],
             cargoProduction: ["QLME", "FMSP"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -5152,7 +5132,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["LIME"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -5404,7 +5383,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["POTA", "SALT"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -5644,7 +5622,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["SAND", "LIME"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -6093,7 +6070,6 @@ export const config = {
             cargoAcceptance: ["STCB", "ZINC", "ACID"],
             cargoProduction: ["STSH", "PIPE", "ENSP"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -6518,7 +6494,6 @@ export const config = {
             cargoAcceptance: ["SLAG"],
             cargoProduction: ["CMNT", "FMSP"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -6815,7 +6790,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["SASH", "SALT"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -7084,7 +7058,6 @@ export const config = {
             cargoAcceptance: ["RUBR", "CBLK", "SULP", "STWR"],
             cargoProduction: ["TYRE"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -7334,7 +7307,6 @@ export const config = {
             cargoAcceptance: ["VEHI"],
             cargoProduction: [],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -7441,7 +7413,6 @@ export const config = {
             cargoAcceptance: ["STSE", "PIPE", "CMNT", "LYE_"],
             cargoProduction: ["ENSP", "ZINC", "POWR", "COAT", "SOAP"],
             placement: "on-water",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -8235,7 +8206,6 @@ export const config = {
             cargoAcceptance: ["STCB", "ACID", "SOAP"],
             cargoProduction: ["STSE", "STWR", "ENSP"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
