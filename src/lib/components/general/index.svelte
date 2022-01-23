@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
     import HelperText from "@smui/textfield/helper-text";
     import Paper, { Title, Content } from "@smui/paper";
+    import Select, { Option } from "@smui/select";
     import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();
@@ -13,6 +13,9 @@
         name: "",
         description: "",
     };
+    export let configTemplates = [];
+
+    let configTemplate = "";
 
     let uploadJSON = null;
     $: if (uploadJSON != null && uploadJSON.length) {
@@ -24,6 +27,9 @@
 
     function loadTemplate(template) {
         dispatch("load", template);
+        setTimeout(() => {
+            configTemplate = "";
+        }, 1);
     }
 </script>
 
@@ -57,17 +63,17 @@
                 <div class="filler" />
                 <Textfield variant="outlined" bind:files={uploadJSON} type="file" class="file" />
 
-                <div class="title">For when you want to start over (WARNING: all configuration will be lost)</div>
+                <div class="title">Load a template (WARNING: all configuration will be lost)</div>
                 <div class="filler" />
-                <Button variant="raised" on:click={() => loadTemplate("empty")}>
-                    <Label>Load empty template</Label>
-                </Button>
-
-                <div class="title">When you already like FIRS4 Steeltown (WARNING: all configuration will be lost)</div>
-                <div class="filler" />
-                <Button variant="raised" on:click={() => loadTemplate("firs4-steeltown")}>
-                    <Label>Load FIRS4 Steeltown template</Label>
-                </Button>
+                <Select
+                    variant="outlined"
+                    bind:configTemplate
+                    on:SMUISelect:change={(e) => loadTemplate(e.detail.value)}
+                >
+                    {#each configTemplates as template}
+                        <Option value={template.label}>{template.name}</Option>
+                    {/each}
+                </Select>
             </Content>
         </Paper>
     </div>
@@ -97,7 +103,8 @@
         display: flex;
         flex-wrap: wrap;
     }
-    .right :global(.smui-paper__content .mdc-button) {
+    .right :global(.smui-paper__content .mdc-select) {
         margin-top: 12px;
+        width: 300px;
     }
 </style>

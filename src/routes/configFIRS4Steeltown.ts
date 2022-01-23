@@ -1,9 +1,9 @@
 export const config = {
-    version: 2,
+    version: 3,
     general: {
         grfid: "TRU1",
         name: "TrueGRF",
-        description: "Your first NewGRF based on FIRS4",
+        description: "Your first NewGRF based on FIRS4 Steeltown",
     },
     industries: [
         {
@@ -9012,7 +9012,7 @@ export const config = {
             available: true,
             label: "IORE",
             abbreviation: "OR",
-            name: "Iron ore",
+            name: "Iron Ore",
             unitName: "Tonnes",
             weight: 16,
             colour: 8,
