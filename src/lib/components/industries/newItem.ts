@@ -8,9 +8,9 @@ export const newItem = {
     probabilityInGame: 5,
     prospectChance: 75,
     fundCostMultiplier: 100,
-    placementCustom: [],
     cargoAcceptance: [],
     cargoProduction: [],
+    callbacks: "",
     tiles: [
         {
             sprites: [

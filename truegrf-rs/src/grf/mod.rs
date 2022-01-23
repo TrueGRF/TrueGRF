@@ -28,23 +28,6 @@ struct NewGRFGeneral {
     description: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFNodeData {
-    value: Option<String>,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFNode {
-    id: String,
-    r#type: Option<String>,
-    data: Option<NewGRFNodeData>,
-    source: Option<String>,
-    sourceHandle: Option<String>,
-    target: Option<String>,
-    targetHandle: Option<String>,
-}
-
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct NewGRFSprite {
@@ -102,7 +85,6 @@ struct NewGRFIndustry {
     cargoAcceptance: Vec<String>,
     cargoProduction: Vec<String>,
     placement: String,
-    placementCustom: Vec<NewGRFNode>,
     tiles: Vec<NewGRFIndustryTile>,
     callbacks: String,
 }

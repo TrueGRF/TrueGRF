@@ -33,7 +33,6 @@ export const config = {
             cargoAcceptance: ["FMSP"],
             cargoProduction: ["CASS", "NUTS"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -184,7 +183,6 @@ export const config = {
             cargoAcceptance: ["FRUT", "MAIZ"],
             cargoProduction: ["BEER"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -305,7 +303,6 @@ export const config = {
             cargoAcceptance: ["BDMT"],
             cargoProduction: [],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -468,7 +465,6 @@ export const config = {
             cargoAcceptance: ["MNO2", "PHOS", "BDMT"],
             cargoProduction: ["RFPR", "FMSP"],
             placement: "on-water",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -1281,7 +1277,6 @@ export const config = {
             cargoAcceptance: ["PETR", "CLAY", "GRVL"],
             cargoProduction: ["BDMT"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -1697,7 +1692,6 @@ export const config = {
             cargoAcceptance: ["FMSP"],
             cargoProduction: ["JAVA", "FRUT"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -1787,7 +1781,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["DIAM"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -1963,7 +1956,6 @@ export const config = {
             cargoAcceptance: ["FMSP"],
             cargoProduction: ["MAIZ", "LVST"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2194,7 +2186,6 @@ export const config = {
             cargoAcceptance: ["CASS", "MAIZ"],
             cargoProduction: ["FOOD"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2436,7 +2427,6 @@ export const config = {
             cargoAcceptance: ["NUTS", "FRUT"],
             cargoProduction: ["EOIL", "FOOD"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2593,7 +2583,6 @@ export const config = {
             cargoAcceptance: ["FMSP"],
             cargoProduction: ["WOOD"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2691,7 +2680,6 @@ export const config = {
             cargoAcceptance: ["FMSP"],
             cargoProduction: ["FRUT"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2757,7 +2745,6 @@ export const config = {
             cargoAcceptance: ["FOOD", "GOOD", "BEER"],
             cargoProduction: [],
             placement: "in-town",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2824,7 +2811,6 @@ export const config = {
             cargoAcceptance: ["SAND", "RFPR"],
             cargoProduction: ["BDMT", "GOOD"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -2956,7 +2942,6 @@ export const config = {
             cargoAcceptance: ["GOOD", "BDMT"],
             cargoProduction: [],
             placement: "in-town",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -3035,7 +3020,6 @@ export const config = {
             cargoAcceptance: ["EOIL", "OIL_"],
             cargoProduction: ["RFPR", "PETR"],
             placement: "on-water",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -3837,7 +3821,6 @@ export const config = {
             cargoAcceptance: ["WDPR", "RFPR"],
             cargoProduction: ["BDMT"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4043,7 +4026,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["MNO2"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4270,7 +4252,6 @@ export const config = {
             cargoAcceptance: ["FOOD", "GOOD", "PETR"],
             cargoProduction: [],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -4349,7 +4330,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["PHOS", "CLAY"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -5322,7 +5302,6 @@ export const config = {
             cargoAcceptance: ["COPR", "FRUT", "WDPR"],
             cargoProduction: ["GOOD", "ENSP"],
             placement: "on-water",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -6045,7 +6024,6 @@ export const config = {
             cargoAcceptance: ["ENSP"],
             cargoProduction: ["SAND", "GRVL"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -6512,7 +6490,6 @@ export const config = {
             cargoAcceptance: ["FMSP"],
             cargoProduction: ["RUBR"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -6585,7 +6562,6 @@ export const config = {
             cargoAcceptance: ["LVST"],
             cargoProduction: ["FOOD"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -6929,7 +6905,6 @@ export const config = {
             cargoAcceptance: ["BDMT", "PETR", "GOOD"],
             cargoProduction: ["ENSP", "FMSP"],
             placement: "anywhere",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
@@ -7653,7 +7628,6 @@ export const config = {
             cargoAcceptance: ["DIAM", "JAVA", "RUBR"],
             cargoProduction: ["ENSP", "FMSP"],
             placement: "on-water",
-            placementCustom: [],
             tiles: [
                 {
                     sprites: [
