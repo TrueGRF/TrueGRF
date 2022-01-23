@@ -19,7 +19,38 @@
     import Testing from "$lib/components/testing/index.svelte";
 
     import { config as configEmpty } from "./configEmpty";
+    import { config as configFIRS4BasicArctic } from "./configFIRS4BasicArctic";
+    import { config as configFIRS4BasicTemperate } from "./configFIRS4BasicTemperate";
+    import { config as configFIRS4BasicTropic } from "./configFIRS4BasicTropic";
+    import { config as configFIRS4InAHotCountry } from "./configFIRS4InAHotCountry";
     import { config as configFIRS4Steeltown } from "./configFIRS4Steeltown";
+
+    let configTemplates = [
+        {
+            label: "Empty",
+            name: "Empty template",
+        },
+        {
+            label: "firs4-basic-arctic",
+            name: "FIRS4 (Basic Arctic)",
+        },
+        {
+            label: "firs4-basic-temperate",
+            name: "FIRS4 (Basic Temperate)",
+        },
+        {
+            label: "firs4-basic-tropic",
+            name: "FIRS4 (Basic Tropic)",
+        },
+        {
+            label: "firs4-in-a-hot-country",
+            name: "FIRS4 (In a Hot Country)",
+        },
+        {
+            label: "firs4-steeltown",
+            name: "FIRS4 (Steeltown)",
+        },
+    ];
 
     let testing;
     let config = JSON.parse(JSON.stringify(configEmpty));
@@ -107,6 +138,9 @@
                     delete industry.primary;
                     delete industry.secondary;
                     delete industry.tertiary;
+
+                    industry.cargoAcceptance = [];
+                    industry.cargoProduction = [];
                 }
             /* fallthrough */
 
@@ -131,6 +165,18 @@
                 break;
             case "firs4-steeltown":
                 loadConfig(JSON.parse(JSON.stringify(configFIRS4Steeltown)));
+                break;
+            case "firs4-basic-arctic":
+                loadConfig(JSON.parse(JSON.stringify(configFIRS4BasicArctic)));
+                break;
+            case "firs4-basic-temperate":
+                loadConfig(JSON.parse(JSON.stringify(configFIRS4BasicTemperate)));
+                break;
+            case "firs4-basic-tropic":
+                loadConfig(JSON.parse(JSON.stringify(configFIRS4BasicTropic)));
+                break;
+            case "firs4-in-a-hot-country":
+                loadConfig(JSON.parse(JSON.stringify(configFIRS4InAHotCountry)));
                 break;
         }
     }
@@ -181,7 +227,13 @@
         <div class="container">
             <Header bind:categories bind:category on:test={compileAndTest} on:download={compileAndDownload} />
 
-            <General bind:general={config.general} visible={category === "General"} on:upload={upload} on:load={load} />
+            <General
+                bind:general={config.general}
+                {configTemplates}
+                visible={category === "General"}
+                on:upload={upload}
+                on:load={load}
+            />
             <Industries
                 bind:items={config.industries}
                 bind:cargoes={config.cargoes}
