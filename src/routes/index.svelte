@@ -208,20 +208,13 @@
 </svelte:head>
 
 {#await truegrf_init(truegrf_mod) then _}
-    {#if configDate}
-        <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
-            <Label slot="label">Welcome back. We loaded back the configuration of your last visit.</Label>
-            <Button slot="actions">OK</Button>
-        </Banner>
-    {:else}
-        <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
-            <Label slot="label">
-                TrueGRF is still in early alpha. Please report any bugs or suggestions on
-                <a href="https://github.com/TrueBrain/TrueGRF/issues">GitHub</a>.
-            </Label>
-            <Button slot="actions">I understand</Button>
-        </Banner>
-    {/if}
+    <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
+        <Label slot="label">
+            TrueGRF is still in beta. Please report any bugs or suggestions on
+            <a href="https://github.com/TrueBrain/TrueGRF/issues">GitHub</a>.
+        </Label>
+        <Button slot="actions">I understand</Button>
+    </Banner>
     <Changelog />
     <div>
         <div class="container">
