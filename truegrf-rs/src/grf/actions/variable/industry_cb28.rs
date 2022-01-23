@@ -17,16 +17,16 @@ pub enum IndustryCb28 {
 impl From<IndustryCb28> for Variable {
     fn from(variable: IndustryCb28) -> Self {
         match variable {
-            IndustryCb28::RandomBits              => Self { variable: 0x5f, shift:  8, mask: 0x0000ffff },
-            IndustryCb28::Location                => Self { variable: 0x80, shift:  0, mask: 0x0000ffff },
-            IndustryCb28::LayoutNum               => Self { variable: 0x86, shift:  0, mask: 0x000000ff },
-            IndustryCb28::GroundType              => Self { variable: 0x87, shift:  0, mask: 0x000000ff },
-            IndustryCb28::TownZone                => Self { variable: 0x88, shift:  0, mask: 0x000000ff },
-            IndustryCb28::DistanceToTown          => Self { variable: 0x89, shift:  0, mask: 0x000000ff },
-            IndustryCb28::CornerHeight            => Self { variable: 0x8a, shift:  0, mask: 0x000000ff },
-            IndustryCb28::DistanceToBorder        => Self { variable: 0x8b, shift:  0, mask: 0x0000ffff },
-            IndustryCb28::EuclideanDistanceToTown => Self { variable: 0x8d, shift:  0, mask: 0x0000ffff },
-            IndustryCb28::RandomBits2             => Self { variable: 0x8f, shift:  0, mask: 0xffffffff },
+            IndustryCb28::RandomBits              => Self { variable: 0x5f, parameter: None, shift:  8, mask: 0x0000ffff },
+            IndustryCb28::Location                => Self { variable: 0x80, parameter: None, shift:  0, mask: 0x0000ffff },
+            IndustryCb28::LayoutNum               => Self { variable: 0x86, parameter: None, shift:  0, mask: 0x000000ff },
+            IndustryCb28::GroundType              => Self { variable: 0x87, parameter: None, shift:  0, mask: 0x000000ff },
+            IndustryCb28::TownZone                => Self { variable: 0x88, parameter: None, shift:  0, mask: 0x000000ff },
+            IndustryCb28::DistanceToTown          => Self { variable: 0x89, parameter: None, shift:  0, mask: 0x000000ff },
+            IndustryCb28::CornerHeight            => Self { variable: 0x8a, parameter: None, shift:  0, mask: 0x000000ff },
+            IndustryCb28::DistanceToBorder        => Self { variable: 0x8b, parameter: None, shift:  0, mask: 0x0000ffff },
+            IndustryCb28::EuclideanDistanceToTown => Self { variable: 0x8d, parameter: None, shift:  0, mask: 0x0000ffff },
+            IndustryCb28::RandomBits2             => Self { variable: 0x8f, parameter: None, shift:  0, mask: 0xffffffff },
         }
     }
 }

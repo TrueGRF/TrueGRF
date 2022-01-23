@@ -1,7 +1,12 @@
 use super::{ActionTrait, Action, Feature, Output, vec_list, write as write_action};
 
+pub struct Action2IndustryIO {
+    pub cargo: u8,
+    pub register: u8,
+}
+
 pub enum Action2<'a> {
-    Industry { set_id: u8, subtract: &'a [u16; 3], add: &'a [u16; 2] },
+    Industry { set_id: u8, inputs: &'a [Action2IndustryIO], outputs: &'a [Action2IndustryIO] },
     IndustryTile { set_id: u8, ground_sprite: u32, building_sprites: &'a [u32], size_x: u8, size_y: u8, size_z: u8 },
     Cargo { set_id: u8, sprite: u16 },
 }
@@ -16,11 +21,13 @@ fn write(output: &mut Output, feature: Feature, set_id: u8, data: &[u8]) {
 impl<'a> ActionTrait for Action2<'a> {
     fn write(&self, output: &mut Output) {
         match self {
-            Action2::Industry { set_id, subtract, add } => {
+            Action2::Industry { set_id, inputs, outputs } => {
                 write(output, Feature::Industries, *set_id, &vec_list!(
-                    [0x00],
-                    subtract.iter().map(|s| vec_list!(&s.to_le_bytes())).flatten(),
-                    add.iter().map(|a| vec_list!(&a.to_le_bytes())).flatten(),
+                    [0x02],
+                    [inputs.len() as u8],
+                    inputs.iter().map(|s| vec![s.cargo, s.register]).flatten(),
+                    [outputs.len() as u8],
+                    outputs.iter().map(|s| vec![s.cargo, s.register]).flatten(),
                     [0x00]
                 ));
             },

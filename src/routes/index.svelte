@@ -102,11 +102,19 @@
                 }
             /* fallthrough */
 
+            case 2:
+                for (let industry of newConfig.industries) {
+                    delete industry.primary;
+                    delete industry.secondary;
+                    delete industry.tertiary;
+                }
+            /* fallthrough */
+
             default:
                 break;
         }
 
-        config.version = 2;
+        config.version = 3;
         config.general = newConfig.general;
         config.cargoes = newConfig.cargoes;
         config.industries = newConfig.industries;

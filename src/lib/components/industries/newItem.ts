@@ -9,12 +9,8 @@ export const newItem = {
     prospectChance: 75,
     fundCostMultiplier: 100,
     placementCustom: [],
-    primary: [],
-    secondary: {
-        acceptance: [],
-        production: [],
-    },
-    tertiary: [],
+    cargoAcceptance: [],
+    cargoProduction: [],
     tiles: [
         {
             sprites: [

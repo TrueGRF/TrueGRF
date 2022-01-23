@@ -1,6 +1,8 @@
 pub mod action0;
 mod action1;
 mod action2;
+mod action2_failed;
+pub mod action2_rpn;
 mod action3;
 mod action8;
 mod action14;
@@ -9,11 +11,13 @@ pub mod variable;
 
 pub use action0 as Action0;
 pub use action1::Action1;
-pub use action2::Action2;
+pub use action2::{Action2, Action2IndustryIO};
+pub use action2_failed::Action2Failed;
+pub use action2_rpn as Action2RPN;
 pub use action3::Action3;
 pub use action8::Action8;
 pub use action14::Action14;
-pub use varaction2::{VarAction2, VarAction2Switch, VarAction2Operator, VarAction2OperatorVariable};
+pub use varaction2::{VarAction2, VarAction2Chain, VarAction2Switch, VarAction2Operator};
 pub use variable as Variable;
 
 use super::Output;

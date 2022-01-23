@@ -24,38 +24,8 @@ export const config = {
                     [7, 8, 7, 8, 9],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "VPTS",
-                    },
-                    {
-                        cargoLabel: "VBOD",
-                    },
-                    {
-                        cargoLabel: "VENG",
-                    },
-                    {
-                        cargoLabel: "TYRE",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "VEHI",
-                        multiplier: [6, 6, 6, 6],
-                    },
-                    {
-                        cargoLabel: "ENSP",
-                        multiplier: [1, 1, 1, 1],
-                    },
-                    {
-                        cargoLabel: "FMSP",
-                        multiplier: [1, 1, 1, 1],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["VPTS", "VBOD", "VENG", "TYRE"],
+            cargoProduction: ["VEHI", "ENSP", "FMSP"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -340,6 +310,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:VPTS [] 2 =\naccept_cargo_types ctt:VBOD [] 2 =\naccept_cargo_types ctt:VENG [] 2 =\naccept_cargo_types ctt:TYRE [] 2 =\nprod_cargo_types ctt:VEHI [] 6 =\nprod_cargo_types ctt:ENSP [] 1 =\nprod_cargo_types ctt:FMSP [] 1 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -381,38 +353,8 @@ export const config = {
                     [1, 1, 2, 0, 9, 9],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "IRON",
-                    },
-                    {
-                        cargoLabel: "MNO2",
-                    },
-                    {
-                        cargoLabel: "QLME",
-                    },
-                    {
-                        cargoLabel: "O2__",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "STCB",
-                        multiplier: [4, 4, 4, 4],
-                    },
-                    {
-                        cargoLabel: "STAL",
-                        multiplier: [2, 2, 2, 2],
-                    },
-                    {
-                        cargoLabel: "SLAG",
-                        multiplier: [2, 2, 2, 2],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["IRON", "MNO2", "QLME", "O2__"],
+            cargoProduction: ["STCB", "STAL", "SLAG"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -697,6 +639,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:IRON [] 4 =\naccept_cargo_types ctt:MNO2 [] 2 =\naccept_cargo_types ctt:QLME [] 1 =\naccept_cargo_types ctt:O2__ [] 1 =\nprod_cargo_types ctt:STCB [] 4 =\nprod_cargo_types ctt:STAL [] 2 =\nprod_cargo_types ctt:SLAG [] 2 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -724,35 +668,8 @@ export const config = {
                     [-1, 5, 3, 0, -1, 5, -1, -1, 3, 0],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "IORE",
-                    },
-                    {
-                        cargoLabel: "COKE",
-                    },
-                    {
-                        cargoLabel: "LIME",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "IRON",
-                        multiplier: [4, 4, 4],
-                    },
-                    {
-                        cargoLabel: "CSTI",
-                        multiplier: [2, 2, 2],
-                    },
-                    {
-                        cargoLabel: "SLAG",
-                        multiplier: [2, 2, 2],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["IORE", "COKE", "LIME"],
+            cargoProduction: ["IRON", "CSTI", "SLAG"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -1037,6 +954,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:IORE [] 3 =\naccept_cargo_types ctt:COKE [] 3 =\naccept_cargo_types ctt:LIME [] 2 =\nprod_cargo_types ctt:IRON [] 4 =\nprod_cargo_types ctt:CSTI [] 2 =\nprod_cargo_types ctt:SLAG [] 2 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -1058,27 +977,8 @@ export const config = {
                     [3, 4, 5],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "STSH",
-                    },
-                    {
-                        cargoLabel: "COAT",
-                    },
-                    {
-                        cargoLabel: "GLAS",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "VBOD",
-                        multiplier: [8, 8, 8],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["STSH", "COAT", "GLAS"],
+            cargoProduction: ["VBOD"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -1251,6 +1151,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:STSH [] 4 =\naccept_cargo_types ctt:COAT [] 2 =\naccept_cargo_types ctt:GLAS [] 2 =\nprod_cargo_types ctt:VBOD [] 8 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -1280,34 +1182,8 @@ export const config = {
                     [0, 3],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [
-                {
-                    cargoLabel: "CMNT",
-                },
-                {
-                    cargoLabel: "PIPE",
-                },
-                {
-                    cargoLabel: "STSE",
-                },
-                {
-                    cargoLabel: "STWR",
-                },
-                {
-                    cargoLabel: "SAND",
-                },
-                {
-                    cargoLabel: "LIME",
-                },
-                {
-                    cargoLabel: "GLAS",
-                },
-            ],
+            cargoAcceptance: ["CMNT", "PIPE", "STSE", "STWR", "SAND", "LIME", "GLAS"],
+            cargoProduction: [],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -1424,6 +1300,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n}\n\nlocal type{\n    cargo iterator\n}\n\naccept_cargo_types ctt:CMNT [] 1 =\naccept_cargo_types ctt:PIPE [] 1 =\naccept_cargo_types ctt:STSE [] 1 =\naccept_cargo_types ctt:STWR [] 1 =\naccept_cargo_types ctt:SAND [] 1 =\naccept_cargo_types ctt:LIME [] 1 =\naccept_cargo_types ctt:GLAS [] 1 =\n\n\n/*\n The following is a replication of what FIRS is doing for a tertiary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_tertiary.pynml\n*/\n\n/* On arrival of supplies, clear the stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, do nothing. */\ncb:production_every_256_ticks def{\n}\n\ncb:production_initial def{\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "tertiary",
         },
         {
@@ -1467,33 +1345,8 @@ export const config = {
                     [-1, -1, -1, -1, -1],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "MNO2",
-                    multiplier: 19,
-                },
-                {
-                    cargoLabel: "RUBR",
-                    multiplier: 16,
-                },
-                {
-                    cargoLabel: "PLAS",
-                    multiplier: 16,
-                },
-                {
-                    cargoLabel: "FECR",
-                    multiplier: 14,
-                },
-                {
-                    cargoLabel: "ALUM",
-                    multiplier: 11,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["FOOD", "POTA", "CHLO"],
+            cargoProduction: ["MNO2", "RUBR", "PLAS", "FECR", "ALUM"],
             placement: "on-water",
             placementCustom: [],
             tiles: [
@@ -2257,6 +2110,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:FOOD [] 1 =\naccept_cargo_types ctt:POTA [] 1 =\naccept_cargo_types ctt:CHLO [] 1 =\nprod_cargo_types ctt:MNO2 [] 19 =\nprod_cargo_types ctt:RUBR [] 16 =\nprod_cargo_types ctt:PLAS [] 16 =\nprod_cargo_types ctt:FECR [] 14 =\nprod_cargo_types ctt:ALUM [] 11 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -2285,21 +2140,8 @@ export const config = {
                     [3, -1],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "CTAR",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "CBLK",
-                        multiplier: [8],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["CTAR"],
+            cargoProduction: ["CBLK"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -2444,6 +2286,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:CTAR [] 8 =\nprod_cargo_types ctt:CBLK [] 8 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -2492,29 +2336,8 @@ export const config = {
                     [6, 0, 0, 5],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "SALT",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "ACID",
-                        multiplier: [4],
-                    },
-                    {
-                        cargoLabel: "CHLO",
-                        multiplier: [2],
-                    },
-                    {
-                        cargoLabel: "LYE_",
-                        multiplier: [2],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["SALT"],
+            cargoProduction: ["ACID", "CHLO", "LYE_"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -2743,6 +2566,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:SALT [] 8 =\nprod_cargo_types ctt:ACID [] 4 =\nprod_cargo_types ctt:CHLO [] 2 =\nprod_cargo_types ctt:LYE_ [] 2 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -2788,17 +2613,8 @@ export const config = {
                     [5, 4],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "COAL",
-                    multiplier: 20,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["ENSP"],
+            cargoProduction: ["COAL"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -2941,6 +2757,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:ENSP [] 1 =\nprod_cargo_types ctt:COAL [] 20 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -2987,29 +2805,8 @@ export const config = {
                     [7, 5, 4],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "COAL",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "COKE",
-                        multiplier: [6],
-                    },
-                    {
-                        cargoLabel: "CTAR",
-                        multiplier: [1],
-                    },
-                    {
-                        cargoLabel: "SULP",
-                        multiplier: [1],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["COAL"],
+            cargoProduction: ["COKE", "CTAR", "SULP"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -3294,6 +3091,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:COAL [] 8 =\nprod_cargo_types ctt:COKE [] 6 =\nprod_cargo_types ctt:CTAR [] 1 =\nprod_cargo_types ctt:SULP [] 1 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -3314,30 +3113,8 @@ export const config = {
                     [2, 3, 4],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "STST",
-                    },
-                    {
-                        cargoLabel: "PLAS",
-                    },
-                    {
-                        cargoLabel: "STAL",
-                    },
-                    {
-                        cargoLabel: "POWR",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "VPTS",
-                        multiplier: [8, 8, 8, 8],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["STST", "PLAS", "STAL", "POWR"],
+            cargoProduction: ["VPTS"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -3482,6 +3259,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:STST [] 2 =\naccept_cargo_types ctt:PLAS [] 2 =\naccept_cargo_types ctt:STAL [] 2 =\naccept_cargo_types ctt:POWR [] 2 =\nprod_cargo_types ctt:VPTS [] 8 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -3520,17 +3299,8 @@ export const config = {
                     [5, 4, -1],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "O2__",
-                    multiplier: 14,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: [],
+            cargoProduction: ["O2__"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -3731,6 +3501,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\nprod_cargo_types ctt:O2__ [] 14 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -3752,38 +3524,8 @@ export const config = {
                     [2, 3, 3, 5],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "SCMT",
-                    },
-                    {
-                        cargoLabel: "FECR",
-                    },
-                    {
-                        cargoLabel: "QLME",
-                    },
-                    {
-                        cargoLabel: "O2__",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "STCB",
-                        multiplier: [4, 4, 4, 4],
-                    },
-                    {
-                        cargoLabel: "STST",
-                        multiplier: [2, 2, 2, 2],
-                    },
-                    {
-                        cargoLabel: "SLAG",
-                        multiplier: [2, 2, 2, 2],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["SCMT", "FECR", "QLME", "O2__"],
+            cargoProduction: ["STCB", "STST", "SLAG"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -4040,6 +3782,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:SCMT [] 4 =\naccept_cargo_types ctt:FECR [] 2 =\naccept_cargo_types ctt:QLME [] 1 =\naccept_cargo_types ctt:O2__ [] 1 =\nprod_cargo_types ctt:STCB [] 4 =\nprod_cargo_types ctt:STST [] 2 =\nprod_cargo_types ctt:SLAG [] 2 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -4066,27 +3810,8 @@ export const config = {
                     [2, 2, 5, 2],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "CSTI",
-                    },
-                    {
-                        cargoLabel: "ALUM",
-                    },
-                    {
-                        cargoLabel: "SAND",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "VENG",
-                        multiplier: [6, 6, 6],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["CSTI", "ALUM", "SAND"],
+            cargoProduction: ["VENG"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -4287,6 +4012,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:CSTI [] 4 =\naccept_cargo_types ctt:ALUM [] 2 =\naccept_cargo_types ctt:SAND [] 2 =\nprod_cargo_types ctt:VENG [] 6 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -4317,17 +4044,8 @@ export const config = {
                     [4, 2, -1, 5],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "FOOD",
-                    multiplier: 14,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["FMSP"],
+            cargoProduction: ["FOOD"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -4516,6 +4234,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:FMSP [] 1 =\nprod_cargo_types ctt:FOOD [] 14 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -4528,16 +4248,8 @@ export const config = {
             probabilityInGame: 12,
             prospectChance: 75,
             layout: [[[0]]],
-            primary: [],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [
-                {
-                    cargoLabel: "FOOD",
-                },
-            ],
+            cargoAcceptance: ["FOOD"],
+            cargoProduction: [],
             placement: "in-town",
             placementCustom: [],
             tiles: [
@@ -4570,6 +4282,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n}\n\nlocal type{\n    cargo iterator\n}\n\naccept_cargo_types ctt:FOOD [] 1 =\n\n\n/*\n The following is a replication of what FIRS is doing for a tertiary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_tertiary.pynml\n*/\n\n/* On arrival of supplies, clear the stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, do nothing. */\ncb:production_every_256_ticks def{\n}\n\ncb:production_initial def{\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "tertiary",
         },
         {
@@ -4601,24 +4315,8 @@ export const config = {
                     [2, 1, -1, -1],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "SAND",
-                    },
-                    {
-                        cargoLabel: "SASH",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "GLAS",
-                        multiplier: [8, 8],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["SAND", "SASH"],
+            cargoProduction: ["GLAS"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -4735,6 +4433,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:SAND [] 6 =\naccept_cargo_types ctt:SASH [] 2 =\nprod_cargo_types ctt:GLAS [] 8 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -4754,17 +4454,8 @@ export const config = {
                     [7, 4, 6, 5],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "IORE",
-                    multiplier: 20,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["ENSP"],
+            cargoProduction: ["IORE"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -4999,6 +4690,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:ENSP [] 1 =\nprod_cargo_types ctt:IORE [] 20 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -5028,17 +4721,8 @@ export const config = {
                     [1, 8, 7, 6, 5],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "SCMT",
-                    multiplier: 32,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: [],
+            cargoProduction: ["SCMT"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -5250,6 +4934,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\nprod_cargo_types ctt:SCMT [] 32 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -5278,25 +4964,8 @@ export const config = {
                     [-1, -1],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "LIME",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "QLME",
-                        multiplier: [6],
-                    },
-                    {
-                        cargoLabel: "FMSP",
-                        multiplier: [2],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["LIME"],
+            cargoProduction: ["QLME", "FMSP"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -5441,6 +5110,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:LIME [] 8 =\nprod_cargo_types ctt:QLME [] 6 =\nprod_cargo_types ctt:FMSP [] 2 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -5478,17 +5149,8 @@ export const config = {
                     [3, -1, 2],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "LIME",
-                    multiplier: 20,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["ENSP"],
+            cargoProduction: ["LIME"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -5700,6 +5362,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:ENSP [] 1 =\nprod_cargo_types ctt:LIME [] 20 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -5737,21 +5401,8 @@ export const config = {
                     [3, -1, 2],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "POTA",
-                    multiplier: 20,
-                },
-                {
-                    cargoLabel: "SALT",
-                    multiplier: 15,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["ENSP"],
+            cargoProduction: ["POTA", "SALT"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -5963,6 +5614,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:ENSP [] 1 =\nprod_cargo_types ctt:POTA [] 20 =\nprod_cargo_types ctt:SALT [] 15 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -5988,21 +5641,8 @@ export const config = {
                     [-1, 17, 16, 15, -1],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "SAND",
-                    multiplier: 14,
-                },
-                {
-                    cargoLabel: "LIME",
-                    multiplier: 14,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["ENSP"],
+            cargoProduction: ["SAND", "LIME"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -6421,6 +6061,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:ENSP [] 1 =\nprod_cargo_types ctt:SAND [] 14 =\nprod_cargo_types ctt:LIME [] 14 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -6448,35 +6090,8 @@ export const config = {
                     [7, -1, 11, 8],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "STCB",
-                    },
-                    {
-                        cargoLabel: "ZINC",
-                    },
-                    {
-                        cargoLabel: "ACID",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "STSH",
-                        multiplier: [4, 4, 4],
-                    },
-                    {
-                        cargoLabel: "PIPE",
-                        multiplier: [3, 3, 3],
-                    },
-                    {
-                        cargoLabel: "ENSP",
-                        multiplier: [1, 1, 1],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["STCB", "ZINC", "ACID"],
+            cargoProduction: ["STSH", "PIPE", "ENSP"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -6873,6 +6488,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:STCB [] 4 =\naccept_cargo_types ctt:ZINC [] 2 =\naccept_cargo_types ctt:ACID [] 2 =\nprod_cargo_types ctt:STSH [] 4 =\nprod_cargo_types ctt:PIPE [] 3 =\nprod_cargo_types ctt:ENSP [] 1 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -6898,25 +6515,8 @@ export const config = {
                     [6, 4, 3, 8],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "SLAG",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "CMNT",
-                        multiplier: [5],
-                    },
-                    {
-                        cargoLabel: "FMSP",
-                        multiplier: [3],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["SLAG"],
+            cargoProduction: ["CMNT", "FMSP"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -7173,6 +6773,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:SLAG [] 8 =\nprod_cargo_types ctt:CMNT [] 5 =\nprod_cargo_types ctt:FMSP [] 3 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -7210,21 +6812,8 @@ export const config = {
                     [6, 5, 9],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "SASH",
-                    multiplier: 16,
-                },
-                {
-                    cargoLabel: "SALT",
-                    multiplier: 18,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["ENSP"],
+            cargoProduction: ["SASH", "SALT"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -7459,6 +7048,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:ENSP [] 1 =\nprod_cargo_types ctt:SASH [] 16 =\nprod_cargo_types ctt:SALT [] 18 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -7490,30 +7081,8 @@ export const config = {
                     [6, 6, -1],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "RUBR",
-                    },
-                    {
-                        cargoLabel: "CBLK",
-                    },
-                    {
-                        cargoLabel: "SULP",
-                    },
-                    {
-                        cargoLabel: "STWR",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "TYRE",
-                        multiplier: [8, 8, 8, 8],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["RUBR", "CBLK", "SULP", "STWR"],
+            cargoProduction: ["TYRE"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -7742,6 +7311,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:RUBR [] 2 =\naccept_cargo_types ctt:CBLK [] 2 =\naccept_cargo_types ctt:SULP [] 2 =\naccept_cargo_types ctt:STWR [] 2 =\nprod_cargo_types ctt:TYRE [] 8 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
         {
@@ -7760,16 +7331,8 @@ export const config = {
                     [1, 1, 1, 1],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [
-                {
-                    cargoLabel: "VEHI",
-                },
-            ],
+            cargoAcceptance: ["VEHI"],
+            cargoProduction: [],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -7830,6 +7393,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n}\n\nlocal type{\n    cargo iterator\n}\n\naccept_cargo_types ctt:VEHI [] 1 =\n\n\n/*\n The following is a replication of what FIRS is doing for a tertiary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_tertiary.pynml\n*/\n\n/* On arrival of supplies, clear the stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, do nothing. */\ncb:production_every_256_ticks def{\n}\n\ncb:production_initial def{\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "tertiary",
         },
         {
@@ -7873,33 +7438,8 @@ export const config = {
                     [-1, -1, -1, -1, -1],
                 ],
             ],
-            primary: [
-                {
-                    cargoLabel: "ENSP",
-                    multiplier: 12,
-                },
-                {
-                    cargoLabel: "ZINC",
-                    multiplier: 16,
-                },
-                {
-                    cargoLabel: "POWR",
-                    multiplier: 14,
-                },
-                {
-                    cargoLabel: "COAT",
-                    multiplier: 10,
-                },
-                {
-                    cargoLabel: "SOAP",
-                    multiplier: 10,
-                },
-            ],
-            secondary: {
-                acceptance: [],
-                production: [],
-            },
-            tertiary: [],
+            cargoAcceptance: ["STSE", "PIPE", "CMNT", "LYE_"],
+            cargoProduction: ["ENSP", "ZINC", "POWR", "COAT", "SOAP"],
             placement: "on-water",
             placementCustom: [],
             tiles: [
@@ -8663,6 +8203,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    level_requirements dict\n    random_prod_factor dict\n    supply_requirement integer\n\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    total_delivered integer\n    current_production_level integer\n    random_range integer\n\n    i iterator\n    level iterator\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    base_prod_factor integer\n\n    num_supplies_delivered 27 list\n}\n\nlevel_requirements 0 [] 100 =\nlevel_requirements 16 [] 150 =\nlevel_requirements 16 5 * [] 300 =\n\nrandom_prod_factor 0 [] 8 =\nrandom_prod_factor 1 [] 12 =\nrandom_prod_factor 5 [] 16 =\nrandom_prod_factor 7 [] 20 =\nrandom_prod_factor 10 [] 24 =\nrandom_prod_factor 11 [] 28 =\nrandom_prod_factor 12 [] 32 =\nrandom_prod_factor 13 [] 36 =\n\nsupply_requirement 8 =\n\naccept_cargo_types ctt:STSE [] 1 =\naccept_cargo_types ctt:PIPE [] 1 =\naccept_cargo_types ctt:CMNT [] 1 =\naccept_cargo_types ctt:LYE_ [] 1 =\nprod_cargo_types ctt:ENSP [] 12 =\nprod_cargo_types ctt:ZINC [] 16 =\nprod_cargo_types ctt:POWR [] 14 =\nprod_cargo_types ctt:COAT [] 10 =\nprod_cargo_types ctt:SOAP [] 10 =\n\n\n/*\n The following is a replication of what FIRS is doing for a primary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_primary.pynml\n*/\n\n/* Get the total amount of supplies delivered in last 27 production cycles. */\nfunc:produce_total_supplies_delivered def{\n    i 0 26 [..] loop{\n        total_delivered total_delivered num_supplies_delivered i [] + =\n    }\n}\n\n/* Calculate current production level, based on delivered supplies. */\nfunc:produce_calculate_current_production_level def{\n    func:produce_total_supplies_delivered ()\n\n    level level_requirements loop{\n        current_production_level\n            level_requirements level []\n            current_production_level\n            total_delivered supply_requirement / level >=\n        =\n    }\n}\n\n/* Set the number of supplied cycles remaining per cargo - used to display 'supplied' (or not) in the industry window. */\nfunc:update_supplied_cycles_remaining_per_cargo def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\n/* Shift the array of supplies_delivered values one place to the left, and zero the last entry. */\nfunc:produce_256_ticks_shift_supplies_delivered def{\n    i 0 25 [..] loop{\n        num_supplies_delivered i [] num_supplies_delivered i 1 + [] =\n    }\n    num_supplies_delivered 26 [] 0 =\n}\n\n/* On arrival of supplies, push the amount to perm storage, then clear from stockpile. */\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        num_supplies_delivered 26 [] num_supplies_delivered 26 [] industry:cargo_incoming_waiting cargo [] + =\n\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n    }\n\n    /*\n     Update the production level immediately, so that production level text immediately updates in industry window.\n     Production won't actually increase until next 256 tick production cycle.\n    */\n    func:produce_calculate_current_production_level ()\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n}\n\n/* On 256 ticks, if supplied, produce extra output cargo at appropriate multiplier. */\ncb:production_every_256_ticks def{\n    func:produce_calculate_current_production_level ()\n    func:update_supplied_cycles_remaining_per_cargo ()\n    func:produce_256_ticks_shift_supplies_delivered ()\n\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] prod_cargo_types cargo [] industry:production_level base_prod_factor current_production_level * * * 16 16 100 * * / =\n    }\n}\n\ncb:production_initial def{\n    /* Highest value in random_prod_factor is 13. */\n    random_range industry:random_bits 14 % =\n\n    level random_prod_factor loop{\n        base_prod_factor\n            random_prod_factor level []\n            base_prod_factor\n            random_range level >=\n        =\n    }\n\n    /* Initial production level. Can be changed with cheats. */\n    result:value 16 =\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "primary",
         },
         {
@@ -8690,35 +8232,8 @@ export const config = {
                     [6, 4, 8, 7],
                 ],
             ],
-            primary: [],
-            secondary: {
-                acceptance: [
-                    {
-                        cargoLabel: "STCB",
-                    },
-                    {
-                        cargoLabel: "ACID",
-                    },
-                    {
-                        cargoLabel: "SOAP",
-                    },
-                ],
-                production: [
-                    {
-                        cargoLabel: "STSE",
-                        multiplier: [4, 4, 4],
-                    },
-                    {
-                        cargoLabel: "STWR",
-                        multiplier: [3, 3, 3],
-                    },
-                    {
-                        cargoLabel: "ENSP",
-                        multiplier: [1, 1, 1],
-                    },
-                ],
-            },
-            tertiary: [],
+            cargoAcceptance: ["STCB", "ACID", "SOAP"],
+            cargoProduction: ["STSE", "STWR", "ENSP"],
             placement: "anywhere",
             placementCustom: [],
             tiles: [
@@ -9003,6 +8518,8 @@ export const config = {
                     ],
                 },
             ],
+            callbacks:
+                "const type{\n    accept_cargo_types cargodict\n    prod_cargo_types cargodict\n}\n\nlocal type{\n    current_production_ratio integer\n    total_cargo_produced_this_cycle integer\n    total_cargo_to_distribute_this_cycle integer\n\n    cargo iterator\n}\n\nindustry:storage type{\n    supplied_cycles_remaining_cargo cargodict\n\n    total_produced_cargo_available integer\n}\n\naccept_cargo_types ctt:STCB [] 4 =\naccept_cargo_types ctt:ACID [] 2 =\naccept_cargo_types ctt:SOAP [] 2 =\nprod_cargo_types ctt:STSE [] 4 =\nprod_cargo_types ctt:STWR [] 3 =\nprod_cargo_types ctt:ENSP [] 1 =\n\n\n/*\n The following is a replication of what FIRS is doing for a secondary industry.\n See: https://github.com/andythenorth/firs/blob/4.4.0/src/templates/produce_secondary.pynml\n*/\n\ncb:production_cargo_arrival def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo []\n            28\n            supplied_cycles_remaining_cargo cargo []\n        industry:cargo_incoming_waiting cargo [] 0 >\n        =\n\n        current_production_ratio\n            current_production_ratio\n                accept_cargo_types cargo []\n                0\n            supplied_cycles_remaining_cargo cargo [] 0 >\n            +\n        =\n\n        total_cargo_produced_this_cycle\n            total_cargo_produced_this_cycle\n            industry:cargo_incoming_waiting cargo [] current_production_ratio * 8 /\n            +\n        =\n    }\n\n    /*\n     When low cargo amounts are delivered, it's possible that final output\n     cargo amounts < 1, which means no cargo is distributed. Prevent that by\n     stockpiling produced cargo on each production cycle until there is enough\n     to distribute. The case is triggered by low amounts being moved to the\n     produce cycle as a vehicle gradually unloads, and was noticeable with\n     Road Hog trams.\n    */\n    total_produced_cargo_available total_produced_cargo_available total_cargo_produced_this_cycle + =\n\n    /*\n     Then check min. distributed by dividing over 8, to get the amount divided\n     by max possible output cargos. 8 is the pathological case, this could be\n     made more accurate by checking the lowest output ratio in current economy.\n     For accuracy, this could also store remainders using mod(8) or so, but eh, TMWFTLB?\n    */\n    total_cargo_to_distribute_this_cycle\n        total_produced_cargo_available\n        0\n        total_produced_cargo_available 8 >=\n    =\n    total_produced_cargo_available total_produced_cargo_available total_cargo_to_distribute_this_cycle - =\n\n    cargo accept_cargo_types loop{\n        result:inputs cargo [] industry:cargo_incoming_waiting cargo [] =\n    }\n    cargo prod_cargo_types loop{\n        result:outputs cargo [] total_cargo_to_distribute_this_cycle prod_cargo_types cargo [] * 8 / =\n    }\n}\n\ncb:production_every_256_ticks def{\n    cargo accept_cargo_types loop{\n        supplied_cycles_remaining_cargo cargo [] supplied_cycles_remaining_cargo cargo [] 1 - 0 max =\n    }\n}\n\ncb:production_change_monthly def{\n    result:value 0 =\n}\n\ncb:production_change_random def{\n    result:value 0 =\n}\n",
             type: "secondary",
         },
     ],
