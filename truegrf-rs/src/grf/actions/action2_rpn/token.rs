@@ -152,7 +152,17 @@ pub fn parse_token(s: &str) -> Token {
         _ => {
             match s.parse::<i32>() {
                 Ok(n) => Token::Number(n),
-                Err(_) => Token::Identifier(s.to_string()),
+                Err(_) => {
+                    /* Check for hexidecimal number. */
+                    if let Some(stripped) = s.strip_prefix("0x") {
+                        match i32::from_str_radix(stripped, 16) {
+                            Ok(n) => Token::Number(n),
+                            Err(_) => Token::Identifier(s.to_string()),
+                        }
+                    } else {
+                        Token::Identifier(s.to_string())
+                    }
+                }
             }
         },
     }
