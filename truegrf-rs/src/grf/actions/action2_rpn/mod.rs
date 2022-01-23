@@ -38,11 +38,12 @@ fn handle_tokens(tokens: &mut LineTokenIterator, ctt: &HashMap<String, u8>) -> R
                     match namespace.as_str() {
                         "cb" => {
                             match identifier.as_str() {
-                                "production_every_256_ticks" => {},
+                                "placement" => {},
                                 "production_cargo_arrival" => {},
-                                "production_initial" => {},
                                 "production_change_monthly" => {},
                                 "production_change_random" => {},
+                                "production_every_256_ticks" => {},
+                                "production_initial" => {},
                                 _ => {
                                     return Err(format!("Unknown callback function {}", identifier));
                                 }

@@ -433,6 +433,7 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) -> Result<(), Str
                 }
 
                 static INDUSTRY_CALLBACKS: &[(&str, u32, Action0::IndustryCallbackFlags)] = &[
+                    ("cb:placement", 0x28, Action0::IndustryCallbackFlags::PLACEMENT),
                     ("cb:production_change_monthly", 0x29, Action0::IndustryCallbackFlags::PRODUCTION_CHANGE_MONTHLY),
                     ("cb:production_change_random", 0x35, Action0::IndustryCallbackFlags::PRODUCTION_CHANGE_RANDOM),
                     ("cb:production_initial", 0x15f, Action0::IndustryCallbackFlags::PRODUCTION_INITIAL),
@@ -472,20 +473,6 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) -> Result<(), Str
             "near-town" => flags |= Action0::IndustryFlags::NEAR_TOWN,
             _ => {},
         };
-
-        if industry.placement.as_str() == "custom" {
-            // callback_flags |= Action0::IndustryCallbackFlags::PLACEMENT;
-
-            let cb = callbacks.len() as u16;
-
-            // TODO
-            // let variable = traverse_nodes( output_node, &nodes, &reverse);
-            // VarAction2::Advanced { set_id: cb28 as u8, feature: Feature::Industries, related_object: false, variable, switch: &vec![
-            //     VarAction2Switch { result: 0x8400, left: 0x0, right: 0x7fffffff },
-            // ], default: 0x8401 }.write(output);
-
-            callbacks.push(VarAction2Switch { result: cb, left: 0x28, right: 0x28 });
-        }
 
         /* Switch to handle all callbacks. */
         let cb_main: u16 = 0xfe;
