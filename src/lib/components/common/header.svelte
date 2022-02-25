@@ -3,6 +3,7 @@
     import Button, { Group, GroupItem, Label, Icon } from "@smui/button";
     import Menu, { MenuComponentDev, SelectionGroup, SelectionGroupIcon } from "@smui/menu";
     import List, { Item, Text } from "@smui/list";
+    import Login from "$lib/components/general/login.svelte";
     import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();
@@ -27,7 +28,9 @@
             {/each}
         </Select>
     </div>
-    <div class="filler" />
+    <div class="filler">
+        <Login />
+    </div>
     <div class="icons">
         <Group variant="raised">
             <Button variant="raised" on:click={() => dispatch("download", download_action)}>
@@ -111,6 +114,8 @@
     }
     .filler {
         flex: 1 0;
+        padding-left: 20px;
+        padding-top: 20px;
     }
     .icons {
         padding-top: 20px;
