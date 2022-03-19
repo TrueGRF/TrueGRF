@@ -9,6 +9,8 @@
     const dispatch = createEventDispatcher();
 
     export let accessToken = window.localStorage.getItem("access-token") || "";
+
+    let oauthEndpoint = import.meta.env.VITE_OAUTH_ENDPOINT || "";
     let error = "";
 
     function checkUsername() {
@@ -52,7 +54,7 @@
         history.replaceState({}, "", path);
 
         /* Get the access token. */
-        fetch("https://truegrf.truebrain.workers.dev/",
+        fetch(oauthEndpoint,
             {
                 method: "POST",
                 headers: {
@@ -82,7 +84,7 @@
         <InlineLoading description="Checking credentials ..." />
     {:else}
         <div>
-            <Button on:click={() => location.href = "https://truegrf.truebrain.workers.dev/"}>
+            <Button on:click={() => location.href = oauthEndpoint}>
                 Login via GitHub
             </Button>
         </div>
