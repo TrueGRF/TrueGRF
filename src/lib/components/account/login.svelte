@@ -8,7 +8,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let accessToken = window.localStorage.getItem("access-token") || "";
+    export let accessToken = window.localStorage.getItem("access-token") || import.meta.env.VITE_OAUTH_ACCESS_TOKEN || "";
 
     let oauthEndpoint = import.meta.env.VITE_OAUTH_ENDPOINT || "";
     let error = "";

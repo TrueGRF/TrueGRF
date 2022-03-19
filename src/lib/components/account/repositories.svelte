@@ -11,8 +11,8 @@
     let repositories = [];
     let loaded = false;
 
-    function refreshRepositories() {
-        fetch(`https://api.github.com/user/repos?per_page=100`, {
+    function refreshRepositories(page) {
+        fetch(`https://api.github.com/user/repos?sort=created&direction=asc&per_page=100&page=${page}`, {
             headers: {
                 accept: "application/vnd.github.v3+json",
                 authorization: `token ${accessToken}`
@@ -33,6 +33,12 @@
                     }
                 }
 
+                /* Check if we reached the limit of the page; continue on next page if so. */
+                if (result.length == 100 && page == 1) {
+                    refreshRepositories(page + 1);
+                    return;
+                }
+
                 /* Inform Svelte of the fact this array might be changed. */
                 repositories = repositories;
                 loaded = true;
@@ -40,7 +46,7 @@
         });
     }
 
-    $: if (accessToken) refreshRepositories();
+    $: if (accessToken) refreshRepositories(1);
 </script>
 
 <div class="repositories">
