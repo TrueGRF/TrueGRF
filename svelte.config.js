@@ -1,6 +1,6 @@
 import adapter from '@sveltejs/adapter-static';
 import preprocess from 'svelte-preprocess';
-import { ViteRsw } from 'vite-plugin-rsw';
+import { optimizeImports } from "carbon-preprocess-svelte";
 
 const server = {};
 
@@ -19,44 +19,17 @@ if (codespaceName) {
 const config = {
 	// Consult https://github.com/sveltejs/svelte-preprocess
 	// for more information about preprocessors
-	preprocess: preprocess(),
+	preprocess: [optimizeImports(), preprocess()],
 
 	kit: {
 		adapter: adapter(),
-
-		// hydrate the <div id="svelte"> element in src/app.html
-		target: '#svelte',
+		prerender: {
+			default: true,
+		},
 
 		paths: {
 			base: process.env['BASE_PATH'] || '',
 		},
-
-		vite: {
-			plugins: [
-				ViteRsw({
-					profile: "release",
-					crates: [
-						"truegrf-rs",
-					],
-					unwatch: [
-						"src/lib/*",
-						"src/routes/*"
-					]
-				}),
-			],
-			ssr: {
-			  	noExternal: [/^@smui(?:-extra)?\//],
-			},
-			server: {
-				fs: {
-					allow: [
-						"truegrf-rs",
-						".rsw"
-					],
-				},
-				...server
-			}
-		}
 	}
 };
 

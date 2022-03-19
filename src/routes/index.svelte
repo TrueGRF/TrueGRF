@@ -1,251 +1,60 @@
 <script context="module">
     import truegrf_init from "truegrf";
-    import truegrf_mod from "truegrf/truegrf-rs_bg.wasm?url";
+    import truegrf_mod from "truegrf/truegrf_bg.wasm?url";
+
+    import Account from "$lib/components/account/index.svelte";
 </script>
 
 <script lang="ts">
     import { base } from "$app/paths";
-    import { browser } from "$app/env";
-
-    import { setContext } from "svelte";
-    import Banner, { Label } from "@smui/banner";
-    import Button from "@smui/button";
-    import Changelog from "$lib/components/changelogs/index.svelte";
-    import Cargoes from "$lib/components/cargoes/index.svelte";
-    import FileSaver from "file-saver";
-    import General from "$lib/components/general/index.svelte";
-    import Header from "$lib/components/common/header.svelte";
-    import Industries from "$lib/components/industries/index.svelte";
-    import Testing from "$lib/components/testing/index.svelte";
-
-    import { config as configEmpty } from "./configEmpty";
-    import { config as configFIRS4BasicArctic } from "./configFIRS4BasicArctic";
-    import { config as configFIRS4BasicTemperate } from "./configFIRS4BasicTemperate";
-    import { config as configFIRS4BasicTropic } from "./configFIRS4BasicTropic";
-    import { config as configFIRS4InAHotCountry } from "./configFIRS4InAHotCountry";
-    import { config as configFIRS4Steeltown } from "./configFIRS4Steeltown";
-
-    let configTemplates = [
-        {
-            label: "Empty",
-            name: "Empty template",
-        },
-        {
-            label: "firs4-basic-arctic",
-            name: "FIRS4 (Basic Arctic)",
-        },
-        {
-            label: "firs4-basic-temperate",
-            name: "FIRS4 (Basic Temperate)",
-        },
-        {
-            label: "firs4-basic-tropic",
-            name: "FIRS4 (Basic Tropic)",
-        },
-        {
-            label: "firs4-in-a-hot-country",
-            name: "FIRS4 (In a Hot Country)",
-        },
-        {
-            label: "firs4-steeltown",
-            name: "FIRS4 (Steeltown)",
-        },
-    ];
-
-    let testing;
-    let config = JSON.parse(JSON.stringify(configEmpty));
-    let configDate = browser ? window.localStorage.getItem("configDate") : undefined;
-
-    let categories = ["General", "Industries", "Cargoes", "Testing"];
-    let category = "General";
-
-    function updateLocalStorage() {
-        if (!browser) return;
-
-        window.localStorage.setItem("config", JSON.stringify(config));
-        window.localStorage.setItem("configDate", new Date().toISOString());
-    }
-    $: config, updateLocalStorage();
-
-    function compileAndDownload(event: CustomEvent) {
-        if (event.detail == "GRF") {
-            testing.compileAndDownload(config);
-        } else {
-            FileSaver.saveAs(new Blob([JSON.stringify(config)]), "truegrf_" + new Date().toISOString() + ".json");
-        }
-    }
-
-    function compileAndTest(event: CustomEvent) {
-        category = "Testing";
-        testing.compileAndTest(config, event.detail === "New-game" ? 1 : 0);
-    }
-
-    function loadConfig(newConfig) {
-        switch (newConfig.version) {
-            case undefined:
-                for (let industry of newConfig.industries) {
-                    if (industry.colour === undefined) industry.colour = 1;
-                    if (industry.probabilityMapGen === undefined) industry.probabilityMapGen = 3;
-                    if (industry.probabilityInGame === undefined) industry.probabilityInGame = 5;
-                    if (industry.prospectChance === undefined) industry.prospectChance = 75;
-                    if (industry.fundCostMultiplier === undefined) industry.fundCostMultiplier = 100;
-                    for (let tile in industry.tiles) {
-                        if (industry.tiles[tile].drawType === undefined) industry.tiles[tile].drawType = "normal";
-                    }
-                }
-                for (let cargo of newConfig.cargoes) {
-                    if (cargo.weight === undefined) cargo.weight = 16;
-                    if (cargo.price === undefined) cargo.price = 4112;
-                    if (cargo.penaltyLowerBound === undefined) cargo.penaltyLowerBound = 0;
-                    if (cargo.penaltyLength === undefined) cargo.penaltyLength = 255;
-                    if (cargo.sprite === undefined)
-                        cargo.sprite = {
-                            width: 10,
-                            height: 10,
-                            left: 0,
-                            top: 0,
-                            base64Data: "",
-                        };
-                    if (cargo.abbreviation === undefined) cargo.abbreviation = "??";
-                    if (cargo.colour === undefined) cargo.colour = 1;
-                }
-            /* fallthrough */
-
-            case 1:
-                for (let industry of newConfig.industries) {
-                    for (let tile in industry.tiles) {
-                        industry.tiles[tile].sprites = [
-                            {
-                                sprite: {
-                                    id: 3924,
-                                },
-                                drawType: "normal",
-                                alwaysDraw: true,
-                            },
-                            {
-                                sprite: industry.tiles[tile].sprite,
-                                drawType: "normal",
-                                alwaysDraw: false,
-                            },
-                        ];
-                        delete industry.tiles[tile].sprite;
-                    }
-                }
-            /* fallthrough */
-
-            case 2:
-                for (let industry of newConfig.industries) {
-                    delete industry.primary;
-                    delete industry.secondary;
-                    delete industry.tertiary;
-                    delete industry.placementCustom;
-
-                    industry.cargoAcceptance = [];
-                    industry.cargoProduction = [];
-                    industry.callbacks = "";
-                }
-            /* fallthrough */
-
-            default:
-                break;
-        }
-
-        config.version = 3;
-        config.general = newConfig.general;
-        config.cargoes = newConfig.cargoes;
-        config.industries = newConfig.industries;
-    }
-
-    function upload(event: CustomEvent) {
-        loadConfig(event.detail);
-    }
-
-    function load(event: CustomEvent) {
-        switch (event.detail) {
-            case "empty":
-                loadConfig(JSON.parse(JSON.stringify(configEmpty)));
-                break;
-            case "firs4-steeltown":
-                loadConfig(JSON.parse(JSON.stringify(configFIRS4Steeltown)));
-                break;
-            case "firs4-basic-arctic":
-                loadConfig(JSON.parse(JSON.stringify(configFIRS4BasicArctic)));
-                break;
-            case "firs4-basic-temperate":
-                loadConfig(JSON.parse(JSON.stringify(configFIRS4BasicTemperate)));
-                break;
-            case "firs4-basic-tropic":
-                loadConfig(JSON.parse(JSON.stringify(configFIRS4BasicTropic)));
-                break;
-            case "firs4-in-a-hot-country":
-                loadConfig(JSON.parse(JSON.stringify(configFIRS4InAHotCountry)));
-                break;
-        }
-    }
-
-    if (browser) {
-        let localStorageConfig = window.localStorage.getItem("config");
-        if (localStorageConfig) loadConfig(JSON.parse(localStorageConfig));
-    }
-
-    /* We initialize with tabs hidden; this means SMUI cannot calculate the
-     * width of components, which in result render poorly. So, when we switch
-     * category update the layout of all components. */
-    let layouts = [];
-    function updateLayouts() {
-        setTimeout(() => layouts.forEach((layout) => layout()), 1);
-    }
-    $: category, updateLayouts();
-    setContext("SMUI:addLayoutListener", (layout) => {
-        layouts.push(layout);
-    });
 </script>
 
 <svelte:head>
     <link rel="icon" href="{base}/favicon.ico" />
-    <link rel="stylesheet" href="{base}/fonts.css" />
-    <link rel="stylesheet" href="{base}/smui.css" media="(prefers-color-scheme: light)" />
-    <link rel="stylesheet" href="{base}/smui-dark.css" media="screen and (prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="{base}/g10.css" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" href="{base}/g90.css" media="(prefers-color-scheme: dark)" />
     <title>TrueGRF - NewGRFs made easy</title>
 </svelte:head>
 
 {#await truegrf_init(truegrf_mod) then _}
-    <Banner open fixed mobileStacked centered content$style="max-width: max-content;">
-        <Label slot="label">
-            TrueGRF is still in beta. Please report any bugs or suggestions on
-            <a href="https://github.com/TrueBrain/TrueGRF/issues">GitHub</a>.
-        </Label>
-        <Button slot="actions">I understand</Button>
-    </Banner>
-    <Changelog />
-    <div>
-        <div class="container">
-            <Header bind:categories bind:category on:test={compileAndTest} on:download={compileAndDownload} />
+    <div class="main">
+        <div class="title">
+            TrueGRF
+            <div class="subtitle">
+                NewGRFs made easy
+            </div>
+        </div>
 
-            <General
-                bind:general={config.general}
-                {configTemplates}
-                visible={category === "General"}
-                on:upload={upload}
-                on:load={load}
-            />
-            <Industries
-                bind:items={config.industries}
-                bind:cargoes={config.cargoes}
-                visible={category === "Industries"}
-            />
-            <Cargoes bind:items={config.cargoes} visible={category === "Cargoes"} />
-            <Testing visible={category === "Testing"} bind:this={testing} />
+        <div class="content">
+            <Account />
         </div>
     </div>
 {/await}
 
 <style>
-    @import "./common.scss";
+    .main {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
 
-    .container {
-        max-width: 1320px;
-        margin-left: auto;
-        margin-right: auto;
+    .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .title {
+        font-size: 38px;
+        font-weight: bold;
+        margin-top: 40px;
+        text-align: center;
+    }
+    .subtitle {
+        font-size: 14px;
+        font-weight: normal;
+        margin-top: 10px;
     }
 </style>
