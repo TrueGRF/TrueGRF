@@ -41,14 +41,21 @@ const RGB_TO_PALETTE: [u32; 256] = [
 ];
 
 
-pub fn convert_png_to_palette(png_base64: &str) -> Vec<u8> {
-    let bytes = base64::decode(png_base64).unwrap();
+pub fn convert_png_to_palette(bytes: &[u8]) -> (Vec<u8>, u16, u16) {
     let image = Reader::new(Cursor::new(bytes)).with_guessed_format().unwrap().decode().unwrap();
 
     let mut palette_image = Vec::new();
 
     for pixel in image.to_rgba8().pixels() {
-        let (r, g, b, a) = pixel.channels4();
+        let subpixel = pixel.channels();
+        if subpixel.len() != 4 {
+            panic!("Invalid pixel format");
+        }
+        let r = subpixel[0];
+        let g = subpixel[1];
+        let b = subpixel[2];
+        let a = subpixel[3];
+
         if a == 0 {
             palette_image.push(0);
         } else {
@@ -60,7 +67,7 @@ pub fn convert_png_to_palette(png_base64: &str) -> Vec<u8> {
         }
     }
 
-    palette_image
+    (palette_image, image.width() as u16, image.height() as u16)
 }
 
 fn find(sprite: &[u8], pat_data_pos: isize, data_pos: isize, pat_size: isize, data_size: isize) -> isize {

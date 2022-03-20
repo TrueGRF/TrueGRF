@@ -22,7 +22,8 @@ use actions::{
 };
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFGeneral {
+pub struct NewGRFGeneral {
+    version: u32,
     grfid: String,
     name: String,
     description: String,
@@ -30,12 +31,29 @@ struct NewGRFGeneral {
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
-pub struct NewGRFSprite {
-    base64Data: String,
-    width: u16,
-    height: u16,
+pub struct NewGRFSpriteReference {
+    filename: String,
     left: i16,
     top: i16,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct NewGRFSpriteBase64 {
+    base64Data: String,
+    left: i16,
+    top: i16,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum NewGRFSprite {
+    Reference(NewGRFSpriteReference),
+    Base64(NewGRFSpriteBase64),
+}
+impl Default for NewGRFSprite {
+    fn default() -> Self { NewGRFSprite::Base64(NewGRFSpriteBase64 { base64Data: "".to_string(), left: 0, top: 0 } ) }
 }
 
 #[allow(non_snake_case)]
@@ -71,7 +89,7 @@ struct NewGRFIndustryTile {
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFIndustry {
+pub struct NewGRFIndustry {
     id: u8,
     available: bool,
     name: String,
@@ -91,7 +109,7 @@ struct NewGRFIndustry {
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct NewGRFCargo {
+pub struct NewGRFCargo {
     id: u8,
     available: bool,
     name: String,
@@ -110,9 +128,9 @@ struct NewGRFCargo {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct NewGRFOptions {
-    general: NewGRFGeneral,
-    cargoes: Vec<NewGRFCargo>,
-    industries: Vec<NewGRFIndustry>,
+    pub general: NewGRFGeneral,
+    pub cargoes: Vec<NewGRFCargo>,
+    pub industries: Vec<NewGRFIndustry>,
 }
 
 pub struct Output {
