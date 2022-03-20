@@ -1,5 +1,7 @@
 <script lang="ts">
     import { ProgressIndicator, ProgressStep } from "carbon-components-svelte";
+
+    import Initialize from "$lib/components/account/initialize.svelte";
     import Login from "$lib/components/account/login.svelte";
     import Repositories from "$lib/components/account/repositories.svelte";
 
@@ -52,9 +54,7 @@
     {/if}
 
     {#if progressIndex == 2}
-    <div>
-        Fetching project ...
-    </div>
+    <Initialize accessToken={accessToken} project={project} />
     {/if}
 </div>
 

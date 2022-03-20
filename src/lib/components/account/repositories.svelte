@@ -39,7 +39,7 @@
                     return;
                 }
 
-                /* Inform Svelte of the fact this array might be changed. */
+                /* Inform Svelte the array is changed. */
                 repositories = repositories;
                 loaded = true;
             });

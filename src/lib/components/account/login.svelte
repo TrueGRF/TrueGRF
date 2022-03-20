@@ -8,7 +8,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let accessToken = window.localStorage.getItem("access-token") || import.meta.env.VITE_OAUTH_ACCESS_TOKEN || "";
+    export let accessToken = window.localStorage.getItem("accessToken") || import.meta.env.VITE_OAUTH_ACCESS_TOKEN || "";
 
     let oauthEndpoint = import.meta.env.VITE_OAUTH_ENDPOINT || "";
     let error = "";
@@ -72,7 +72,7 @@
                 }
 
                 accessToken = result.token;
-                window.localStorage.setItem("access-token", accessToken);
+                window.localStorage.setItem("accessToken", accessToken);
                 checkUsername();
             });
         });
