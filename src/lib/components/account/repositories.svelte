@@ -58,7 +58,6 @@
     }
     async function refreshRepositoriesExamples() {
         repositoriesExamples = await refreshRepositories("orgs/TrueGRF/repos", 1);
-        console.log(repositoriesExamples);
         loadedExamples = true;
     }
 
