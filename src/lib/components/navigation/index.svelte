@@ -75,7 +75,9 @@
 </script>
 
 <div class="navigation">
-    <TreeView bind:this={treeview} hideLabel children={tree} on:select={TreeSelect} />
+    <div>
+        <TreeView bind:this={treeview} hideLabel children={tree} on:select={TreeSelect} />
+    </div>
 </div>
 
 <style>
@@ -85,9 +87,5 @@
         height: 100%;
         overflow: auto;
         width: 250px;
-    }
-
-    :global(.bx--tree) {
-        overflow: auto;
     }
 </style>
