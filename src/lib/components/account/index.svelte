@@ -1,9 +1,13 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
+
     import { ProgressIndicator, ProgressStep } from "carbon-components-svelte";
 
     import Initialize from "$lib/components/account/initialize.svelte";
     import Login from "$lib/components/account/login.svelte";
     import Repositories from "$lib/components/account/repositories.svelte";
+
+    const dispatch = createEventDispatcher();
 
     let progressIndex = 0;
     let accessToken;
@@ -19,9 +23,16 @@
         project = event.detail;
         progressIndex = 2;
     }
+
+    function ProjectCached(event) {
+        dispatch("loaded", {
+            project,
+            files: event.detail,
+        });
+    }
 </script>
 
-<div>
+<div class="account">
     <div class="title">
         Let's get you started ...
     </div>
@@ -50,15 +61,23 @@
     {/if}
 
     {#if progressIndex == 1}
-    <Repositories accessToken={accessToken} on:selected={ProjectSelected} />
+    <Repositories {accessToken} on:selected={ProjectSelected} />
     {/if}
 
     {#if progressIndex == 2}
-    <Initialize accessToken={accessToken} project={project} />
+    <Initialize {accessToken} {project} on:cached={ProjectCached} />
     {/if}
 </div>
 
 <style>
+    .account {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: center;
+    }
+
     .title {
         font-size: 20px;
         margin-bottom: 40px;

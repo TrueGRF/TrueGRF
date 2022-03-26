@@ -1,5 +1,9 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
+
     import { InlineLoading } from "carbon-components-svelte";
+
+    const dispatch = createEventDispatcher();
 
     export let accessToken;
     export let project;
@@ -105,6 +109,8 @@
                     statusDownload = "finished";
                     await cleanupStorage(db, filesSeen);
                     db.close();
+
+                    dispatch("cached", filesSeen);
                 }
             }
 
