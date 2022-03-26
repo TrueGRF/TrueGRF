@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from "svelte";
 
     import { TreeView } from "carbon-components-svelte";
 
@@ -75,12 +75,7 @@
 </script>
 
 <div class="navigation">
-    <TreeView
-        bind:this={treeview}
-        hideLabel
-        children={tree}
-        on:select={TreeSelect}
-    />
+    <TreeView bind:this={treeview} hideLabel children={tree} on:select={TreeSelect} />
 </div>
 
 <style>
