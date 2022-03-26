@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from "svelte";
 
     import { ProgressIndicator, ProgressStep } from "carbon-components-svelte";
 
@@ -33,9 +33,7 @@
 </script>
 
 <div class="account">
-    <div class="title">
-        Let's get you started ...
-    </div>
+    <div class="title">Let's get you started ...</div>
 
     <div>
         <ProgressIndicator currentIndex={progressIndex} preventChangeOnClick spaceEqually>
@@ -49,23 +47,20 @@
                 label="Select project"
                 description="Select what project you want to work on"
             />
-            <ProgressStep
-                label="Initialize"
-                description="Initializing the selected project"
-            />
+            <ProgressStep label="Initialize" description="Initializing the selected project" />
         </ProgressIndicator>
     </div>
 
     {#if progressIndex == 0}
-    <Login on:login={LoginSuccess} bind:accessToken />
+        <Login on:login={LoginSuccess} bind:accessToken />
     {/if}
 
     {#if progressIndex == 1}
-    <Repositories {accessToken} on:selected={ProjectSelected} />
+        <Repositories {accessToken} on:selected={ProjectSelected} />
     {/if}
 
     {#if progressIndex == 2}
-    <Initialize {accessToken} {project} on:cached={ProjectCached} />
+        <Initialize {accessToken} {project} on:cached={ProjectCached} />
     {/if}
 </div>
 

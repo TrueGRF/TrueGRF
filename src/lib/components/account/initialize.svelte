@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from "svelte";
 
     import { InlineLoading } from "carbon-components-svelte";
 
@@ -19,7 +19,7 @@
         const store = transaction.objectStore("files");
 
         /* Check if there are any files in the storage we haven't seen on the remote. */
-        store.openCursor().onsuccess = function(event) {
+        store.openCursor().onsuccess = function (event) {
             const cursor = event.target.result;
             if (!cursor) return;
 
@@ -36,8 +36,8 @@
         const response = await fetch(url, {
             headers: {
                 accept: "application/vnd.github.v3+json",
-                authorization: `token ${accessToken}`
-            }
+                authorization: `token ${accessToken}`,
+            },
         });
         if (response.status != 200) {
             throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
@@ -90,12 +90,12 @@
         const request = indexedDB.open(project);
 
         /* Create the database if it doesn't exist yet. */
-        request.onupgradeneeded = function() {
+        request.onupgradeneeded = function () {
             const db = request.result;
-            db.createObjectStore("files", {keyPath: "path"});
+            db.createObjectStore("files", { keyPath: "path" });
         };
 
-        request.onsuccess = async function() {
+        request.onsuccess = async function () {
             const db = request.result;
             const transaction = db.transaction("files");
             const store = transaction.objectStore("files");
@@ -119,7 +119,7 @@
                 filesSeen.push(file.path);
 
                 const request = store.get(file.path);
-                request.onsuccess = async function() {
+                request.onsuccess = async function () {
                     /* Check if we have this file already. */
                     if (request.result && request.result.sha == file.sha) {
                         await fileDone();
@@ -139,10 +139,10 @@
                     });
 
                     /* Wait till the transaction is acknowledged. */
-                    transaction.oncomplete = async function() {
+                    transaction.oncomplete = async function () {
                         await fileDone();
-                    }
-                }
+                    };
+                };
             }
         };
     }
@@ -151,8 +151,8 @@
 </script>
 
 <div class="initialize">
-    <InlineLoading status="{statusTree}" description="Fetching project tree ..." />
-    <InlineLoading status="{statusDownload}" description="Downloading project ({totalDone} / {totalFiles} files) ..." />
+    <InlineLoading status={statusTree} description="Fetching project tree ..." />
+    <InlineLoading status={statusDownload} description="Downloading project ({totalDone} / {totalFiles} files) ..." />
 </div>
 
 <style>

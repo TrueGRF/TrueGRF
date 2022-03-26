@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { createEventDispatcher } from 'svelte';
+    import { onMount } from "svelte";
+    import { createEventDispatcher } from "svelte";
 
     import { Button } from "carbon-components-svelte";
     import { InlineNotification } from "carbon-components-svelte";
@@ -8,7 +8,8 @@
 
     const dispatch = createEventDispatcher();
 
-    export let accessToken = window.localStorage.getItem("accessToken") || import.meta.env.VITE_OAUTH_ACCESS_TOKEN || "";
+    export let accessToken =
+        window.localStorage.getItem("accessToken") || import.meta.env.VITE_OAUTH_ACCESS_TOKEN || "";
 
     let oauthEndpoint = import.meta.env.VITE_OAUTH_ENDPOINT || "";
     let error = "";
@@ -17,16 +18,16 @@
         fetch("https://api.github.com/user", {
             headers: {
                 accept: "application/vnd.github.v3+json",
-                authorization: `token ${accessToken}`
-            }
-        }).then(function(response) {
+                authorization: `token ${accessToken}`,
+            },
+        }).then(function (response) {
             /* This most likely means the acess-token is no longer valid. */
             if (response.status != 200) {
                 accessToken = "";
                 return;
             }
 
-            return response.json().then(function(result) {
+            return response.json().then(function (result) {
                 dispatch("login", result.login);
             });
         });
@@ -54,16 +55,14 @@
         history.replaceState({}, "", path);
 
         /* Get the access token. */
-        fetch(oauthEndpoint,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({code})
-            }
-        ).then(function(response) {
-            return response.json().then(function(result) {
+        fetch(oauthEndpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code }),
+        }).then(function (response) {
+            return response.json().then(function (result) {
                 /* User denied access or the authentication timed out. */
                 if (result.error) {
                     accessToken = "";
@@ -84,21 +83,16 @@
         <InlineLoading description="Checking credentials ..." />
     {:else}
         <div>
-            <Button on:click={() => location.href = oauthEndpoint}>
-                Login via GitHub
-            </Button>
+            <Button on:click={() => (location.href = oauthEndpoint)}>Login via GitHub</Button>
         </div>
         <div>
-            In order to use TrueGRF, you need a GitHub account.<br/>
+            In order to use TrueGRF, you need a GitHub account.<br />
             Your work will automatically be stored in a GitHub repository which you can select after logging in.
         </div>
     {/if}
 
     {#if error}
-        <InlineNotification
-            title="GitHub authentication failed:"
-            subtitle={error}
-            />
+        <InlineNotification title="GitHub authentication failed:" subtitle={error} />
     {/if}
 </div>
 

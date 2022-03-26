@@ -20,7 +20,7 @@
 
     function LoadProject() {
         const request = indexedDB.open(project);
-        request.onsuccess = async function() {
+        request.onsuccess = async function () {
             const db = request.result;
             const transaction = db.transaction("files");
             const store = transaction.objectStore("files");
@@ -28,7 +28,7 @@
             for (let file of files) {
                 const request = store.get(file);
 
-                request.onsuccess = function() {
+                request.onsuccess = function () {
                     if (file.endsWith(".yaml")) {
                         const data = yaml.load(request.result.content);
                         data["text"] = data["name"];
@@ -51,7 +51,7 @@
                     }
                 };
             }
-        }
+        };
     }
 
     function AccountLoaded(event) {
@@ -83,9 +83,7 @@
         {/if}
         <div class="title">
             TrueGRF
-            <div class="subtitle">
-                NewGRFs made easy
-            </div>
+            <div class="subtitle">NewGRFs made easy</div>
         </div>
 
         <div class="content">
@@ -93,7 +91,7 @@
                 <Account on:loaded={AccountLoaded} />
             {:else}
                 <Navigation {industries} {cargoes} on:selected={ItemSelected} />
-                <div class="content-inner"></div>
+                <div class="content-inner" />
             {/if}
         </div>
     </div>
