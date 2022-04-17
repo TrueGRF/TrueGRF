@@ -168,11 +168,11 @@
                             <div class="content">
                                 <Navigation {industries} {cargoes} on:selected={ItemSelected} />
                                 <div class="content-inner">
-                                    <Tile>
-                                        {#if selected.item}
+                                    {#if selected.item !== undefined}
+                                        <Tile>
                                             <TextInput inline labelText="Name" placeholder="Name of item" bind:value={selected.item.name} on:change={() => UpdateSvelte()} />
-                                        {/if}
-                                    </Tile>
+                                        </Tile>
+                                    {/if}
                                 </div>
                             </div>
                         </TabContent>
