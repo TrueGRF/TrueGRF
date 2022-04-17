@@ -5,12 +5,8 @@ import { optimizeImports } from "carbon-preprocess-svelte";
 const server = {};
 
 // Check if we are running in GitHub Codespaces.
-const codespaceName = process.env['CODESPACE_NAME'];
-if (codespaceName) {
-	const hmrPort = 3000;
+if (process.env['CODESPACE_NAME']) {
 	server.hmr = {
-		host: `${codespaceName}-${hmrPort}.githubpreview.dev`,
-		port: hmrPort,
 		clientPort: 443
 	};
 }
