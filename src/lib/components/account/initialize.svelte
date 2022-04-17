@@ -49,7 +49,7 @@
     async function getFile(blob) {
         /* We do not have an up-to-date result, so fetch the file. */
         const result = await doApiCall(`https://api.github.com/repos/${project}/git/blobs/${blob}`);
-        return atob(result.content);
+        return result.content;
     }
 
     async function getTree(tree) {
@@ -127,7 +127,14 @@
                     }
 
                     /* File is not in store, so fetch it. */
-                    const content = await getFile(file.sha);
+                    let content = await getFile(file.sha);
+                    /* All files are base64 encoded. Decode everything except PNGs. */
+                    if (!file.path.endsWith(".png")) {
+                        content = atob(content);
+                    } else {
+                        /* GitHub API returns base64 encoded blobs with newlines and other stuff in it. */
+                        content = btoa(atob(content));
+                    }
 
                     /* Store the file in the database. */
                     const transaction = db.transaction("files", "readwrite");

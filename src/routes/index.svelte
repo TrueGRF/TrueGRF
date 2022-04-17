@@ -4,21 +4,39 @@
 </script>
 
 <script lang="ts">
-    import { base } from "$app/paths";
     import yaml from "js-yaml";
+
+    import { base } from "$app/paths";
+    import { onMount } from "svelte";
+
+    import { Tabs, Tab, TabContent } from "carbon-components-svelte";
+    import { TextInput } from "carbon-components-svelte";
+    import { Tile } from "carbon-components-svelte";
 
     import Account from "$lib/components/account/index.svelte";
     import Navigation from "$lib/components/navigation/index.svelte";
+    import Testing from "$lib/components/testing/index.svelte";
 
-    let loaded = false;
+    let loadedAccount = false;
+    let loadedProject = false;
     let files = [];
     let project = undefined;
 
     let cargoes = [];
     let industries = [];
     let general = {};
+    let images = {};
 
-    function LoadProject() {
+    let testing;
+
+    let selected = {
+        type: "none",
+        item: undefined,
+    };
+
+    async function LoadProject() {
+        let requests = 0;
+
         const request = indexedDB.open(project);
         request.onsuccess = async function () {
             const db = request.result;
@@ -29,7 +47,11 @@
                 const request = store.get(file);
 
                 request.onsuccess = function () {
-                    if (file.endsWith(".yaml")) {
+                    requests += 1;
+
+                    if (file.endsWith(".png")) {
+                        images[file] = request.result.content;
+                    } else if (file.endsWith(".yaml")) {
                         const data = yaml.load(request.result.content);
                         data["text"] = data["name"];
 
@@ -46,8 +68,10 @@
                         } else if (file == "truegrf.yaml") {
                             general = data;
                         }
+                    }
 
-                        return;
+                    if (requests == files.length) {
+                        loadedProject = true;
                     }
                 };
             }
@@ -57,14 +81,53 @@
     function AccountLoaded(event) {
         project = event.detail.project;
         files = event.detail.files;
-        loaded = true;
+        loadedAccount = true;
     }
 
     function ItemSelected(event) {
-        console.log(event.detail);
+        switch (event.detail.type) {
+            case "general":
+                selected.type = "general";
+                selected.item = undefined;
+                break;
+            case "cargo":
+                selected.type = "cargo";
+                selected.item = cargoes.find((item) => item.id == event.detail.id);
+                break;
+            case "industry":
+                selected.type = "industry";
+                selected.item = industries.find((item) => item.id == event.detail.id);
+                break;
+            case "none":
+                selected.type = "none";
+                selected.item = undefined;
+                break;
+        }
     }
 
-    $: if (loaded) LoadProject();
+    function UpdateSvelte() {
+        /* Inform Svelte the array is changed. */
+        switch (selected.type) {
+            case "cargo":
+                cargoes = cargoes;
+                break;
+            case "industry":
+                industries = industries;
+                break;
+        }
+    }
+
+    $: if (loadedAccount) LoadProject();
+
+    /* Used by truegrf-rs to get the PNG files. */
+    function load_sprite_bytes(filename) {
+        return images[filename];
+    }
+
+    onMount(async () => {
+        /* Make this function available on "window", so the rust application can find it again. */
+        window.load_sprite_bytes = load_sprite_bytes;
+    });
 </script>
 
 <svelte:head>
@@ -86,12 +149,41 @@
             <div class="subtitle">NewGRFs made easy</div>
         </div>
 
-        <div class="content">
-            {#if !loaded}
-                <Account on:loaded={AccountLoaded} />
+        <div class="window">
+            {#if !loadedAccount}
+                <div class="content center">
+                    <Account on:loaded={AccountLoaded} />
+                </div>
+            {:else if !loadedProject}
+                <div class="content center">
+                    Processing data ...
+                </div>
             {:else}
-                <Navigation {industries} {cargoes} on:selected={ItemSelected} />
-                <div class="content-inner" />
+                <Tabs type="container" class="topnav">
+                    <Tab label="Editing" />
+                    <Tab label="Testing" />
+
+                    <svelte:fragment slot="content">
+                        <TabContent>
+                            <div class="content">
+                                <Navigation {industries} {cargoes} on:selected={ItemSelected} />
+                                <div class="content-inner">
+                                    <Tile>
+                                        {#if selected.item}
+                                            <TextInput inline labelText="Name" placeholder="Name of item" bind:value={selected.item.name} on:change={() => UpdateSvelte()} />
+                                        {/if}
+                                    </Tile>
+                                </div>
+                            </div>
+                        </TabContent>
+
+                        <TabContent>
+                            <div class="content">
+                                <Testing {general} {industries} {cargoes} bind:this={testing} />
+                            </div>
+                        </TabContent>
+                    </svelte:fragment>
+                </Tabs>
             {/if}
         </div>
     </div>
@@ -110,17 +202,28 @@
         right: 20px;
     }
 
+    .window :global(.topnav) {
+        display: flex;
+        padding-top: 20px;
+        justify-content: center;
+    }
+
     .content {
-        align-items: center;
         display: flex;
         flex-direction: row;
-        height: calc(100vh - 62px - 20px);
+        height: calc(100vh - 62px - 20px - 40px - 20px - 20px);
+        /* Preview takes 802 pixels + border + buttons. */
+        min-height: calc(802px + 40px + 48px + 20px);
         justify-content: center;
         padding: 20px;
+    }
+    .content.center {
+        align-items: center;
     }
 
     .content-inner {
         height: 100%;
+        padding-left: 10px;
         width: 1000px;
     }
 
