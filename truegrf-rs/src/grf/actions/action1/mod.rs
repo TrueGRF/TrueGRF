@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use super::super::{NewGRFSprite};
 use super::{Action, ActionTrait, Feature, Output, vec_list, write as write_action};
 
@@ -20,20 +18,7 @@ fn write_sprite(output: &mut Output, sprite: &NewGRFSprite) {
         sprite_num.to_le_bytes()
     ));
 
-    let (bytes, top, left) = match sprite {
-        NewGRFSprite::Base64(sprite) => {
-            let bytes = base64::decode(&sprite.base64Data).unwrap();
-
-            (bytes, sprite.top, sprite.left)
-        },
-        NewGRFSprite::Reference(sprite) => {
-            let mut bytes = Vec::new();
-            std::fs::File::open(&sprite.filename).unwrap().read_to_end(&mut bytes).unwrap();
-
-            (bytes, sprite.top, sprite.left)
-        },
-    };
-
+    let bytes = (output.load_sprite_bytes)(&sprite.filename);
     let (data, width, height) = png::convert_png_to_palette(&bytes);
     let data = &png::lz77_encode(&data);
 
@@ -44,8 +29,8 @@ fn write_sprite(output: &mut Output, sprite: &NewGRFSprite) {
         [0x04, 0x00],
         &height.to_le_bytes(),
         &width.to_le_bytes(),
-        &left.to_le_bytes(),
-        &top.to_le_bytes()
+        &sprite.left.to_le_bytes(),
+        &sprite.top.to_le_bytes()
     ));
     sprite_data.extend(data);
 

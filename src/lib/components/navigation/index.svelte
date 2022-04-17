@@ -33,6 +33,10 @@
         /* Update the tree. */
         tree = [
             {
+                id: 0,
+                text: "General",
+            },
+            {
                 id: 1,
                 text: "Cargoes",
                 children: tree_cargo,
@@ -49,11 +53,14 @@
         /* Expand/collapse top level when clicked. This ensures at most one category is expanded. */
         if (event.detail.id < 10) {
             treeview?.expandNodes((node) => event.detail.expanded || node.id !== event.detail.id);
-            return;
+            if (event.detail.id != 0) return;
         }
 
         let type;
         switch (event.detail.id & 0xf000) {
+            case 0:
+                type = "general";
+                break;
             case 0x1000:
                 type = "cargo";
                 break;

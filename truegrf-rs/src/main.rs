@@ -1,8 +1,16 @@
 use clap::{Arg, Command};
 use std::env;
-use std::io::Write;
+use std::io::{Read, Write};
 
 mod grf;
+
+
+fn load_sprite_bytes(filename: &str) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    std::fs::File::open(&filename).unwrap().read_to_end(&mut bytes).unwrap();
+
+    bytes
+}
 
 fn main() {
     let matches = Command::new("TrueGRF Compiler")
@@ -69,7 +77,7 @@ fn main() {
     });
 
     /* Create the GRF. */
-    match grf::write_grf(options) {
+    match grf::write_grf(options, &load_sprite_bytes) {
         Ok(data) => {
             /* Restore original cwd, to ensure "output" ends up in the right place. */
             env::set_current_dir(cwd).unwrap();

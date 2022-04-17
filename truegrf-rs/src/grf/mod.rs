@@ -31,29 +31,10 @@ pub struct NewGRFGeneral {
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, Default)]
-pub struct NewGRFSpriteReference {
+pub struct NewGRFSprite {
     filename: String,
     left: i16,
     top: i16,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct NewGRFSpriteBase64 {
-    base64Data: String,
-    left: i16,
-    top: i16,
-}
-
-#[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(untagged)]
-pub enum NewGRFSprite {
-    Reference(NewGRFSpriteReference),
-    Base64(NewGRFSpriteBase64),
-}
-impl Default for NewGRFSprite {
-    fn default() -> Self { NewGRFSprite::Base64(NewGRFSpriteBase64 { base64Data: "".to_string(), left: 0, top: 0 } ) }
 }
 
 #[allow(non_snake_case)]
@@ -133,10 +114,11 @@ pub struct NewGRFOptions {
     pub industries: Vec<NewGRFIndustry>,
 }
 
-pub struct Output {
+pub struct Output<'a> {
     buffer: Vec<u8>,
     string_counter: u16,
     sprites: Vec<Vec<u8>>,
+    load_sprite_bytes: &'a dyn Fn(&str) -> Vec<u8>,
 }
 
 fn write_rpn_chain(output: &mut Output, cb: u8, chain: &Action2RPN::Chain, has_callback: bool) {
@@ -489,8 +471,8 @@ fn write_segments(output: &mut Output, options: NewGRFOptions) -> Result<(), Str
     Ok(())
 }
 
-pub fn write_grf(options: NewGRFOptions) -> Result<Vec<u8>, String> {
-    let mut output = Output { buffer: Vec::new(), string_counter: 0xdc00, sprites: Vec::new() };
+pub fn write_grf(options: NewGRFOptions, load_sprite_bytes: &dyn Fn(&str) -> Vec<u8>) -> Result<Vec<u8>, String> {
+    let mut output = Output { buffer: Vec::new(), string_counter: 0xdc00, sprites: Vec::new(), load_sprite_bytes };
 
     write_segments(&mut output, options)?;
 
