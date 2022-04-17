@@ -53,28 +53,42 @@
         /* Expand/collapse top level when clicked. This ensures at most one category is expanded. */
         if (event.detail.id < 10) {
             treeview?.expandNodes((node) => event.detail.expanded || node.id !== event.detail.id);
-            if (event.detail.id != 0) return;
         }
 
         let type;
+        let id;
         switch (event.detail.id & 0xf000) {
             case 0:
                 type = "general";
+                id = undefined;
                 break;
+            case 1:
+                type = "cargo";
+                id = undefined;
+                break;
+            case 2:
+                type = "industry";
+                id = undefined;
+                break;
+
             case 0x1000:
                 type = "cargo";
+                id = event.detail.id & 0x0fff;
                 break;
             case 0x2000:
                 type = "industry";
+                id = event.detail.id & 0x0fff;
                 break;
+
             default:
                 type = "none";
+                id = undefined;
                 break;
         }
 
         dispatch("selected", {
             type,
-            id: event.detail.id & 0x0fff,
+            id,
         });
     }
 
