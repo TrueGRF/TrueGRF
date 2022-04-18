@@ -1,16 +1,19 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import { TextInput } from "carbon-components-svelte";
+    import { NumberInput } from "carbon-components-svelte";
     import { Tooltip } from "carbon-components-svelte";
 
     export let value;
     export let labelText;
     export let placeholder;
+    export let min = undefined;
+    export let max = undefined;
 
     const dispatch = createEventDispatcher();
 
     function OnChange(event) {
+        console.log("C");
         dispatch("change", event.detail);
     }
 </script>
@@ -31,5 +34,5 @@
             </slot>
         </span>
     </div>
-    <TextInput size="sm" hideLabel placeholder={placeholder} bind:value={value} on:change={OnChange} />
+    <NumberInput size="sm" {min} {max} hideLabel placeholder={placeholder} bind:value={value} on:change={OnChange} />
 </div>
