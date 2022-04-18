@@ -10,10 +10,10 @@
     import { onMount } from "svelte";
 
     import { Tabs, Tab, TabContent } from "carbon-components-svelte";
-    import { TextInput } from "carbon-components-svelte";
     import { Tile } from "carbon-components-svelte";
 
     import Account from "$lib/components/account/index.svelte";
+    import Cargo from "$lib/components/cargo/index.svelte";
     import Navigation from "$lib/components/navigation/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
 
@@ -168,10 +168,10 @@
                             <div class="content">
                                 <Navigation {industries} {cargoes} on:selected={ItemSelected} />
                                 <div class="content-inner">
-                                    {#if selected.item !== undefined}
-                                        <Tile>
-                                            <TextInput inline labelText="Name" placeholder="Name of item" bind:value={selected.item.name} on:change={() => UpdateSvelte()} />
-                                        </Tile>
+                                    {#if selected.type === "cargo"}
+                                        <Cargo cargo={selected.item} on:change={UpdateSvelte} />
+                                    {:else if selected.type === "industry"}
+                                        Industry
                                     {/if}
                                 </div>
                             </div>
@@ -222,8 +222,10 @@
     }
 
     .content-inner {
+        border: 1px solid #8d8d8d;
         height: 100%;
-        padding-left: 10px;
+        margin-left: 20px;
+        padding: 20px;
         width: 1000px;
     }
 
