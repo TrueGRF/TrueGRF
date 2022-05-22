@@ -99,10 +99,12 @@
 
 <div class="listing">
     <Switch labelText="Availability" labelOff="Hidden" labelOn="Available" bind:value={cargo.available} on:change={OnChange} />
+    <br />
     <TextInput labelText="Label" placeholder="Label of cargo" bind:value={cargo.label} on:change={OnChange} />
     <TextInput labelText="Abbreviation" placeholder="Abbreviation of cargo" bind:value={cargo.abbreviation} on:change={OnChange} />
     <TextInput labelText="Name" placeholder="Name of cargo" bind:value={cargo.name} on:change={OnChange} />
     <Select options={units} labelText="Unit" bind:value={cargo.unitName} on:change={OnChangeUnit} />
+    <br />
     <Select options={classes} labelText="Cargo class" bind:value={cargoClass} on:change={OnChangeCargoClass} />
     <SegmentedButton options={currentClassesOptional} labelText="Cargo class options" bind:selection={cargoClassOptional} on:change={OnChangeCargoClassOptional} />
     <Slider min={0} max={2000} step={62.5} unit="kg" disabled={cargo.unitName === "Tonnes"} bind:value={weight} on:change={OnChangeWeight}>
@@ -123,6 +125,7 @@
             {/if}
         </svelte:fragment>
     </Slider>
+    <br />
     <NumberInput labelText="Price in pounds" placeholder="Price of cargo" min={1} bind:value={price} on:change={OnChangePrice}>
         <svelte:fragment slot="tooltip">
             Price per
