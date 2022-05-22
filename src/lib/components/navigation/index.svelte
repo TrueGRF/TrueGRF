@@ -52,7 +52,7 @@
     function TreeSelect(event) {
         /* Expand/collapse top level when clicked. This ensures at most one category is expanded. */
         if (event.detail.id < 10) {
-            treeview?.expandNodes((node) => event.detail.expanded || node.id !== event.detail.id);
+            treeview?.expandNodes((node) => !event.detail.expanded && node.id === event.detail.id);
         }
 
         let type;
