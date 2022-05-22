@@ -11,7 +11,7 @@
     export let min = 10;
     export let disabled = false;
     export let unit = "";
-    export let tooltip = "";
+    export const tooltip = "";
 
     let valueShadow;
 

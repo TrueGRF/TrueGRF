@@ -141,7 +141,7 @@
     <div class="main">
         {#if project}
             <div class="project">
-                Active project: {project}
+                Project: {project}
             </div>
         {/if}
         <div class="title">
