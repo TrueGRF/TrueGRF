@@ -6,6 +6,7 @@
     import Initialize from "$lib/components/account/initialize.svelte";
     import Login from "$lib/components/account/login.svelte";
     import Repositories from "$lib/components/account/repositories.svelte";
+    import { forkProject } from "$lib/helpers/github";
 
     const dispatch = createEventDispatcher();
 
@@ -21,6 +22,11 @@
 
     function ProjectSelected(event) {
         project = event.detail;
+        progressIndex = 2;
+    }
+
+    async function ProjectFork(event) {
+        project = await forkProject(accessToken, event.detail);
         progressIndex = 2;
     }
 
@@ -57,7 +63,7 @@
     {/if}
 
     {#if progressIndex == 1}
-        <Repositories {accessToken} on:selected={ProjectSelected} />
+        <Repositories {accessToken} on:selected-own={ProjectSelected} on:selected-example={ProjectFork} />
     {/if}
 
     {#if progressIndex == 2}

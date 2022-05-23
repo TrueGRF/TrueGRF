@@ -13,7 +13,7 @@
     }
 
     function getFromDatabase(file) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const indexdb = indexedDB.open(project);
             indexdb.onsuccess = async function () {
                 const db = indexdb.result;
