@@ -29,7 +29,7 @@
         });
     }
 
-    export async function CheckCommitChanges(selected) {
+    export async function CheckCommitChanges(images, selected) {
         if (selected.type == "none") {
             return;
         }
@@ -38,6 +38,7 @@
             /* We need to copy these, as we are async, and selected will change before we are done. */
             const type = selected.type;
             const folder = typeToFolder[type];
+            let userdata = undefined;
 
             const newName = selected.item.name;
             const oldName = selected.name;
@@ -50,11 +51,25 @@
             /* Update the filename of the sprite to use. */
             if (type === "cargo") {
                 selected.item.sprite.filename = `${folder}/${newFilename}.png`;
+            } else if (type === "industry") {
+                userdata = [];
+
+                for (let tile of selected.item.tiles) {
+                    for (let sprite of tile.sprites) {
+                        if (sprite.sprite.filename !== undefined) {
+                            const id = sprite.sprite.filename.split("/").pop().split(".")[0];
+                            userdata.push(id);
+
+                            sprite.sprite.filename = `${folder}/${newFilename}/${id}.png`;
+                        }
+                    }
+                }
             }
 
             const newContent = yaml.dump(selected.item, {
                 sortKeys: true,
                 lineWidth: -1,
+                noArrayIndent: true,
             });
 
             const oldResult = await getFromDatabase(oldPath);
@@ -70,7 +85,7 @@
                     content: oldResult.content,
                 });
 
-                if (type == "cargo") {
+                if (type === "cargo") {
                     const oldPng = await getFromDatabase(`${folder}/${oldFilename}.png`);
                     renameList.push({
                         oldPath: `${folder}/${oldFilename}.png`,
@@ -79,8 +94,17 @@
                         type: "file",
                         content: oldPng.content,
                     });
-                } else {
-                    // TODO -- Implement this for industries
+                } else if (type === "industry") {
+                    for (let id of userdata) {
+                        const oldPng = await getFromDatabase(`${folder}/${oldFilename}/${id}.png`);
+                        renameList.push({
+                            oldPath: `${folder}/${oldFilename}/${id}.png`,
+                            newPath: `${folder}/${newFilename}/${id}.png`,
+                            sha: oldPng.sha,
+                            type: "file",
+                            content: oldPng.content,
+                        });
+                    }
                 }
 
                 await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, renameList);
@@ -99,6 +123,11 @@
                             content: file.content,
                         });
                         store.delete(file.oldPath);
+
+                        if (file.newPath.endsWith(".png")) {
+                            images[file.newPath] = images[file.oldPath];
+                            delete images[file.oldPath];
+                        }
                     }
                 }
             }

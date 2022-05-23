@@ -13,6 +13,7 @@
 
     import Account from "$lib/components/account/index.svelte";
     import Cargo from "$lib/components/cargo/index.svelte";
+    import Industry from "$lib/components/industry/index.svelte";
     import Navigation from "$lib/components/navigation/index.svelte";
     import Sync from "$lib/components/sync/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
@@ -88,7 +89,7 @@
 
     function ItemSelected(event) {
         /* Before we move to the new item, check if the current is different from what is in the repository. */
-        sync.CheckCommitChanges(selected);
+        sync.CheckCommitChanges(images, selected);
 
         switch (event.detail.type) {
             case "general":
@@ -128,7 +129,7 @@
 
     function TabSelected() {
         /* If we switch to testing (or back), make sure all content is committed. */
-        sync.CheckCommitChanges(selected);
+        sync.CheckCommitChanges(images, selected);
     }
 
     $: if (loadedAccount) LoadProject();
@@ -183,7 +184,7 @@
                                     {#if selected.type === "cargo"}
                                         <Cargo cargo={selected.item} on:change={UpdateSvelte} />
                                     {:else if selected.type === "industry"}
-                                        Industry
+                                        <Industry industry={selected.item} on:change={UpdateSvelte} />
                                     {/if}
                                 </div>
                             </div>
