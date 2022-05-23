@@ -2,11 +2,14 @@
     import { createEventDispatcher } from "svelte";
 
     import { ProgressIndicator, ProgressStep } from "carbon-components-svelte";
+    import { Modal } from "carbon-components-svelte";
+
+    import { forkProject } from "$lib/helpers/github";
 
     import Initialize from "$lib/components/account/initialize.svelte";
     import Login from "$lib/components/account/login.svelte";
     import Repositories from "$lib/components/account/repositories.svelte";
-    import { forkProject } from "$lib/helpers/github";
+    import TextInput from "$lib/components/ui/text-input.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -14,6 +17,9 @@
     let accessToken;
     let username;
     let project;
+    let newProject = "";
+
+    let newProjectDialogOpen = false;
 
     function LoginSuccess(event) {
         username = event.detail;
@@ -25,8 +31,19 @@
         progressIndex = 2;
     }
 
-    async function ProjectFork(event) {
-        project = await forkProject(accessToken, event.detail);
+    function ProjectCreate(event) {
+        project = event.detail;
+        newProjectDialogOpen = true;
+    }
+
+    async function ProjectCreateConfirm() {
+        if (newProject === "") {
+            return;
+        }
+
+        newProjectDialogOpen = false;
+
+        project = await forkProject(accessToken, project, newProject);
         progressIndex = 2;
     }
 
@@ -63,12 +80,23 @@
     {/if}
 
     {#if progressIndex == 1}
-        <Repositories {accessToken} on:selected-own={ProjectSelected} on:selected-example={ProjectFork} />
+        <Repositories {accessToken} on:selected={ProjectSelected} on:create={ProjectCreate} />
     {/if}
 
     {#if progressIndex == 2}
         <Initialize {accessToken} {project} on:cached={ProjectCached} />
     {/if}
+
+    <Modal
+        bind:open={newProjectDialogOpen}
+        modalHeading="Create new project based on {project}?"
+        primaryButtonText="Create"
+        secondaryButtonText="Cancel"
+        on:click:button--secondary={() => (newProjectDialogOpen = false)}
+        on:click:button--primary={ProjectCreateConfirm}
+        >
+        <TextInput labelText="Name" placeholder="Name of your new project" bind:value={newProject} />
+    </Modal>
 </div>
 
 <style>

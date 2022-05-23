@@ -47,7 +47,7 @@
         {#each repositoriesSelf as repository}
             <ClickableTile
                 on:click={() => {
-                    dispatch("selected-own", repository.full_name);
+                    dispatch("selected", repository.full_name);
                 }}
             >
                 {repository.full_name}<br />
@@ -61,12 +61,12 @@
     {#if loadedExamples === false}
         <InlineLoading description="Loading example projects ..." />
     {:else}
-        <p>Example projects</p>
+        <p>Base your new project on</p>
 
         {#each repositoriesExamples as repository}
             <ClickableTile
                 on:click={() => {
-                    dispatch("selected-example", repository.full_name);
+                    dispatch("create", repository.full_name);
                 }}
             >
                 {repository.full_name}<br />
