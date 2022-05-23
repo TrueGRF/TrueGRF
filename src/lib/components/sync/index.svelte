@@ -130,7 +130,7 @@
 </script>
 
 <div class="project">
-    Project: {project}
+    Project: <a target="_new" href="https://github.com/{project}">{project}</a>
 </div>
 
 <style>

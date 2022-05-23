@@ -7,6 +7,7 @@
     export let value;
     export let labelText;
     export let placeholder;
+    export let invalidText = "";
 
     const dispatch = createEventDispatcher();
 
@@ -31,5 +32,5 @@
             </slot>
         </span>
     </div>
-    <TextInput size="sm" hideLabel placeholder={placeholder} bind:value={value} on:change={OnChange} />
+    <TextInput size="sm" hideLabel placeholder={placeholder} invalid={invalidText !== ""} invalidText={invalidText} bind:value={value} on:change={OnChange} />
 </div>

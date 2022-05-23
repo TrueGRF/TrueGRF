@@ -1,4 +1,6 @@
 <script lang="ts">
+    import slugify from "slugify";
+
     import { createEventDispatcher } from "svelte";
 
     import { ProgressIndicator, ProgressStep } from "carbon-components-svelte";
@@ -18,6 +20,7 @@
     let username;
     let project;
     let newProject = "";
+    let newProjectError = "";
 
     let newProjectDialogOpen = false;
 
@@ -54,6 +57,16 @@
             files: event.detail,
         });
     }
+
+    function CheckNewProject() {
+        newProjectError = "";
+
+        if (newProject !== slugify(newProject)) {
+            newProjectError = "Project name must be lowercase and contain only letters, numbers, and dashes.";
+        }
+    }
+
+    $: if (newProject) CheckNewProject();
 </script>
 
 <div class="account">
@@ -95,7 +108,10 @@
         on:click:button--secondary={() => (newProjectDialogOpen = false)}
         on:click:button--primary={ProjectCreateConfirm}
         >
-        <TextInput labelText="Name" placeholder="Name of your new project" bind:value={newProject} />
+
+        <TextInput labelText="Name" placeholder="Name of your new project" bind:value={newProject} invalidText={newProjectError} />
+
+        <p class="small">By clicking "create", a new (public) repository will be created on GitHub.</p>
     </Modal>
 </div>
 
@@ -112,5 +128,11 @@
         font-size: 20px;
         margin-bottom: 40px;
         text-align: center;
+    }
+
+    .small {
+        font-size: 12px;
+        margin-top: 12px;
+        margin-left: 155px;
     }
 </style>
