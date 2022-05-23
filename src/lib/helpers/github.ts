@@ -40,27 +40,47 @@ export async function getCommit(accessToken, project, commit) {
     return await getTree(accessToken, project, result.tree.sha);
 }
 
+function sleep(milliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
 export async function getLatestCommit(accessToken, project) {
-    /* Fetch the latest commit on the repository default branch. */
-    const result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/branches`);
+    let result;
 
-    /* Find the dev branch. */
-    for (const branch of result) {
-        if (branch.name === "dev") {
-            return await getCommit(accessToken, project, branch.commit.sha);
+    for (let i = 0; i < 10; i++) {
+        /* Get all the active branches. */
+        result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/branches`);
+
+        /* We found at least one branch; means forking is complete. */
+        if (result.length != 0) {
+            break;
         }
+
+        /* After a fresh fork, it can take a few seconds before the repository actually exists. */
+        await sleep(500);
     }
 
-    /* No dev branch found; find the main branch, and create the dev branch based on it. */
-    for (const branch of result) {
-        if (branch.name === "main") {
+    /* After 5 seconds still no branches found; bail out. */
+    if (result.length == 0) {
+        throw new Error("Could not find any branch.");
+    }
+
+    /* Try "dev" branch first. */
+    let branch = result.find((branch) => branch.name === "dev");
+    if (!branch) {
+        /* If not found, try "main" branch. */
+        branch = result.find((branch) => branch.name === "main");
+        if (branch) {
+            /* Create "dev" branch based on "main" branch. */
             await createReference(accessToken, project, "dev", branch.commit.sha);
-            return await getCommit(accessToken, project, branch.commit.sha);
         }
     }
+    /* Still no branch found; give up. */
+    if (!branch) {
+        throw new Error("No default branch found.");
+    }
 
-    /* No main branch either. Unsupported situation. */
-    throw new Error(`GitHub API error: no dev nor main branch found`);
+    return await getCommit(accessToken, project, branch.commit.sha);
 }
 
 export async function updateFile(accessToken, project, commitMessage, sha, path, content) {
@@ -193,4 +213,46 @@ export async function renameFile(accessToken, project, commitMessage, renameList
             await updateReference(accessToken, project, "dev", resultNewCommit.sha);
         }
     }
+}
+
+export async function forkProject(accessToken, project) {
+    const response = await fetch(`https://api.github.com/repos/${project}/forks`, {
+        method: "POST",
+        headers: {
+            accept: "application/vnd.github.v3+json",
+            authorization: `token ${accessToken}`,
+        },
+    });
+    if (response.status != 202) {
+        throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result.full_name;
+}
+
+export async function refreshRepositories(accessToken, url, page) {
+    const result = await doApiCall(
+        accessToken,
+        `https://api.github.com/${url}?sort=created&direction=asc&per_page=100&page=${page}`
+    );
+
+    let repositories = [];
+    for (const repository of result) {
+        if (repository.topics.indexOf("truegrf") === -1) continue;
+
+        repositories.push({
+            name: repository.name,
+            full_name: repository.full_name,
+            description: repository.description,
+        });
+    }
+
+    /* Check if we reached the limit of the page; continue on next page if so. */
+    if (result.length == 100) {
+        repositories = repositories.concat(await refreshRepositories(accessToken, url, page + 1));
+        return repositories;
+    }
+
+    return repositories;
 }
