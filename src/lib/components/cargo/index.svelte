@@ -53,7 +53,8 @@
     $: if (cargo !== undefined) UpdateCargo();
 
     function OnChange() {
-        console.log(cargo);
+        cargo.longName = cargo.name.toLowerCase();
+
         dispatch("change", cargo);
     }
 

@@ -3,6 +3,8 @@
 
     import { InlineLoading } from "carbon-components-svelte";
 
+    import { getFile, getLatestCommit } from "$lib/helpers/github";
+
     const dispatch = createEventDispatcher();
 
     export let accessToken;
@@ -32,56 +34,9 @@
         };
     }
 
-    async function doApiCall(url) {
-        const response = await fetch(url, {
-            headers: {
-                accept: "application/vnd.github.v3+json",
-                authorization: `token ${accessToken}`,
-            },
-        });
-        if (response.status != 200) {
-            throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
-        }
-
-        return await response.json();
-    }
-
-    async function getFile(blob) {
-        /* We do not have an up-to-date result, so fetch the file. */
-        const result = await doApiCall(`https://api.github.com/repos/${project}/git/blobs/${blob}`);
-        return result.content;
-    }
-
-    async function getTree(tree) {
-        const result = await doApiCall(`https://api.github.com/repos/${project}/git/trees/${tree}?recursive=1`);
-
-        let files = [];
-        for (let file of result.tree) {
-            if (file.type !== "blob") continue;
-
-            files.push({
-                path: file.path,
-                sha: file.sha,
-            });
-        }
-
-        return files;
-    }
-
-    async function getCommit(commit) {
-        const result = await doApiCall(`https://api.github.com/repos/${project}/git/commits/${commit}`);
-        return await getTree(result.tree.sha);
-    }
-
-    async function getLatestCommit() {
-        /* Fetch the latest commit on the repository default branch. */
-        const result = await doApiCall(`https://api.github.com/repos/${project}/commits?per_page=1`);
-        return await getCommit(result[0].sha);
-    }
-
     async function initialize() {
         /* Get all the files on the remote. */
-        let files = await getLatestCommit();
+        let files = await getLatestCommit(accessToken, project);
         totalFiles = files.length;
 
         statusTree = "finished";
@@ -127,7 +82,7 @@
                     }
 
                     /* File is not in store, so fetch it. */
-                    let content = await getFile(file.sha);
+                    let content = await getFile(accessToken, project, file.sha);
                     /* All files are base64 encoded. Decode everything except PNGs. */
                     if (!file.path.endsWith(".png")) {
                         content = atob(content);
