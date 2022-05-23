@@ -10,36 +10,38 @@
     import { onMount } from "svelte";
 
     import { Tabs, Tab, TabContent } from "carbon-components-svelte";
-    import { Tile } from "carbon-components-svelte";
 
     import Account from "$lib/components/account/index.svelte";
     import Cargo from "$lib/components/cargo/index.svelte";
     import Navigation from "$lib/components/navigation/index.svelte";
+    import Sync from "$lib/components/sync/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
 
     let loadedAccount = false;
     let loadedProject = false;
     let files = [];
     let project = undefined;
+    let accessToken = undefined;
 
     let cargoes = [];
     let industries = [];
     let general = {};
     let images = {};
 
-    let testing;
+    let sync;
 
     let selected = {
         type: "none",
         item: undefined,
+        name: undefined,
     };
 
     async function LoadProject() {
         let requests = 0;
 
-        const request = indexedDB.open(project);
-        request.onsuccess = async function () {
-            const db = request.result;
+        const indexdb = indexedDB.open(project);
+        indexdb.onsuccess = async function () {
+            const db = indexdb.result;
             const transaction = db.transaction("files");
             const store = transaction.objectStore("files");
 
@@ -53,7 +55,6 @@
                         images[file] = request.result.content;
                     } else if (file.endsWith(".yaml")) {
                         const data = yaml.load(request.result.content);
-                        data["text"] = data["name"];
 
                         if (file.startsWith("cargoes/")) {
                             cargoes.push(data);
@@ -80,27 +81,35 @@
 
     function AccountLoaded(event) {
         project = event.detail.project;
+        accessToken = event.detail.accessToken;
         files = event.detail.files;
         loadedAccount = true;
     }
 
     function ItemSelected(event) {
+        /* Before we move to the new item, check if the current is different from what is in the repository. */
+        sync.CheckCommitChanges(selected);
+
         switch (event.detail.type) {
             case "general":
                 selected.type = "general";
                 selected.item = undefined;
+                selected.name = undefined;
                 break;
             case "cargo":
                 selected.type = "cargo";
                 selected.item = cargoes.find((item) => item.id == event.detail.id);
+                selected.name = selected.item.name;
                 break;
             case "industry":
                 selected.type = "industry";
                 selected.item = industries.find((item) => item.id == event.detail.id);
+                selected.name = selected.item.name;
                 break;
             case "none":
                 selected.type = "none";
                 selected.item = undefined;
+                selected.name = undefined;
                 break;
         }
     }
@@ -115,6 +124,11 @@
                 industries = industries;
                 break;
         }
+    }
+
+    function TabSelected() {
+        /* If we switch to testing (or back), make sure all content is committed. */
+        sync.CheckCommitChanges(selected);
     }
 
     $: if (loadedAccount) LoadProject();
@@ -140,9 +154,7 @@
 {#await truegrf_init(truegrf_mod) then _}
     <div class="main">
         {#if project}
-            <div class="project">
-                Project: {project}
-            </div>
+            <Sync {project} {accessToken} bind:this={sync} />
         {/if}
         <div class="title">
             TrueGRF
@@ -159,7 +171,7 @@
                     Processing data ...
                 </div>
             {:else}
-                <Tabs type="container" class="topnav">
+                <Tabs type="container" class="topnav" on:change={TabSelected}>
                     <Tab label="Editing" />
                     <Tab label="Testing" />
 
@@ -179,7 +191,7 @@
 
                         <TabContent>
                             <div class="content">
-                                <Testing {general} {industries} {cargoes} bind:this={testing} />
+                                <Testing {general} {industries} {cargoes} />
                             </div>
                         </TabContent>
                     </svelte:fragment>
@@ -194,12 +206,6 @@
         display: flex;
         flex-direction: column;
         height: 100vh;
-    }
-
-    .project {
-        position: absolute;
-        top: 30px;
-        right: 20px;
     }
 
     .window :global(.topnav) {

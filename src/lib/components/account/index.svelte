@@ -27,6 +27,7 @@
     function ProjectCached(event) {
         dispatch("loaded", {
             project,
+            accessToken,
             files: event.detail,
         });
     }
