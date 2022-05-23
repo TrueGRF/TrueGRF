@@ -45,25 +45,8 @@ function sleep(milliseconds) {
 }
 
 export async function getLatestCommit(accessToken, project) {
-    let result;
-
-    for (let i = 0; i < 10; i++) {
-        /* Get all the active branches. */
-        result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/branches`);
-
-        /* We found at least one branch; means forking is complete. */
-        if (result.length != 0) {
-            break;
-        }
-
-        /* After a fresh fork, it can take a few seconds before the repository actually exists. */
-        await sleep(500);
-    }
-
-    /* After 5 seconds still no branches found; bail out. */
-    if (result.length == 0) {
-        throw new Error("Could not find any branch.");
-    }
+    /* Get all the active branches. */
+    const result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/branches`);
 
     /* Try "dev" branch first. */
     let branch = result.find((branch) => branch.name === "dev");
@@ -215,20 +198,52 @@ export async function renameFile(accessToken, project, commitMessage, renameList
     }
 }
 
-export async function forkProject(accessToken, project) {
-    const response = await fetch(`https://api.github.com/repos/${project}/forks`, {
+async function updateTopics(accessToken, project, topics) {
+    const response = await fetch(`https://api.github.com/repos/${project}/topics`, {
+        method: "PUT",
+        headers: {
+            accept: "application/vnd.github.v3+json",
+            authorization: `token ${accessToken}`,
+        },
+        body: JSON.stringify({
+            names: topics,
+        }),
+    });
+    if (response.status != 200) {
+        throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
+    }
+}
+
+export async function forkProject(accessToken, project, name) {
+    const response = await fetch(`https://api.github.com/repos/${project}/generate`, {
         method: "POST",
         headers: {
             accept: "application/vnd.github.v3+json",
             authorization: `token ${accessToken}`,
         },
+        body: JSON.stringify({
+            name,
+            description: "A new TrueGRF project",
+        }),
     });
-    if (response.status != 202) {
+    if (response.status != 201) {
         throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
     }
 
     const result = await response.json();
-    return result.full_name;
+    const userProject = result.full_name;
+
+    /* Wait till the project is available via the API, for at most 5 seconds. */
+    for (let i = 0; i < 10; i++) {
+        try {
+            await updateTopics(accessToken, userProject, ["truegrf"]);
+            break;
+        } catch (e) {
+            await sleep(500);
+        }
+    }
+
+    return userProject;
 }
 
 export async function refreshRepositories(accessToken, url, page) {
