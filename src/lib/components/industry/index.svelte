@@ -36,7 +36,6 @@
     $: if (cargoes !== undefined) UpdateCargoes();
 
     function OnChange() {
-        console.log("Changing");
         if (industry.type !== "primary") {
             industry.prospectChance = 0;
         }
