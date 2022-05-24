@@ -23,9 +23,9 @@
         <span class="bx--label--inline--sm bx--label bx--label--inline">
             <slot name="labelText">
                 {#if $$slots.tooltip}
-                    <Tooltip align="start" triggerText="{labelText}">
+                    <Tooltip align="start" triggerText={labelText}>
                         <p>
-                            <slot name="tooltip"></slot>
+                            <slot name="tooltip" />
                         </p>
                     </Tooltip>
                 {:else}
@@ -34,5 +34,5 @@
             </slot>
         </span>
     </div>
-    <NumberInput size="sm" {min} {max} hideLabel placeholder={placeholder} bind:value={value} on:change={OnChange} />
+    <NumberInput size="sm" {min} {max} hideLabel {placeholder} bind:value on:change={OnChange} />
 </div>

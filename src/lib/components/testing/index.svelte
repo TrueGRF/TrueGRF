@@ -36,19 +36,25 @@
     };
 
     function TestNewgame() {
-        compileAndTest({
-            industries,
-            cargoes,
-            general,
-        }, 1);
+        compileAndTest(
+            {
+                industries,
+                cargoes,
+                general,
+            },
+            1
+        );
     }
 
     function TestReload() {
-        compileAndTest({
-            industries,
-            cargoes,
-            general,
-        }, 0);
+        compileAndTest(
+            {
+                industries,
+                cargoes,
+                general,
+            },
+            0
+        );
     }
 </script>
 
@@ -58,10 +64,7 @@
         <Button size="small" kind="primary" on:click={TestReload}>Test: reload</Button>
     </div>
     {#if error}
-        <InlineNotification
-            title="Error compiling GRF"
-            subtitle="{error}"
-            />
+        <InlineNotification title="Error compiling GRF" subtitle={error} />
     {/if}
     <div class:hidden={error !== ""}>
         <iframe src="openttd.html" width="1000px" height="800px" id="game" class="game" title="Testing" />

@@ -29,9 +29,9 @@
     <div class="bx--text-input__label-helper-wrapper">
         <span class="bx--label--inline--sm bx--label bx--label--inline">{labelText}</span>
     </div>
-    <Select hideLabel size="sm" labelText={labelText} bind:selected={valueShadow}>
+    <Select hideLabel size="sm" {labelText} bind:selected={valueShadow}>
         {#each options as option}
-            <SelectItem value="{option.value}" text="{option.name}" />
+            <SelectItem value={option.value} text={option.name} />
         {/each}
     </Select>
 </div>

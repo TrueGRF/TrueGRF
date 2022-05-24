@@ -36,9 +36,9 @@
         <span class="bx--label--inline--sm bx--label bx--label--inline">
             <slot name="labelText">
                 {#if $$slots.tooltip}
-                    <Tooltip align="start" triggerText="{labelText}">
+                    <Tooltip align="start" triggerText={labelText}>
                         <p>
-                            <slot name="tooltip"></slot>
+                            <slot name="tooltip" />
                         </p>
                     </Tooltip>
                 {:else}
@@ -50,12 +50,12 @@
     <Slider
         hideTextInput
         {disabled}
-        min={min}
+        {min}
         minLabel="&nbsp;"
-        max={max}
+        {max}
         maxLabel="{valueShadow} {unit}"
         bind:value={valueShadow}
-        step={step}
+        {step}
         on:change={OnChange}
     />
 </div>

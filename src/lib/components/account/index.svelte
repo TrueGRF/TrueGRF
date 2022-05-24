@@ -107,9 +107,13 @@
         secondaryButtonText="Cancel"
         on:click:button--secondary={() => (newProjectDialogOpen = false)}
         on:click:button--primary={ProjectCreateConfirm}
-        >
-
-        <TextInput labelText="Name" placeholder="Name of your new project" bind:value={newProject} invalidText={newProjectError} />
+    >
+        <TextInput
+            labelText="Name"
+            placeholder="Name of your new project"
+            bind:value={newProject}
+            invalidText={newProjectError}
+        />
 
         <p class="small">By clicking "create", a new (public) repository will be created on GitHub.</p>
     </Modal>

@@ -80,7 +80,7 @@
         OnChange();
     }
     function OnChangeWeight() {
-        cargo.weight = Math.round(weight * 16 / 1000.0);
+        cargo.weight = Math.round((weight * 16) / 1000.0);
         OnChange();
     }
     function OnChangePrice() {
@@ -99,20 +99,44 @@
 </script>
 
 <div class="listing">
-    <Switch labelText="Availability" labelOff="Hidden" labelOn="Available" bind:value={cargo.available} on:change={OnChange} />
+    <Switch
+        labelText="Availability"
+        labelOff="Hidden"
+        labelOn="Available"
+        bind:value={cargo.available}
+        on:change={OnChange}
+    />
 
     <br />
 
     <TextInput labelText="Label" placeholder="Label of cargo" bind:value={cargo.label} on:change={OnChange} />
-    <TextInput labelText="Abbreviation" placeholder="Abbreviation of cargo" bind:value={cargo.abbreviation} on:change={OnChange} />
+    <TextInput
+        labelText="Abbreviation"
+        placeholder="Abbreviation of cargo"
+        bind:value={cargo.abbreviation}
+        on:change={OnChange}
+    />
     <TextInput labelText="Name" placeholder="Name of cargo" bind:value={cargo.name} on:change={OnChange} />
     <Select options={units} labelText="Unit" bind:value={cargo.unitName} on:change={OnChangeUnit} />
 
     <br />
 
     <Select options={classes} labelText="Cargo class" bind:value={cargoClass} on:change={OnChangeCargoClass} />
-    <SegmentedButton options={currentClassesOptional} labelText="Cargo class options" bind:selection={cargoClassOptional} on:change={OnChangeCargoClassOptional} />
-    <Slider min={0} max={2000} step={62.5} unit="kg" disabled={cargo.unitName === "Tonnes"} bind:value={weight} on:change={OnChangeWeight}>
+    <SegmentedButton
+        options={currentClassesOptional}
+        labelText="Cargo class options"
+        bind:selection={cargoClassOptional}
+        on:change={OnChangeCargoClassOptional}
+    />
+    <Slider
+        min={0}
+        max={2000}
+        step={62.5}
+        unit="kg"
+        disabled={cargo.unitName === "Tonnes"}
+        bind:value={weight}
+        on:change={OnChangeWeight}
+    >
         <svelte:fragment slot="labelText">
             Weight per
             {#if cargo.unitName === "Tonnes"}
@@ -133,7 +157,13 @@
 
     <br />
 
-    <NumberInput labelText="Price in pounds" placeholder="Price of cargo" min={1} bind:value={price} on:change={OnChangePrice}>
+    <NumberInput
+        labelText="Price in pounds"
+        placeholder="Price of cargo"
+        min={1}
+        bind:value={price}
+        on:change={OnChangePrice}
+    >
         <svelte:fragment slot="tooltip">
             Price per
             {#if cargo.unitName === "Tonnes"}
@@ -152,16 +182,31 @@
             across 20 tiles in pounds
         </svelte:fragment>
     </NumberInput>
-    <Slider labelText="Penalty (lowerbound)" min={0} max={637.5} step={2.5} unit="days" bind:value={penaltyLowerBound} on:change={OnChangePenalty}>
+    <Slider
+        labelText="Penalty (lowerbound)"
+        min={0}
+        max={637.5}
+        step={2.5}
+        unit="days"
+        bind:value={penaltyLowerBound}
+        on:change={OnChangePenalty}
+    >
         <svelte:fragment slot="tooltip">
-            The first mark indicates after how many days in transit the price of the cargo starts to drop
-            with 0.16% per extra day in transit.<br />
-            The second mark indicates after how many days this becomes 0.31% per extra day in transit.<br
-            />
+            The first mark indicates after how many days in transit the price of the cargo starts to drop with 0.16% per
+            extra day in transit.<br />
+            The second mark indicates after how many days this becomes 0.31% per extra day in transit.<br />
             The price can never drop below 12% of the original price.
         </svelte:fragment>
     </Slider>
-    <Slider labelText="Penalty (upperbound)" min={0} max={637.5} step={2.5} unit="days" bind:value={penaltyUpperBound} on:change={OnChangePenalty}/>
+    <Slider
+        labelText="Penalty (upperbound)"
+        min={0}
+        max={637.5}
+        step={2.5}
+        unit="days"
+        bind:value={penaltyUpperBound}
+        on:change={OnChangePenalty}
+    />
 </div>
 
 <style>

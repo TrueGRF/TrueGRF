@@ -168,9 +168,7 @@
                     <Account on:loaded={AccountLoaded} />
                 </div>
             {:else if !loadedProject}
-                <div class="content center">
-                    Processing data ...
-                </div>
+                <div class="content center">Processing data ...</div>
             {:else}
                 <Tabs type="container" class="topnav" on:change={TabSelected}>
                     <Tab label="Editing" />
@@ -184,7 +182,7 @@
                                     {#if selected.type === "cargo"}
                                         <Cargo cargo={selected.item} on:change={UpdateSvelte} />
                                     {:else if selected.type === "industry"}
-                                        <Industry industry={selected.item} cargoes={cargoes} on:change={UpdateSvelte} />
+                                        <Industry industry={selected.item} {cargoes} on:change={UpdateSvelte} />
                                     {/if}
                                 </div>
                             </div>
