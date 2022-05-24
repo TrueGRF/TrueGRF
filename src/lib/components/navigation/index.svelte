@@ -57,7 +57,8 @@
 
         let type;
         let id;
-        switch (event.detail.id & 0xf000) {
+
+        switch (event.detail.id) {
             case 0:
                 type = "general";
                 id = undefined;
@@ -71,6 +72,13 @@
                 id = undefined;
                 break;
 
+            default:
+                type = "none";
+                id = undefined;
+                break;
+        }
+
+        switch (event.detail.id & 0xf000) {
             case 0x1000:
                 type = "cargo";
                 id = event.detail.id & 0x0fff;
@@ -78,11 +86,6 @@
             case 0x2000:
                 type = "industry";
                 id = event.detail.id & 0x0fff;
-                break;
-
-            default:
-                type = "none";
-                id = undefined;
                 break;
         }
 

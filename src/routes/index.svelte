@@ -99,14 +99,26 @@
                 selected.name = undefined;
                 break;
             case "cargo":
-                selected.type = "cargo";
-                selected.item = cargoes.find((item) => item.id == event.detail.id);
-                selected.name = selected.item.name;
+                if (event.detail.id === undefined) {
+                    selected.type = "none";
+                    selected.item = undefined;
+                    selected.name = undefined;
+                } else {
+                    selected.type = "cargo";
+                    selected.item = cargoes.find((item) => item.id == event.detail.id);
+                    selected.name = selected.item.name;
+                }
                 break;
             case "industry":
-                selected.type = "industry";
-                selected.item = industries.find((item) => item.id == event.detail.id);
-                selected.name = selected.item.name;
+                if (event.detail.id === undefined) {
+                    selected.type = "none";
+                    selected.item = undefined;
+                    selected.name = undefined;
+                } else {
+                    selected.type = "industry";
+                    selected.item = industries.find((item) => item.id == event.detail.id);
+                    selected.name = selected.item.name;
+                }
                 break;
             case "none":
                 selected.type = "none";
