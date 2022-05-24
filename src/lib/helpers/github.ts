@@ -81,7 +81,7 @@ export async function updateFile(accessToken, project, commitMessage, sha, path,
         body: JSON.stringify({
             message: commitMessage + "\n\nCo-authored-by: TrueGRF <truegrf@truebrain.nl>",
             sha: sha,
-            content: btoa(content),
+            content: path.endsWith(".png") ? content : btoa(content),
             branch: "dev",
         }),
     });

@@ -1,9 +1,12 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
+    import ColorPicker from "$lib/components/ui/color-picker.svelte";
     import NumberInput from "$lib/components/ui/number-input.svelte";
+    import Palette from "$lib/components/ui/palette.svelte";
     import SegmentedButton from "$lib/components/ui/segmented-button.svelte";
     import Select from "$lib/components/ui/select.svelte";
+    import SpriteEditor from "$lib/components/ui/sprite-editor.svelte";
     import Slider from "$lib/components/ui/slider.svelte";
     import Switch from "$lib/components/ui/switch.svelte";
     import TextInput from "$lib/components/ui/text-input.svelte";
@@ -14,6 +17,7 @@
     const dispatch = createEventDispatcher();
 
     export let cargo;
+    export let images;
 
     /* classes is a bitfield, Select needs an array. */
     let cargoClass;
@@ -25,6 +29,8 @@
     /* penaltyUpperBound and penaltyLowerBound are internally in steps of 2.5. */
     let penaltyUpperBound;
     let penaltyLowerBound;
+
+    let spriteColour = 0;
 
     let currentClassesOptional = classesOptional.map((c) => {
         return {
@@ -137,6 +143,7 @@
     />
     <TextInput labelText="Name" placeholder="Name of cargo" bind:value={cargo.name} on:change={OnChange} />
     <Select options={units} labelText="Unit" bind:value={cargo.unitName} on:change={OnChangeUnit} />
+    <ColorPicker labelText="Colour" bind:value={cargo.colour} on:change={OnChange} />
 
     <br />
 
@@ -226,6 +233,19 @@
         bind:value={penaltyUpperBound}
         on:change={OnChangePenalty}
     />
+
+    <br />
+
+    <div class="bx--form-item bx--text-input-wrapper bx--text-input-wrapper--inline">
+        <div class="bx--text-input__label-helper-wrapper">
+            <span class="bx--label--inline--sm bx--label bx--label--inline">
+                <slot name="labelText">Sprite</slot>
+            </span>
+        </div>
+        <SpriteEditor bind:base64Data={images[cargo.sprite.filename]} colour={spriteColour} on:change={OnChange} />
+
+        <Palette bind:selected={spriteColour} />
+    </div>
 </div>
 
 <style>

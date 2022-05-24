@@ -195,7 +195,7 @@
                                     {#if selected.type === "general"}
                                         <General general={selected.item} on:change={UpdateSvelte} />
                                     {:else if selected.type === "cargo"}
-                                        <Cargo cargo={selected.item} on:change={UpdateSvelte} />
+                                        <Cargo cargo={selected.item} {images} on:change={UpdateSvelte} />
                                     {:else if selected.type === "industry"}
                                         <Industry industry={selected.item} {cargoes} on:change={UpdateSvelte} />
                                     {/if}

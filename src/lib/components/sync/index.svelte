@@ -1,6 +1,6 @@
 <script lang="ts">
     import yaml from "js-yaml";
-    import slugify from "slugify";
+    import slug from "slug";
 
     import { updateFile, renameFile } from "$lib/helpers/github";
 
@@ -43,8 +43,8 @@
             const newName = selected.item.name;
             const oldName = selected.name;
 
-            const newFilename = slugify(newName.toLowerCase());
-            const oldFilename = slugify(oldName.toLowerCase());
+            const newFilename = slug(newName, { lower: true });
+            const oldFilename = slug(oldName, { lower: true });
             const newPath = `${folder}/${newFilename}.yaml`;
             const oldPath = `${folder}/${oldFilename}.yaml`;
 
@@ -72,42 +72,45 @@
                 noArrayIndent: true,
             });
 
+            const fileList = [];
+
             const oldResult = await getFromDatabase(oldPath);
+            fileList.push({
+                oldPath,
+                newPath,
+                sha: oldResult.sha,
+                type: "file",
+                content: oldResult.content,
+                newContent,
+            });
 
-            /* Rename first (without modification). */
-            if (newFilename !== oldFilename) {
-                const renameList = [];
-                renameList.push({
-                    oldPath,
-                    newPath,
-                    sha: oldResult.sha,
+            if (type === "cargo") {
+                const oldPng = await getFromDatabase(`${folder}/${oldFilename}.png`);
+                fileList.push({
+                    oldPath: `${folder}/${oldFilename}.png`,
+                    newPath: `${folder}/${newFilename}.png`,
+                    sha: oldPng.sha,
                     type: "file",
-                    content: oldResult.content,
+                    content: oldPng.content,
+                    newContent: images[`${folder}/${oldFilename}.png`],
                 });
-
-                if (type === "cargo") {
-                    const oldPng = await getFromDatabase(`${folder}/${oldFilename}.png`);
-                    renameList.push({
-                        oldPath: `${folder}/${oldFilename}.png`,
-                        newPath: `${folder}/${newFilename}.png`,
+            } else if (type === "industry") {
+                for (let id of userdata) {
+                    const oldPng = await getFromDatabase(`${folder}/${oldFilename}/${id}.png`);
+                    fileList.push({
+                        oldPath: `${folder}/${oldFilename}/${id}.png`,
+                        newPath: `${folder}/${newFilename}/${id}.png`,
                         sha: oldPng.sha,
                         type: "file",
                         content: oldPng.content,
+                        newContent: images[`${folder}/${oldFilename}.png`],
                     });
-                } else if (type === "industry") {
-                    for (let id of userdata) {
-                        const oldPng = await getFromDatabase(`${folder}/${oldFilename}/${id}.png`);
-                        renameList.push({
-                            oldPath: `${folder}/${oldFilename}/${id}.png`,
-                            newPath: `${folder}/${newFilename}/${id}.png`,
-                            sha: oldPng.sha,
-                            type: "file",
-                            content: oldPng.content,
-                        });
-                    }
                 }
+            }
 
-                await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, renameList);
+            /* Rename first (without modification). */
+            if (newFilename !== oldFilename) {
+                await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, fileList);
 
                 const indexdb = indexedDB.open(project);
                 indexdb.onsuccess = async function () {
@@ -116,7 +119,7 @@
                     const store = transaction.objectStore("files");
 
                     /* Update the IndexedDB with the new name. */
-                    for (let file of renameList) {
+                    for (let file of fileList) {
                         store.put({
                             path: file.newPath,
                             sha: file.sha,
@@ -132,30 +135,32 @@
                 };
             }
 
-            if (oldResult.content !== newContent) {
-                /* Commit the file to GitHub. */
-                const response = await updateFile(
-                    accessToken,
-                    project,
-                    `modified(${type}): ${newName}`,
-                    oldResult.sha,
-                    newPath,
-                    newContent
-                );
+            /* Commit the changed files one by one to GitHub. */
+            for (let file of fileList) {
+                if (file.content !== file.newContent) {
+                    const response = await updateFile(
+                        accessToken,
+                        project,
+                        `modified(${type}): ${newName}`,
+                        file.sha,
+                        file.newPath,
+                        file.newContent
+                    );
 
-                const indexdb = indexedDB.open(project);
-                indexdb.onsuccess = async function () {
-                    const db = indexdb.result;
-                    const transaction = db.transaction("files", "readwrite");
-                    const store = transaction.objectStore("files");
+                    const indexdb = indexedDB.open(project);
+                    indexdb.onsuccess = async function () {
+                        const db = indexdb.result;
+                        const transaction = db.transaction("files", "readwrite");
+                        const store = transaction.objectStore("files");
 
-                    /* Update our internal storage with the latest version. */
-                    store.put({
-                        path: newPath,
-                        sha: response.content.sha,
-                        content: newContent,
-                    });
-                };
+                        /* Update our internal storage with the latest version. */
+                        store.put({
+                            path: file.newPath,
+                            sha: response.content.sha,
+                            content: file.newContent,
+                        });
+                    };
+                }
             }
         } else {
             const newContent = yaml.dump(selected.item, {
