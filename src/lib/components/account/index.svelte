@@ -1,5 +1,5 @@
 <script lang="ts">
-    import slugify from "slugify";
+    import slug from "slug";
 
     import { createEventDispatcher } from "svelte";
 
@@ -61,7 +61,7 @@
     function CheckNewProject() {
         newProjectError = "";
 
-        if (newProject !== slugify(newProject)) {
+        if (newProject !== slug(newProject, { lower: true })) {
             newProjectError = "Project name must be lowercase and contain only letters, numbers, and dashes.";
         }
     }
