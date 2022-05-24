@@ -158,8 +158,39 @@
                 };
             }
         } else {
-            // TODO -- Support general
-            return;
+            const newContent = yaml.dump(selected.item, {
+                sortKeys: true,
+                lineWidth: -1,
+                noArrayIndent: true,
+            });
+
+            const oldResult = await getFromDatabase("truegrf.yaml");
+
+            if (oldResult.content !== newContent) {
+                /* Commit the file to GitHub. */
+                const response = await updateFile(
+                    accessToken,
+                    project,
+                    `modified: project information`,
+                    oldResult.sha,
+                    "truegrf.yaml",
+                    newContent
+                );
+
+                const indexdb = indexedDB.open(project);
+                indexdb.onsuccess = async function () {
+                    const db = indexdb.result;
+                    const transaction = db.transaction("files", "readwrite");
+                    const store = transaction.objectStore("files");
+
+                    /* Update our internal storage with the latest version. */
+                    store.put({
+                        path: "truegrf.yaml",
+                        sha: response.content.sha,
+                        content: newContent,
+                    });
+                };
+            }
         }
     }
 </script>

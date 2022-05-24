@@ -13,6 +13,7 @@
 
     import Account from "$lib/components/account/index.svelte";
     import Cargo from "$lib/components/cargo/index.svelte";
+    import General from "$lib/components/general/index.svelte";
     import Industry from "$lib/components/industry/index.svelte";
     import Navigation from "$lib/components/navigation/index.svelte";
     import Sync from "$lib/components/sync/index.svelte";
@@ -94,7 +95,7 @@
         switch (event.detail.type) {
             case "general":
                 selected.type = "general";
-                selected.item = undefined;
+                selected.item = general;
                 selected.name = undefined;
                 break;
             case "cargo":
@@ -179,7 +180,9 @@
                             <div class="content">
                                 <Navigation {industries} {cargoes} on:selected={ItemSelected} />
                                 <div class="content-inner">
-                                    {#if selected.type === "cargo"}
+                                    {#if selected.type === "general"}
+                                        <General general={selected.item} on:change={UpdateSvelte} />
+                                    {:else if selected.type === "cargo"}
                                         <Cargo cargo={selected.item} on:change={UpdateSvelte} />
                                     {:else if selected.type === "industry"}
                                         <Industry industry={selected.item} {cargoes} on:change={UpdateSvelte} />
