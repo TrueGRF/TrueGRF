@@ -96,6 +96,18 @@
         cargo.penaltyLength = Math.round((penaltyUpperBound - penaltyLowerBound) / 2.5);
         OnChange();
     }
+
+    function ValidateLabel(value) {
+        if (value.length != 4) {
+            return "Cargo labels must be 4 characters long";
+        }
+    }
+
+    function ValidateAbbreviation(value) {
+        if (value.length != 2) {
+            return "Cargo abbreviation must be 2 characters long";
+        }
+    }
 </script>
 
 <div class="listing">
@@ -109,10 +121,17 @@
 
     <br />
 
-    <TextInput labelText="Label" placeholder="Label of cargo" bind:value={cargo.label} on:change={OnChange} />
+    <TextInput
+        labelText="Label"
+        placeholder="Label of cargo"
+        validate={ValidateLabel}
+        bind:value={cargo.label}
+        on:change={OnChange}
+    />
     <TextInput
         labelText="Abbreviation"
         placeholder="Abbreviation of cargo"
+        validate={ValidateAbbreviation}
         bind:value={cargo.abbreviation}
         on:change={OnChange}
     />

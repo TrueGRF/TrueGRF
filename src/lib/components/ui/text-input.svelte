@@ -8,12 +8,25 @@
     export let labelText;
     export let placeholder;
     export let invalidText = "";
+    export let validate = undefined;
 
     const dispatch = createEventDispatcher();
+
+    let validateFailed = undefined;
 
     function OnChange(event) {
         dispatch("change", event.detail);
     }
+
+    function Revalidate() {
+        if (validate !== undefined) {
+            validateFailed = validate(value);
+        } else {
+            validateFailed = undefined;
+        }
+    }
+
+    $: if (value) Revalidate();
 </script>
 
 <div class="bx--form-item bx--text-input-wrapper bx--text-input-wrapper--inline">
@@ -36,8 +49,8 @@
         size="sm"
         hideLabel
         {placeholder}
-        invalid={invalidText !== ""}
-        {invalidText}
+        invalid={invalidText !== "" || validateFailed !== undefined}
+        invalidText={invalidText || validateFailed}
         bind:value
         on:change={OnChange}
     />

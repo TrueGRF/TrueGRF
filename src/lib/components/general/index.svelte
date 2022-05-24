@@ -10,12 +10,19 @@
     function OnChange() {
         dispatch("change", general);
     }
+
+    function ValidateGrfId(value) {
+        if (value.length != 4) {
+            return "GRF ID must be 4 characters long";
+        }
+    }
 </script>
 
 <div class="listing">
     <TextInput
         labelText="GRFID"
         placeholder="Unique identifier of NewGRF"
+        validate={ValidateGrfId}
         bind:value={general.grfid}
         on:change={OnChange}
     />
