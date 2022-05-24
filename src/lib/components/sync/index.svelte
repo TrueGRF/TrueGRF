@@ -8,9 +8,9 @@
     export let accessToken = "";
 
     const typeToFolder = {
-        "cargo": "cargoes",
-        "industry": "industries",
-    }
+        cargo: "cargoes",
+        industry: "industries",
+    };
 
     function getFromDatabase(file) {
         return new Promise((resolve) => {
@@ -24,8 +24,8 @@
 
                 request.onsuccess = async function () {
                     resolve(request.result);
-                }
-            }
+                };
+            };
         });
     }
 
@@ -129,12 +129,19 @@
                             delete images[file.oldPath];
                         }
                     }
-                }
+                };
             }
 
             if (oldResult.content !== newContent) {
                 /* Commit the file to GitHub. */
-                const response = await updateFile(accessToken, project, `modified(${type}): ${newName}`, oldResult.sha, newPath, newContent);
+                const response = await updateFile(
+                    accessToken,
+                    project,
+                    `modified(${type}): ${newName}`,
+                    oldResult.sha,
+                    newPath,
+                    newContent
+                );
 
                 const indexdb = indexedDB.open(project);
                 indexdb.onsuccess = async function () {
@@ -148,14 +155,13 @@
                         sha: response.content.sha,
                         content: newContent,
                     });
-                }
+                };
             }
         } else {
             // TODO -- Support general
             return;
         }
     }
-
 </script>
 
 <div class="project">

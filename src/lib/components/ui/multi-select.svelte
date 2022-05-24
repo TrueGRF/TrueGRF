@@ -33,9 +33,9 @@
         <span class="bx--label--inline--sm bx--label bx--label--inline">
             <slot name="labelText">
                 {#if $$slots.tooltip}
-                    <Tooltip align="start" triggerText="{labelText}">
+                    <Tooltip align="start" triggerText={labelText}>
                         <p>
-                            <slot name="tooltip"></slot>
+                            <slot name="tooltip" />
                         </p>
                     </Tooltip>
                 {:else}
@@ -56,14 +56,7 @@
         {/each}
     </div>
 
-    <MultiSelect
-        bind:selectedIds={selected}
-        hideLabel
-        size="sm"
-        filterable
-        placeholder="Select cargoes"
-        {items}
-    />
+    <MultiSelect bind:selectedIds={selected} hideLabel size="sm" filterable placeholder="Select cargoes" {items} />
 </div>
 
 <style>

@@ -31,7 +31,13 @@
     </div>
     <div style="flex: 8;">
         {#each options as option}
-            <Checkbox bind:group={selectionShadow} labelText={option.name} value={option.value} disabled={option.disabled} on:check={OnChange} />
+            <Checkbox
+                bind:group={selectionShadow}
+                labelText={option.name}
+                value={option.value}
+                disabled={option.disabled}
+                on:check={OnChange}
+            />
         {/each}
     </div>
 </div>

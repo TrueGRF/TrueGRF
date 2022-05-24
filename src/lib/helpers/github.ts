@@ -20,7 +20,10 @@ export async function getFile(accessToken, project, blob) {
 }
 
 export async function getTree(accessToken, project, tree) {
-    const result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/git/trees/${tree}?recursive=1`);
+    const result = await doApiCall(
+        accessToken,
+        `https://api.github.com/repos/${project}/git/trees/${tree}?recursive=1`
+    );
 
     const files = [];
     for (const file of result.tree) {
@@ -170,7 +173,10 @@ export async function renameFile(accessToken, project, commitMessage, renameList
 
     for (const branch of result) {
         if (branch.name === "dev") {
-            const resultCommit = await doApiCall(accessToken, `https://api.github.com/repos/${project}/git/commits/${branch.commit.sha}`);
+            const resultCommit = await doApiCall(
+                accessToken,
+                `https://api.github.com/repos/${project}/git/commits/${branch.commit.sha}`
+            );
 
             const tree = [];
             for (const rename of renameList) {
@@ -192,7 +198,13 @@ export async function renameFile(accessToken, project, commitMessage, renameList
             }
 
             const resultTree = await createTree(accessToken, project, tree, resultCommit.tree.sha);
-            const resultNewCommit = await createCommit(accessToken, project, commitMessage, resultTree.sha, branch.commit.sha);
+            const resultNewCommit = await createCommit(
+                accessToken,
+                project,
+                commitMessage,
+                resultTree.sha,
+                branch.commit.sha
+            );
             await updateReference(accessToken, project, "dev", resultNewCommit.sha);
         }
     }
