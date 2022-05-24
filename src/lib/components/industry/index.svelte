@@ -1,8 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import NumberInput from "$lib/components/ui/number-input.svelte";
-    import SegmentedButton from "$lib/components/ui/segmented-button.svelte";
+    import { TextArea } from "carbon-components-svelte";
+
+    import MultiSelect from "$lib/components/ui/multi-select.svelte";
     import Select from "$lib/components/ui/select.svelte";
     import Slider from "$lib/components/ui/slider.svelte";
     import Switch from "$lib/components/ui/switch.svelte";
@@ -14,14 +15,28 @@
     const dispatch = createEventDispatcher();
 
     export let industry;
+    export let cargoes;
 
-    function UpdateIndustry() {
+    let cargoesItems = [];
 
+    function UpdateCargoes() {
+        cargoesItems = [];
+
+        for (let cargo of cargoes) {
+            cargoesItems.push({
+                id: cargo.label,
+                text: `${cargo.name} (${cargo.label})`,
+            });
+        }
+
+        /* Inform Svelte the array is changed. */
+        cargoesItems = cargoesItems;
     }
 
-    $: if (industry !== undefined) UpdateIndustry();
+    $: if (cargoes !== undefined) UpdateCargoes();
 
     function OnChange() {
+        console.log("Changing");
         if (industry.type !== "primary") {
             industry.prospectChance = 0;
         }
@@ -60,7 +75,19 @@
 
     <br />
 
+    <MultiSelect labelText="Cargo acceptance" bind:selected={industry.cargoAcceptance} items={cargoesItems} on:change={OnChange} />
+    <MultiSelect labelText="Cargo production" bind:selected={industry.cargoProduction} items={cargoesItems} on:change={OnChange} />
 
+    <br />
+
+    <TextArea labelText="Callbacks" placeholder="Define your custom callbacks here" bind:value={industry.callbacks} rows={10} on:change={OnChange} />
+    <p class="bx--form__helper-text">
+        Callbacks scripting is done in a language specifically designed for TrueGRF. See <a
+            target="_new"
+            href="https://github.com/TrueBrain/TrueGRF/blob/main/truegrf-rs/src/grf/actions/action2_rpn/README.md"
+            >here</a
+        > for documentation on the language.
+    </p>
 </div>
 
 <style>

@@ -184,7 +184,7 @@
                                     {#if selected.type === "cargo"}
                                         <Cargo cargo={selected.item} on:change={UpdateSvelte} />
                                     {:else if selected.type === "industry"}
-                                        <Industry industry={selected.item} on:change={UpdateSvelte} />
+                                        <Industry industry={selected.item} cargoes={cargoes} on:change={UpdateSvelte} />
                                     {/if}
                                 </div>
                             </div>
