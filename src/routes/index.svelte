@@ -197,7 +197,12 @@
                                     {:else if selected.type === "cargo"}
                                         <Cargo cargo={selected.item} {images} on:change={UpdateSvelte} />
                                     {:else if selected.type === "industry"}
-                                        <Industry industry={selected.item} {cargoes} on:change={UpdateSvelte} />
+                                        <Industry
+                                            industry={selected.item}
+                                            {cargoes}
+                                            {images}
+                                            on:change={UpdateSvelte}
+                                        />
                                     {/if}
                                 </div>
                             </div>
@@ -245,6 +250,7 @@
         border: 1px solid #8d8d8d;
         height: 100%;
         margin-left: 20px;
+        overflow: auto;
         padding: 20px;
         width: 1000px;
     }
