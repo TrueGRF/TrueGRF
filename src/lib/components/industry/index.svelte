@@ -1,8 +1,10 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
+    import { Pagination } from "carbon-components-svelte";
     import { TextArea } from "carbon-components-svelte";
 
+    import Layout from "$lib/components/industry/layout.svelte";
     import MultiSelect from "$lib/components/ui/multi-select.svelte";
     import Select from "$lib/components/ui/select.svelte";
     import Slider from "$lib/components/ui/slider.svelte";
@@ -16,8 +18,11 @@
 
     export let industry;
     export let cargoes;
+    export let images;
 
+    let lastId;
     let cargoesItems = [];
+    let selectedLayout = 1;
 
     function UpdateCargoes() {
         cargoesItems = [];
@@ -33,7 +38,16 @@
         cargoesItems = cargoesItems;
     }
 
+    function UpdateIndustry() {
+        if (lastId !== industry.id) {
+            lastId = industry.id;
+
+            selectedLayout = 1;
+        }
+    }
+
     $: if (cargoes !== undefined) UpdateCargoes();
+    $: if (industry !== undefined) UpdateIndustry();
 
     function OnChange() {
         if (industry.type !== "primary") {
@@ -139,6 +153,20 @@
             >here</a
         > for documentation on the language.
     </p>
+
+    <br />
+
+    <Pagination
+        bind:page={selectedLayout}
+        totalItems={industry.layout.length}
+        pageSize={1}
+        pageSizeInputDisabled
+        forwardText="Next Layout"
+        backwardText="Previous Layout"
+        itemRangeText={(min, max, total) => `Layout #${min}`}
+        pageRangeText={(current, total) => `of ${total} layouts`}
+    />
+    <Layout bind:layout={industry.layout[selectedLayout - 1]} bind:tiles={industry.tiles} {images} />
 </div>
 
 <style>
