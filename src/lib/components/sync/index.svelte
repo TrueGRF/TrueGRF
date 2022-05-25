@@ -103,7 +103,7 @@
                         sha: oldPng.sha,
                         type: "file",
                         content: oldPng.content,
-                        newContent: images[`${folder}/${oldFilename}.png`],
+                        newContent: images[`${folder}/${oldFilename}/${id}.png`],
                     });
                 }
             }
