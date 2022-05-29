@@ -23,10 +23,10 @@
     export let selected;
 
     let tileEditorOpen = false;
-    let layerSelected = 0;
-    let tileSelected = 0;
+    let layerSelected = undefined;
+    let tileSelected = undefined;
     let spriteCurrent = undefined;
-    let shadowSelected = 0;
+    let shadowSelected = undefined;
 
     const layers = [
         {
@@ -80,7 +80,7 @@
         spriteCurrent = tiles[tileSelected].sprites[layerSelected];
     }
 
-    $: if (tileSelected || layerSelected) UpdateCurrent();
+    $: if (tileSelected !== undefined && layerSelected !== undefined) UpdateCurrent();
 
     function OnOffsetChange() {
         /* Trigger Svelte's update. */
