@@ -2,10 +2,14 @@
     import yaml from "js-yaml";
     import slug from "slug";
 
+    import { ToastNotification } from "carbon-components-svelte";
+
     import { deleteFile, updateFile, renameFile } from "$lib/helpers/github";
 
     export let project = "";
     export let accessToken = "";
+
+    let syncError = false;
 
     const typeToFolder = {
         cargo: "cargoes",
@@ -60,7 +64,7 @@
                 sha: oldPng.sha,
                 type: "file",
                 content: oldPng.content,
-                newContent: images[`${folder}/${oldFilename}.png`],
+                newContent: images[`${folder}/${newFilename}.png`],
             });
         } else if (type === "industry") {
             for (let id of userdata) {
@@ -71,7 +75,7 @@
                     sha: oldPng.sha,
                     type: "file",
                     content: oldPng.content,
-                    newContent: images[`${folder}/${oldFilename}/${id}.png`],
+                    newContent: images[`${folder}/${newFilename}/${id}.png`],
                 });
             }
         }
@@ -79,7 +83,7 @@
         return fileList;
     }
 
-    export async function CommitRemoval(images, selected) {
+    async function InternalCommitRemoval(images, selected) {
         if (selected.type === "none" || selected.type === "general") {
             return;
         }
@@ -152,7 +156,7 @@
         }
     }
 
-    export async function CheckCommitChanges(images, selected) {
+    async function InternalCheckCommitChanges(images, selected) {
         if (selected.type === "none") {
             return;
         }
@@ -173,7 +177,16 @@
 
             /* Update the filename of the sprite to use. */
             if (type === "cargo") {
-                selected.item.sprite.filename = `${folder}/${newFilename}.png`;
+                const newPng = `${folder}/${newFilename}.png`;
+                const oldPng = `${folder}/${oldFilename}.png`;
+
+                selected.item.sprite.filename = newPng;
+
+                /* Rename entries in the images array, so Svelte can update properly during the following awaits. */
+                if (newPng != oldPng) {
+                    images[newPng] = images[oldPng];
+                    delete images[oldPng];
+                }
             } else if (type === "industry") {
                 userdata = [];
 
@@ -183,7 +196,16 @@
                             const id = sprite.sprite.filename.split("/").pop().split(".")[0];
                             userdata.push(id);
 
-                            sprite.sprite.filename = `${folder}/${newFilename}/${id}.png`;
+                            const newPng = `${folder}/${newFilename}/${id}.png`;
+                            const oldPng = `${folder}/${oldFilename}/${id}.png`;
+
+                            sprite.sprite.filename = newPng;
+
+                            /* Rename entries in the images array, so Svelte can update properly during the following awaits. */
+                            if (newPng != oldPng) {
+                                images[newPng] = images[oldPng];
+                                delete images[oldPng];
+                            }
                         }
                     }
                 }
@@ -209,7 +231,7 @@
 
             /* Rename first (without modification). */
             if (newFilename !== oldFilename) {
-                /* But only if this isn't a new file. */
+                /* If this was a new file, don't rename; just update. */
                 if (fileList[0].sha !== undefined) {
                     await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, fileList);
 
@@ -227,21 +249,8 @@
                                 content: file.content,
                             });
                             store.delete(file.oldPath);
-
-                            if (file.newPath.endsWith(".png")) {
-                                images[file.newPath] = images[file.oldPath];
-                                delete images[file.oldPath];
-                            }
                         }
                     };
-                } else {
-                    /* Even for new files, we need to rename the images. */
-                    for (let file of fileList) {
-                        if (file.newPath.endsWith(".png")) {
-                            images[file.newPath] = images[file.oldPath];
-                            delete images[file.oldPath];
-                        }
-                    }
                 }
             }
 
@@ -308,10 +317,36 @@
             }
         }
     }
+
+    export async function CommitRemoval(images, selected) {
+        try {
+            await InternalCommitRemoval(images, selected);
+        } catch (error) {
+            syncError = true;
+        }
+    }
+
+    export async function CheckCommitChanges(images, selected) {
+        try {
+            await InternalCheckCommitChanges(images, selected);
+        } catch (error) {
+            syncError = true;
+        }
+    }
 </script>
 
 <div class="project">
-    Project: <a target="_new" href="https://github.com/{project}">{project}</a>
+    <div class="caption">
+        Project: <a target="_new" href="https://github.com/{project}">{project}</a>
+    </div>
+
+    {#if syncError}
+        <ToastNotification
+            title="Error syncing files"
+            subtitle="An error occoured during synchronizing your data to GitHub. Please reload this page. Your current work will be lost."
+            caption={new Date().toLocaleString()}
+        />
+    {/if}
 </div>
 
 <style>
@@ -319,5 +354,14 @@
         position: absolute;
         top: 30px;
         right: 20px;
+    }
+
+    .project .caption {
+        text-align: right;
+    }
+
+    .project :global(.bx--toast-notification) {
+        position: relative;
+        z-index: 100;
     }
 </style>
