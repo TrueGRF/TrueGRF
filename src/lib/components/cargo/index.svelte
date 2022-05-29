@@ -151,10 +151,11 @@
         />
         <Button
             kind="danger-tertiary"
-            iconDescription="Delete"
+            iconDescription="Delete cargo"
             icon={TrashCan}
             size="small"
-            tooltipPosition="left"
+            tooltipPosition="bottom"
+            tooltipAlignment="end"
             on:click={() => (deleteCargoOpen = true)}
         />
     </div>
