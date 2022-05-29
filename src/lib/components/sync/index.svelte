@@ -123,24 +123,33 @@
             undefined
         );
 
-        await deleteFile(accessToken, project, `delete(${type}): ${oldName}`, fileList);
+        /* Check if this industry was committed in the first place. */
+        if (fileList[0].sha !== undefined) {
+            await deleteFile(accessToken, project, `delete(${type}): ${oldName}`, fileList);
 
-        const indexdb = indexedDB.open(project);
-        indexdb.onsuccess = async function () {
-            const db = indexdb.result;
-            const transaction = db.transaction("files", "readwrite");
-            const store = transaction.objectStore("files");
+            const indexdb = indexedDB.open(project);
+            indexdb.onsuccess = async function () {
+                const db = indexdb.result;
+                const transaction = db.transaction("files", "readwrite");
+                const store = transaction.objectStore("files");
 
+                for (let file of fileList) {
+                    /* Remove the entries from the IndexedDB. */
+                    store.delete(file.oldPath);
+
+                    /* And from the images array. */
+                    if (file.newPath.endsWith(".png")) {
+                        delete images[file.oldPath];
+                    }
+                }
+            };
+        } else {
             for (let file of fileList) {
-                /* Remove the entries from the IndexedDB. */
-                store.delete(file.oldPath);
-
-                /* And from the images array. */
                 if (file.newPath.endsWith(".png")) {
                     delete images[file.oldPath];
                 }
             }
-        };
+        }
     }
 
     export async function CheckCommitChanges(images, selected) {
