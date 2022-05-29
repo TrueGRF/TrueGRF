@@ -35,6 +35,30 @@
         deleteIndustryOpen = false;
     }
 
+    function CreateLayout() {
+        industry.layout.push([[-1]]);
+
+        /* Inform Svelte the array is changed. */
+        industry.layout = industry.layout;
+
+        selectedLayout = industry.layout.length;
+    }
+
+    function DeleteLayout() {
+        industry.layout.splice(selectedLayout - 1, 1);
+
+        if (industry.layout.length === 0) {
+            CreateLayout();
+        }
+
+        if (selectedLayout > industry.layout.length) {
+            selectedLayout--;
+        }
+
+        /* Inform Svelte the array is changed. */
+        industry.layout = industry.layout;
+    }
+
     function UpdateCargoes() {
         cargoesItems = [];
 
@@ -86,10 +110,11 @@
         />
         <Button
             kind="danger-tertiary"
-            iconDescription="Delete"
+            iconDescription="Delete industry"
             icon={TrashCan}
             size="small"
-            tooltipPosition="left"
+            tooltipPosition="bottom"
+            tooltipAlignment="end"
             on:click={() => (deleteIndustryOpen = true)}
         />
     </div>
@@ -199,7 +224,14 @@
         itemRangeText={(min, max, total) => `Layout #${min}`}
         pageRangeText={(current, total) => `of ${total} layouts`}
     />
-    <Layout id={industry.name} bind:layout={industry.layout[selectedLayout - 1]} bind:tiles={industry.tiles} {images} />
+    <Layout
+        id={industry.name}
+        bind:layout={industry.layout[selectedLayout - 1]}
+        bind:tiles={industry.tiles}
+        {images}
+        on:delete={DeleteLayout}
+        on:create={CreateLayout}
+    />
 
     <Modal
         bind:open={deleteIndustryOpen}

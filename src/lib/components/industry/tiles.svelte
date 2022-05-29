@@ -4,12 +4,16 @@
     import { createEventDispatcher } from "svelte";
 
     import Edit from "carbon-icons-svelte/lib/Edit.svelte";
+    import AddFilled from "carbon-icons-svelte/lib/AddFilled.svelte";
+
     import { Modal } from "carbon-components-svelte";
     import { TileGroup, RadioTile } from "carbon-components-svelte";
     import { TreeView } from "carbon-components-svelte";
 
     import NumberInput from "$lib/components/ui/number-input.svelte";
     import Sprite from "$lib/components/industry/sprite.svelte";
+
+    import { newTile } from "./newTile";
 
     const dispatch = createEventDispatcher();
 
@@ -22,6 +26,7 @@
     let layerSelected = 0;
     let tileSelected = 0;
     let spriteCurrent = undefined;
+    let shadowSelected = 0;
 
     const layers = [
         {
@@ -34,7 +39,31 @@
         },
     ];
 
+    function UpdateShadow() {
+        shadowSelected = selected;
+    }
+
+    $: if (selected) UpdateShadow();
+
     function OnSelect(event) {
+        /* Check if we wanted to create a new tile. */
+        if (event.detail == -2) {
+            let tileNew = JSON.parse(JSON.stringify(newTile));
+            tiles.push(tileNew);
+
+            /* Trigger Svelte's update. */
+            tiles = tiles;
+
+            tileSelected = tiles.length - 1;
+            tileEditorOpen = true;
+
+            /* Change selection back to actual selection just after the component updated its internal state. */
+            setTimeout(() => {
+                shadowSelected = selected;
+            }, 1);
+            return;
+        }
+
         dispatch("select", event.detail);
     }
 
@@ -45,13 +74,13 @@
         layerSelected = 0;
         tileSelected = id;
         tileEditorOpen = true;
+    }
 
+    function UpdateCurrent() {
         spriteCurrent = tiles[tileSelected].sprites[layerSelected];
     }
 
-    function LayerSelect() {
-        spriteCurrent = tiles[tileSelected].sprites[layerSelected];
-    }
+    $: if (tileSelected || layerSelected) UpdateCurrent();
 
     function OnOffsetChange() {
         /* Trigger Svelte's update. */
@@ -141,13 +170,13 @@
 </script>
 
 <div class="tiles">
-    <TileGroup legend="Available tiles" bind:selected on:select={OnSelect}>
-        <RadioTile value={-1} checked={selected === -1}>
+    <TileGroup legend="Available tiles" bind:selected={shadowSelected} on:select={OnSelect}>
+        <RadioTile value={-1} checked={shadowSelected === -1}>
             <br />
             (empty)
         </RadioTile>
         {#each tiles as tile, i}
-            <RadioTile value={i} checked={selected === i}>
+            <RadioTile value={i} checked={shadowSelected === i}>
                 {#each tile.sprites as sprite}
                     <Sprite sprite={sprite.sprite} {images} offsetY={16} />
                 {/each}
@@ -155,6 +184,9 @@
                 <span class="edit" on:click={(event) => OnEdit(event, i)}><Edit /></span>
             </RadioTile>
         {/each}
+        <RadioTile value={-2} style="padding-top: 22px;">
+            <AddFilled title="Add new tile" />
+        </RadioTile>
     </TileGroup>
 
     <Modal
@@ -166,12 +198,7 @@
         {#if spriteCurrent !== undefined}
             <div class="flex" on:drop={TileEditorDrop} on:dragover={TileEditorDragOver} on:paste={TileEditorPaste}>
                 <div>
-                    <TreeView
-                        labelText="Layers"
-                        children={layers}
-                        bind:activeId={layerSelected}
-                        on:select={LayerSelect}
-                    />
+                    <TreeView labelText="Layers" children={layers} bind:activeId={layerSelected} />
                 </div>
 
                 <div class="sprite">
@@ -247,6 +274,9 @@
     }
     .tiles :global(.bx--tile:hover .edit) {
         opacity: 1;
+    }
+    .tiles :global(.bx--tile .edit:hover) {
+        color: #cccccc;
     }
 
     .tiles :global(.sprite) {
