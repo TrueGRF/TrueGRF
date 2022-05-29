@@ -18,6 +18,7 @@
 
     export let industry;
     export let cargoes;
+    export let industries;
     export let images;
 
     let lastId;
@@ -56,6 +57,12 @@
 
         dispatch("change", industry);
     }
+
+    function ValidateName(value) {
+        if (industries.find((i) => i.id != industry.id && i.name == value)) {
+            return "Name already exists";
+        }
+    }
 </script>
 
 <div class="listing">
@@ -69,7 +76,13 @@
 
     <br />
 
-    <TextInput labelText="Name" placeholder="Name of industry" bind:value={industry.name} on:change={OnChange} />
+    <TextInput
+        labelText="Name"
+        placeholder="Name of industry"
+        validate={ValidateName}
+        bind:value={industry.name}
+        on:change={OnChange}
+    />
     <Select options={types} labelText="Type" bind:value={industry.type} on:change={OnChange} />
     <Select options={placement} labelText="Placement" bind:value={industry.placement} on:change={OnChange} />
 

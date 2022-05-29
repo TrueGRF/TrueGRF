@@ -18,6 +18,7 @@
 
     export let cargo;
     export let images;
+    export let cargoes;
 
     /* classes is a bitfield, Select needs an array. */
     let cargoClass;
@@ -107,11 +108,23 @@
         if (value.length != 4) {
             return "Cargo labels must be 4 characters long";
         }
+        if (cargoes.find((i) => i.id != cargo.id && i.label == value)) {
+            return "Label already in use";
+        }
     }
 
     function ValidateAbbreviation(value) {
         if (value.length != 2) {
             return "Cargo abbreviation must be 2 characters long";
+        }
+        if (cargoes.find((i) => i.id != cargo.id && i.abbreviation == value)) {
+            return "Abbreviation already in use";
+        }
+    }
+
+    function ValidateName(value) {
+        if (cargoes.find((i) => i.id != cargo.id && i.name == value)) {
+            return "Name already exists";
         }
     }
 </script>
@@ -141,7 +154,13 @@
         bind:value={cargo.abbreviation}
         on:change={OnChange}
     />
-    <TextInput labelText="Name" placeholder="Name of cargo" bind:value={cargo.name} on:change={OnChange} />
+    <TextInput
+        labelText="Name"
+        placeholder="Name of cargo"
+        validate={ValidateName}
+        bind:value={cargo.name}
+        on:change={OnChange}
+    />
     <Select options={units} labelText="Unit" bind:value={cargo.unitName} on:change={OnChangeUnit} />
     <ColorPicker labelText="Colour" bind:value={cargo.colour} on:change={OnChange} />
 
