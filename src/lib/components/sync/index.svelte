@@ -110,29 +110,40 @@
 
             /* Rename first (without modification). */
             if (newFilename !== oldFilename) {
-                await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, fileList);
+                /* But only if this isn't a new file. */
+                if (oldResult.sha !== undefined) {
+                    await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, fileList);
 
-                const indexdb = indexedDB.open(project);
-                indexdb.onsuccess = async function () {
-                    const db = indexdb.result;
-                    const transaction = db.transaction("files", "readwrite");
-                    const store = transaction.objectStore("files");
+                    const indexdb = indexedDB.open(project);
+                    indexdb.onsuccess = async function () {
+                        const db = indexdb.result;
+                        const transaction = db.transaction("files", "readwrite");
+                        const store = transaction.objectStore("files");
 
-                    /* Update the IndexedDB with the new name. */
+                        /* Update the IndexedDB with the new name. */
+                        for (let file of fileList) {
+                            store.put({
+                                path: file.newPath,
+                                sha: file.sha,
+                                content: file.content,
+                            });
+                            store.delete(file.oldPath);
+
+                            if (file.newPath.endsWith(".png")) {
+                                images[file.newPath] = images[file.oldPath];
+                                delete images[file.oldPath];
+                            }
+                        }
+                    };
+                } else {
+                    /* Even for new files, we need to rename the images. */
                     for (let file of fileList) {
-                        store.put({
-                            path: file.newPath,
-                            sha: file.sha,
-                            content: file.content,
-                        });
-                        store.delete(file.oldPath);
-
                         if (file.newPath.endsWith(".png")) {
                             images[file.newPath] = images[file.oldPath];
                             delete images[file.oldPath];
                         }
                     }
-                };
+                }
             }
 
             /* Commit the changed files one by one to GitHub. */
