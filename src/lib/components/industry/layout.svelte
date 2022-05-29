@@ -7,6 +7,7 @@
 
     const dispatch = createEventDispatcher();
 
+    export let id;
     export let images;
     export let layout;
     export let tiles;
@@ -70,6 +71,11 @@
     function OnTileSelect(event) {
         layout[gridSelected.y][gridSelected.x] = event.detail;
     }
+
+    function OnTileChange(event) {
+        tiles = tiles;
+        OnChange();
+    }
 </script>
 
 <div class="layout">
@@ -81,7 +87,14 @@
             <Grid {images} {layout} {tiles} bind:selected={gridSelected} on:select={OnGridSelect} />
         </div>
         <div class="tiles">
-            <Tiles {images} {tiles} bind:selected={tileSelected} on:select={OnTileSelect} />
+            <Tiles
+                {images}
+                {tiles}
+                {id}
+                bind:selected={tileSelected}
+                on:select={OnTileSelect}
+                on:change={OnTileChange}
+            />
         </div>
     </div>
 </div>

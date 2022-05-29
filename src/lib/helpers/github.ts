@@ -85,7 +85,7 @@ export async function updateFile(accessToken, project, commitMessage, sha, path,
             branch: "dev",
         }),
     });
-    if (response.status != 200) {
+    if (response.status != 200 && response.status != 201) {
         throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
     }
 
