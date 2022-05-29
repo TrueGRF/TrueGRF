@@ -129,7 +129,7 @@
     }
 
     function UpdateSvelte() {
-        /* Inform Svelte the array is changed. */
+        /* Inform Svelte the array has changed. */
         switch (selected.type) {
             case "cargo":
                 cargoes = cargoes;
@@ -190,16 +190,17 @@
                     <svelte:fragment slot="content">
                         <TabContent>
                             <div class="content">
-                                <Navigation {industries} {cargoes} on:selected={ItemSelected} />
+                                <Navigation {industries} {cargoes} bind:activeId on:selected={ItemSelected} />
                                 <div class="content-inner">
                                     {#if selected.type === "general"}
                                         <General general={selected.item} on:change={UpdateSvelte} />
                                     {:else if selected.type === "cargo"}
-                                        <Cargo cargo={selected.item} {images} on:change={UpdateSvelte} />
+                                        <Cargo cargo={selected.item} {cargoes} {images} on:change={UpdateSvelte} />
                                     {:else if selected.type === "industry"}
                                         <Industry
                                             industry={selected.item}
                                             {cargoes}
+                                            {industries}
                                             {images}
                                             on:change={UpdateSvelte}
                                         />

@@ -13,20 +13,33 @@
     const dispatch = createEventDispatcher();
 
     let validateFailed = undefined;
+    let valueShadow;
 
-    function OnChange(event) {
-        dispatch("change", event.detail);
+    function UpdateShadow() {
+        valueShadow = value;
+    }
+
+    $: if (value !== undefined) UpdateShadow();
+
+    function OnChange() {
+        Revalidate();
+
+        if (value === valueShadow) return;
+        if (validateFailed !== undefined) return;
+
+        value = valueShadow;
+        dispatch("change", value);
     }
 
     function Revalidate() {
         if (validate !== undefined) {
-            validateFailed = validate(value);
+            validateFailed = validate(valueShadow);
         } else {
             validateFailed = undefined;
         }
     }
 
-    $: if (value) Revalidate();
+    $: if (valueShadow) Revalidate();
 </script>
 
 <div class="bx--form-item bx--text-input-wrapper bx--text-input-wrapper--inline">
@@ -51,7 +64,7 @@
         {placeholder}
         invalid={invalidText !== "" || validateFailed !== undefined}
         invalidText={invalidText || validateFailed}
-        bind:value
+        bind:value={valueShadow}
         on:change={OnChange}
     />
 </div>
