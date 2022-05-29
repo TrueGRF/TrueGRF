@@ -185,7 +185,9 @@
                 </div>
             </div>
 
-            <div>
+            <p class="bx--form__helper-text">(drag or paste a new image to replace the current)</p>
+
+            <div class="offsets">
                 {#if layerSelected === 0}
                     <NumberInput labelText="Left" placeholder="Pixels" value={-31} disabled />
                     <NumberInput labelText="Top" placeholder="Pixels" value={0} disabled />
@@ -293,5 +295,13 @@
         top: -10px;
         border-left: 1px solid #cccccc;
         opacity: 0.4;
+    }
+
+    .tiles .bx--form__helper-text {
+        font-size: 11px;
+    }
+
+    .tiles .offsets {
+        margin-top: 12px;
     }
 </style>
