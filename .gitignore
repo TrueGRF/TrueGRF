@@ -2,6 +2,5 @@
 /.rsw
 /build
 /node_modules
-/truegrf-rs/target
 /static/*.css
 /.env.local

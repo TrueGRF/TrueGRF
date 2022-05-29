@@ -207,7 +207,7 @@
     <p class="bx--form__helper-text">
         Callbacks scripting is done in a language specifically designed for TrueGRF. See <a
             target="_new"
-            href="https://github.com/TrueBrain/TrueGRF/blob/main/truegrf-rs/src/grf/actions/action2_rpn/README.md"
+            href="https://github.com/TrueGRF/TrueGRF-rs/blob/main/src/grf/actions/action2_rpn/README.md"
             >here</a
         > for documentation on the language.
     </p>
