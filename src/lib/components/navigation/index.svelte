@@ -7,6 +7,7 @@
 
     export let cargoes = [];
     export let industries = [];
+    export let activeId;
 
     let tree = [];
     let treeview;
@@ -14,7 +15,7 @@
     function UpdateTree() {
         /* Convert cargo to a tree-like structure. */
         let tree_cargo = [];
-        for (let cargo of cargoes) {
+        for (let cargo of cargoes.sort((a, b) => a.name.localeCompare(b.name))) {
             tree_cargo.push({
                 id: cargo.id | 0x1000,
                 text: cargo.name,
@@ -23,12 +24,21 @@
 
         /* Convert industry to a tree-like structure. */
         let tree_industry = [];
-        for (let industry of industries) {
+        for (let industry of industries.sort((a, b) => a.name.localeCompare(b.name))) {
             tree_industry.push({
                 id: industry.id | 0x2000,
                 text: industry.name,
             });
         }
+
+        tree_cargo.push({
+            id: 0x1fff,
+            text: "+ New Cargo",
+        });
+        tree_industry.push({
+            id: 0x2fff,
+            text: "+ New Industry",
+        });
 
         /* Update the tree. */
         tree = [
@@ -100,7 +110,7 @@
 
 <div class="navigation">
     <div>
-        <TreeView bind:this={treeview} hideLabel children={tree} on:select={TreeSelect} />
+        <TreeView bind:this={treeview} bind:activeId hideLabel children={tree} on:select={TreeSelect} />
     </div>
 </div>
 

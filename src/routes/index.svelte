@@ -4,6 +4,7 @@
 </script>
 
 <script lang="ts">
+    import slug from "slug";
     import yaml from "js-yaml";
 
     import { base } from "$app/paths";
@@ -18,6 +19,9 @@
     import Navigation from "$lib/components/navigation/index.svelte";
     import Sync from "$lib/components/sync/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
+
+    import { newCargo } from "$lib/components/cargo/newCargo";
+    import { newIndustry } from "$lib/components/industry/newIndustry";
 
     let loadedAccount = false;
     let loadedProject = false;
@@ -37,6 +41,7 @@
         item: undefined,
         name: undefined,
     };
+    let activeId = -1;
 
     async function LoadProject() {
         let requests = 0;
@@ -99,6 +104,34 @@
                 selected.name = undefined;
                 break;
             case "cargo":
+                /* Create a new cargo. */
+                if (event.detail.id == 0xfff) {
+                    /* Find the first available id. */
+                    let id = 0;
+                    while (cargoes.find((i) => i.id == id)) id++;
+
+                    /* Copy the default new cargo object into a new object. */
+                    let cargoNew = JSON.parse(JSON.stringify(newCargo));
+                    cargoNew.id = id;
+                    event.detail.id = id;
+
+                    cargoNew.name += ` #${id}`;
+                    cargoNew.longName += ` #${id}`;
+
+                    const filename = slug(cargoNew.name, { lower: true });
+                    cargoNew.sprite.filename = `cargoes/${filename}.png`;
+                    images[cargoNew.sprite.filename] = "";
+
+                    cargoes.push(cargoNew);
+
+                    /* Inform Svelte the array has changed. */
+                    cargoes = cargoes;
+                    /* Delay changing the activeId ever so slightly, to give Svelte the time to actually update the navigation. */
+                    setTimeout(() => {
+                        activeId = 0x1000 | id;
+                    }, 10);
+                }
+
                 if (event.detail.id === undefined) {
                     selected.type = "none";
                     selected.item = undefined;
@@ -110,6 +143,29 @@
                 }
                 break;
             case "industry":
+                /* Create a new industry. */
+                if (event.detail.id == 0xfff) {
+                    /* Find the first available id. */
+                    let id = 0;
+                    while (industries.find((i) => i.id == id)) id++;
+
+                    /* Copy the default new industry object into a new object. */
+                    let industryNew = JSON.parse(JSON.stringify(newIndustry));
+                    industryNew.id = id;
+                    event.detail.id = id;
+
+                    industryNew.name += ` #${id}`;
+
+                    industries.push(industryNew);
+
+                    /* Inform Svelte the array has changed. */
+                    industries = industries;
+                    /* Delay changing the activeId ever so slightly, to give Svelte the time to actually update the navigation. */
+                    setTimeout(() => {
+                        activeId = 0x2000 | id;
+                    }, 10);
+                }
+
                 if (event.detail.id === undefined) {
                     selected.type = "none";
                     selected.item = undefined;
