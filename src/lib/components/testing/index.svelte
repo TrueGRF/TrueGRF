@@ -69,12 +69,21 @@
             0
         );
     }
+
+    function DownloadGrf() {
+        compileAndDownload({
+            industries,
+            cargoes,
+            general,
+        });
+    }
 </script>
 
 <div>
     <div class="buttons">
         <Button size="small" kind="primary" on:click={TestNewgame}>Test: new-game</Button>
         <Button size="small" kind="primary" on:click={TestReload}>Test: reload</Button>
+        <Button size="small" kind="primary" on:click={DownloadGrf}>Download GRF</Button>
     </div>
     {#if compiling}
         <InlineNotification
