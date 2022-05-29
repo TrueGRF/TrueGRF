@@ -8,8 +8,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let accessToken =
-        window.localStorage.getItem("accessToken") || import.meta.env.VITE_OAUTH_ACCESS_TOKEN || "";
+    export let accessToken = "";
 
     let oauthEndpoint = import.meta.env.VITE_OAUTH_ENDPOINT || "";
     let error = "";
@@ -34,6 +33,8 @@
     }
 
     onMount(async () => {
+        accessToken = window.localStorage.getItem("accessToken") || import.meta.env.VITE_OAUTH_ACCESS_TOKEN || "";
+
         /* Check if we have a ?error= parameter in the URL. */
         const error_description = new URL(location.href).searchParams.get("error_description");
         if (error_description) {
