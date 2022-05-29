@@ -1,6 +1,10 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
+    import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
+
+    import { Button } from "carbon-components-svelte";
+    import { Modal } from "carbon-components-svelte";
     import { Pagination } from "carbon-components-svelte";
     import { TextArea } from "carbon-components-svelte";
 
@@ -24,6 +28,12 @@
     let lastId;
     let cargoesItems = [];
     let selectedLayout = 1;
+    let deleteIndustryOpen = false;
+
+    function DeleteIndustry() {
+        dispatch("delete", industry.id);
+        deleteIndustryOpen = false;
+    }
 
     function UpdateCargoes() {
         cargoesItems = [];
@@ -66,13 +76,23 @@
 </script>
 
 <div class="listing">
-    <Switch
-        labelText="Availability"
-        labelOff="Hidden"
-        labelOn="Available"
-        bind:value={industry.available}
-        on:change={OnChange}
-    />
+    <div class="flex">
+        <Switch
+            labelText="Availability"
+            labelOff="Hidden"
+            labelOn="Available"
+            bind:value={industry.available}
+            on:change={OnChange}
+        />
+        <Button
+            kind="danger-tertiary"
+            iconDescription="Delete"
+            icon={TrashCan}
+            size="small"
+            tooltipPosition="left"
+            on:click={() => (deleteIndustryOpen = true)}
+        />
+    </div>
 
     <br />
 
@@ -180,10 +200,26 @@
         pageRangeText={(current, total) => `of ${total} layouts`}
     />
     <Layout id={industry.name} bind:layout={industry.layout[selectedLayout - 1]} bind:tiles={industry.tiles} {images} />
+
+    <Modal
+        bind:open={deleteIndustryOpen}
+        modalHeading="Delete industry?"
+        primaryButtonText="Delete"
+        secondaryButtonText="Cancel"
+        on:click:button--secondary={() => (deleteIndustryOpen = false)}
+        on:click:button--primary={() => DeleteIndustry()}
+        danger
+    >
+        Are you sure you want to delete '{industry.name}'?
+    </Modal>
 </div>
 
 <style>
     .listing :global(.bx--text-input__label-helper-wrapper) {
         max-width: 10rem;
+    }
+
+    .flex {
+        display: flex;
     }
 </style>
