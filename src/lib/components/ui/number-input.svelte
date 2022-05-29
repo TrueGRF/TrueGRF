@@ -9,11 +9,11 @@
     export let placeholder;
     export let min = undefined;
     export let max = undefined;
+    export let disabled = false;
 
     const dispatch = createEventDispatcher();
 
     function OnChange(event) {
-        console.log("C");
         dispatch("change", event.detail);
     }
 </script>
@@ -34,5 +34,5 @@
             </slot>
         </span>
     </div>
-    <NumberInput size="sm" {min} {max} hideLabel {placeholder} bind:value on:change={OnChange} />
+    <NumberInput size="sm" {min} {max} hideLabel {placeholder} bind:value on:change={OnChange} {disabled} />
 </div>

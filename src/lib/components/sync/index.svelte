@@ -74,7 +74,7 @@
 
             const fileList = [];
 
-            const oldResult = await getFromDatabase(oldPath);
+            const oldResult = (await getFromDatabase(oldPath)) || {};
             fileList.push({
                 oldPath,
                 newPath,
@@ -85,7 +85,7 @@
             });
 
             if (type === "cargo") {
-                const oldPng = await getFromDatabase(`${folder}/${oldFilename}.png`);
+                const oldPng = (await getFromDatabase(`${folder}/${oldFilename}.png`)) || {};
                 fileList.push({
                     oldPath: `${folder}/${oldFilename}.png`,
                     newPath: `${folder}/${newFilename}.png`,
@@ -96,7 +96,7 @@
                 });
             } else if (type === "industry") {
                 for (let id of userdata) {
-                    const oldPng = await getFromDatabase(`${folder}/${oldFilename}/${id}.png`);
+                    const oldPng = (await getFromDatabase(`${folder}/${oldFilename}/${id}.png`)) || {};
                     fileList.push({
                         oldPath: `${folder}/${oldFilename}/${id}.png`,
                         newPath: `${folder}/${newFilename}/${id}.png`,

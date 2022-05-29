@@ -166,7 +166,7 @@
         itemRangeText={(min, max, total) => `Layout #${min}`}
         pageRangeText={(current, total) => `of ${total} layouts`}
     />
-    <Layout bind:layout={industry.layout[selectedLayout - 1]} bind:tiles={industry.tiles} {images} />
+    <Layout id={industry.name} bind:layout={industry.layout[selectedLayout - 1]} bind:tiles={industry.tiles} {images} />
 </div>
 
 <style>
