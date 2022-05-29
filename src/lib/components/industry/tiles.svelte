@@ -160,9 +160,7 @@
     <Modal
         bind:open={tileEditorOpen}
         modalHeading="Tile editor"
-        primaryButtonText="Save"
-        secondaryButtonText="Cancel"
-        on:click:button--secondary={() => (tileEditorOpen = false)}
+        primaryButtonText="Close"
         on:click:button--primary={() => (tileEditorOpen = false)}
     >
         {#if spriteCurrent !== undefined}

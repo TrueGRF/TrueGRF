@@ -1,6 +1,11 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
+    import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
+
+    import { Button } from "carbon-components-svelte";
+    import { Modal } from "carbon-components-svelte";
+
     import ColorPicker from "$lib/components/ui/color-picker.svelte";
     import NumberInput from "$lib/components/ui/number-input.svelte";
     import Palette from "$lib/components/ui/palette.svelte";
@@ -32,6 +37,7 @@
     let penaltyLowerBound;
 
     let spriteColour = 0;
+    let deleteCargoOpen = false;
 
     let currentClassesOptional = classesOptional.map((c) => {
         return {
@@ -39,6 +45,11 @@
             disabled: false,
         };
     });
+
+    function DeleteCargo() {
+        dispatch("delete", cargo.id);
+        deleteCargoOpen = false;
+    }
 
     function UpdateCargo() {
         cargoClass = cargo.classes & 0x7f;
@@ -130,13 +141,23 @@
 </script>
 
 <div class="listing">
-    <Switch
-        labelText="Availability"
-        labelOff="Hidden"
-        labelOn="Available"
-        bind:value={cargo.available}
-        on:change={OnChange}
-    />
+    <div class="flex">
+        <Switch
+            labelText="Availability"
+            labelOff="Hidden"
+            labelOn="Available"
+            bind:value={cargo.available}
+            on:change={OnChange}
+        />
+        <Button
+            kind="danger-tertiary"
+            iconDescription="Delete"
+            icon={TrashCan}
+            size="small"
+            tooltipPosition="left"
+            on:click={() => (deleteCargoOpen = true)}
+        />
+    </div>
 
     <br />
 
@@ -265,10 +286,26 @@
 
         <Palette bind:selected={spriteColour} />
     </div>
+
+    <Modal
+        bind:open={deleteCargoOpen}
+        modalHeading="Delete industry?"
+        primaryButtonText="Delete"
+        secondaryButtonText="Cancel"
+        on:click:button--secondary={() => (deleteCargoOpen = false)}
+        on:click:button--primary={() => DeleteCargo()}
+        danger
+    >
+        Are you sure you want to delete '{cargo.name}'?
+    </Modal>
 </div>
 
 <style>
     .listing :global(.bx--text-input__label-helper-wrapper) {
         max-width: 10rem;
+    }
+
+    .flex {
+        display: flex;
     }
 </style>

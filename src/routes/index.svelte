@@ -196,6 +196,38 @@
         }
     }
 
+    function DeleteCargo() {
+        sync.CommitRemoval(images, selected);
+
+        cargoes.splice(
+            cargoes.findIndex((item) => item.id == selected.item.id),
+            1
+        );
+
+        /* Inform Svelte the array has changed. */
+        cargoes = cargoes;
+
+        selected.type = "none";
+        selected.item = undefined;
+        selected.name = undefined;
+    }
+
+    function DeleteIndustry() {
+        sync.CommitRemoval(images, selected);
+
+        industries.splice(
+            industries.findIndex((item) => item.id == selected.item.id),
+            1
+        );
+
+        /* Inform Svelte the array has changed. */
+        industries = industries;
+
+        selected.type = "none";
+        selected.item = undefined;
+        selected.name = undefined;
+    }
+
     function TabSelected() {
         /* If we switch to testing (or back), make sure all content is committed. */
         sync.CheckCommitChanges(images, selected);
@@ -251,7 +283,13 @@
                                     {#if selected.type === "general"}
                                         <General general={selected.item} on:change={UpdateSvelte} />
                                     {:else if selected.type === "cargo"}
-                                        <Cargo cargo={selected.item} {cargoes} {images} on:change={UpdateSvelte} />
+                                        <Cargo
+                                            cargo={selected.item}
+                                            {cargoes}
+                                            {images}
+                                            on:change={UpdateSvelte}
+                                            on:delete={DeleteCargo}
+                                        />
                                     {:else if selected.type === "industry"}
                                         <Industry
                                             industry={selected.item}
@@ -259,6 +297,7 @@
                                             {industries}
                                             {images}
                                             on:change={UpdateSvelte}
+                                            on:delete={DeleteIndustry}
                                         />
                                     {/if}
                                 </div>

@@ -210,6 +210,42 @@ export async function renameFile(accessToken, project, commitMessage, renameList
     }
 }
 
+export async function deleteFile(accessToken, project, commitMessage, renameList) {
+    const result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/branches`);
+
+    for (const branch of result) {
+        if (branch.name === "dev") {
+            const resultCommit = await doApiCall(
+                accessToken,
+                `https://api.github.com/repos/${project}/git/commits/${branch.commit.sha}`
+            );
+
+            const tree = [];
+            for (const rename of renameList) {
+                const mode = rename.type == "file" ? "100644" : "100755";
+                const type = rename.type == "file" ? "blob" : "directory";
+
+                tree.push({
+                    path: rename.oldPath,
+                    sha: null,
+                    mode,
+                    type,
+                });
+            }
+
+            const resultTree = await createTree(accessToken, project, tree, resultCommit.tree.sha);
+            const resultNewCommit = await createCommit(
+                accessToken,
+                project,
+                commitMessage,
+                resultTree.sha,
+                branch.commit.sha
+            );
+            await updateReference(accessToken, project, "dev", resultNewCommit.sha);
+        }
+    }
+}
+
 async function updateTopics(accessToken, project, topics) {
     const response = await fetch(`https://api.github.com/repos/${project}/topics`, {
         method: "PUT",

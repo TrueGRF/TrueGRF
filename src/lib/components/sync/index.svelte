@@ -2,7 +2,7 @@
     import yaml from "js-yaml";
     import slug from "slug";
 
-    import { updateFile, renameFile } from "$lib/helpers/github";
+    import { deleteFile, updateFile, renameFile } from "$lib/helpers/github";
 
     export let project = "";
     export let accessToken = "";
@@ -29,8 +29,122 @@
         });
     }
 
+    async function CreateFilelist(
+        images,
+        type,
+        userdata,
+        folder,
+        oldPath,
+        newPath,
+        oldFilename,
+        newFilename,
+        newContent
+    ) {
+        const fileList = [];
+
+        const oldResult = (await getFromDatabase(oldPath)) || {};
+        fileList.push({
+            oldPath,
+            newPath,
+            sha: oldResult.sha,
+            type: "file",
+            content: oldResult.content,
+            newContent,
+        });
+
+        if (type === "cargo") {
+            const oldPng = (await getFromDatabase(`${folder}/${oldFilename}.png`)) || {};
+            fileList.push({
+                oldPath: `${folder}/${oldFilename}.png`,
+                newPath: `${folder}/${newFilename}.png`,
+                sha: oldPng.sha,
+                type: "file",
+                content: oldPng.content,
+                newContent: images[`${folder}/${oldFilename}.png`],
+            });
+        } else if (type === "industry") {
+            for (let id of userdata) {
+                const oldPng = (await getFromDatabase(`${folder}/${oldFilename}/${id}.png`)) || {};
+                fileList.push({
+                    oldPath: `${folder}/${oldFilename}/${id}.png`,
+                    newPath: `${folder}/${newFilename}/${id}.png`,
+                    sha: oldPng.sha,
+                    type: "file",
+                    content: oldPng.content,
+                    newContent: images[`${folder}/${oldFilename}/${id}.png`],
+                });
+            }
+        }
+
+        return fileList;
+    }
+
+    export async function CommitRemoval(images, selected) {
+        if (selected.type === "none" || selected.type === "general") {
+            return;
+        }
+
+        /* We need to copy these, as we are async, and selected will change before we are done. */
+        const type = selected.type;
+        const folder = typeToFolder[type];
+        let userdata = undefined;
+
+        const newName = selected.item.name;
+        const oldName = selected.name;
+
+        const newFilename = slug(newName, { lower: true });
+        const oldFilename = slug(oldName, { lower: true });
+        const newPath = `${folder}/${newFilename}.yaml`;
+        const oldPath = `${folder}/${oldFilename}.yaml`;
+
+        if (type === "cargo") {
+        } else if (type === "industry") {
+            userdata = [];
+
+            for (let tile of selected.item.tiles) {
+                for (let sprite of tile.sprites) {
+                    if (sprite.sprite.filename !== undefined) {
+                        const id = sprite.sprite.filename.split("/").pop().split(".")[0];
+                        userdata.push(id);
+                    }
+                }
+            }
+        }
+
+        const fileList = await CreateFilelist(
+            images,
+            type,
+            userdata,
+            folder,
+            oldPath,
+            newPath,
+            oldFilename,
+            newFilename,
+            undefined
+        );
+
+        await deleteFile(accessToken, project, `delete(${type}): ${oldName}`, fileList);
+
+        const indexdb = indexedDB.open(project);
+        indexdb.onsuccess = async function () {
+            const db = indexdb.result;
+            const transaction = db.transaction("files", "readwrite");
+            const store = transaction.objectStore("files");
+
+            for (let file of fileList) {
+                /* Remove the entries from the IndexedDB. */
+                store.delete(file.oldPath);
+
+                /* And from the images array. */
+                if (file.newPath.endsWith(".png")) {
+                    delete images[file.oldPath];
+                }
+            }
+        };
+    }
+
     export async function CheckCommitChanges(images, selected) {
-        if (selected.type == "none") {
+        if (selected.type === "none") {
             return;
         }
 
@@ -72,46 +186,22 @@
                 noArrayIndent: true,
             });
 
-            const fileList = [];
-
-            const oldResult = (await getFromDatabase(oldPath)) || {};
-            fileList.push({
+            const fileList = await CreateFilelist(
+                images,
+                type,
+                userdata,
+                folder,
                 oldPath,
                 newPath,
-                sha: oldResult.sha,
-                type: "file",
-                content: oldResult.content,
-                newContent,
-            });
-
-            if (type === "cargo") {
-                const oldPng = (await getFromDatabase(`${folder}/${oldFilename}.png`)) || {};
-                fileList.push({
-                    oldPath: `${folder}/${oldFilename}.png`,
-                    newPath: `${folder}/${newFilename}.png`,
-                    sha: oldPng.sha,
-                    type: "file",
-                    content: oldPng.content,
-                    newContent: images[`${folder}/${oldFilename}.png`],
-                });
-            } else if (type === "industry") {
-                for (let id of userdata) {
-                    const oldPng = (await getFromDatabase(`${folder}/${oldFilename}/${id}.png`)) || {};
-                    fileList.push({
-                        oldPath: `${folder}/${oldFilename}/${id}.png`,
-                        newPath: `${folder}/${newFilename}/${id}.png`,
-                        sha: oldPng.sha,
-                        type: "file",
-                        content: oldPng.content,
-                        newContent: images[`${folder}/${oldFilename}/${id}.png`],
-                    });
-                }
-            }
+                oldFilename,
+                newFilename,
+                newContent
+            );
 
             /* Rename first (without modification). */
             if (newFilename !== oldFilename) {
                 /* But only if this isn't a new file. */
-                if (oldResult.sha !== undefined) {
+                if (fileList[0].sha !== undefined) {
                     await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, fileList);
 
                     const indexdb = indexedDB.open(project);
