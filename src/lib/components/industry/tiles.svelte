@@ -43,7 +43,7 @@
         shadowSelected = selected;
     }
 
-    $: if (selected) UpdateShadow();
+    $: if (selected !== undefined) UpdateShadow();
 
     function OnSelect(event) {
         /* Check if we wanted to create a new tile. */
@@ -171,10 +171,7 @@
 
 <div class="tiles">
     <TileGroup legend="Available tiles" bind:selected={shadowSelected} on:select={OnSelect}>
-        <RadioTile value={-1} checked={shadowSelected === -1}>
-            <br />
-            (empty)
-        </RadioTile>
+        <RadioTile value={-1} checked={shadowSelected === -1} style="padding-top: 22px;">(empty)</RadioTile>
         {#each tiles as tile, i}
             <RadioTile value={i} checked={shadowSelected === i}>
                 {#each tile.sprites as sprite}
