@@ -70,7 +70,7 @@
                 }}
             >
                 {repository.full_name}<br />
-                &nbsp;&nbsp;&nbsp;&nbsp;{repository.description}
+                &nbsp;&nbsp;&nbsp;&nbsp;{repository.description}<br />
             </ClickableTile>
         {/each}
     {/if}
