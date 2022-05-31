@@ -17,6 +17,7 @@
     import General from "$lib/components/general/index.svelte";
     import Industry from "$lib/components/industry/index.svelte";
     import Navigation from "$lib/components/navigation/index.svelte";
+    import Overview from "$lib/components/sync/overview.svelte";
     import Sync from "$lib/components/sync/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
 
@@ -28,6 +29,7 @@
     let files = [];
     let project = undefined;
     let accessToken = undefined;
+    let changesPending = false;
 
     let cargoes = [];
     let industries = [];
@@ -35,6 +37,7 @@
     let images = {};
 
     let sync;
+    let overview;
 
     let selected = {
         type: "none",
@@ -233,6 +236,10 @@
         sync.CheckCommitChanges(images, selected);
     }
 
+    function SyncProject() {
+        overview.Refresh();
+    }
+
     $: if (loadedAccount) LoadProject();
 
     /* Used by truegrf-rs to get the PNG files. */
@@ -244,6 +251,8 @@
         /* Make this function available on "window", so the rust application can find it again. */
         window.load_sprite_bytes = load_sprite_bytes;
     });
+
+    $: if (overview) overview.Refresh();
 </script>
 
 <svelte:head>
@@ -256,7 +265,7 @@
 {#await truegrf_init(truegrf_mod) then _}
     <div class="main">
         {#if project}
-            <Sync {project} {accessToken} bind:this={sync} />
+            <Sync {project} {accessToken} bind:this={sync} on:sync={SyncProject} />
         {/if}
         <div class="title">
             TrueGRF
@@ -274,6 +283,18 @@
                 <Tabs type="container" class="topnav" on:change={TabSelected}>
                     <Tab label="Editing" />
                     <Tab label="Testing" />
+                    <Tab label="Project">
+                        <slot>
+                            <div>
+                                <span class="pending-caption"> Project </span>
+                                {#if changesPending === true}
+                                    <span class="pending">
+                                        <span class="pending-text">!</span>
+                                    </span>
+                                {/if}
+                            </div>
+                        </slot>
+                    </Tab>
 
                     <svelte:fragment slot="content">
                         <TabContent>
@@ -307,6 +328,14 @@
                         <TabContent>
                             <div class="content">
                                 <Testing {general} {industries} {cargoes} />
+                            </div>
+                        </TabContent>
+
+                        <TabContent>
+                            <div class="content">
+                                <div class="content-inner">
+                                    <Overview {project} {accessToken} bind:this={overview} bind:changesPending />
+                                </div>
                             </div>
                         </TabContent>
                     </svelte:fragment>
@@ -361,5 +390,28 @@
         font-size: 14px;
         font-weight: normal;
         margin-top: 10px;
+    }
+
+    .pending-caption {
+        position: relative;
+    }
+
+    .pending {
+        background-color: #fa4d56;
+        border-radius: 8px;
+        display: inline-block;
+        height: 17px;
+        position: relative;
+        width: 17px;
+        top: 4px;
+        left: 4px;
+    }
+
+    .pending-text {
+        position: absolute;
+        top: -8px;
+        left: 7px;
+        color: white;
+        font-size: 12px;
     }
 </style>

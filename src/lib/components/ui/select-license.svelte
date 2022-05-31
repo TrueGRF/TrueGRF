@@ -3,7 +3,7 @@
 
     import { RadioButtonGroup, RadioButton } from "carbon-components-svelte";
 
-    export let value;
+    export let value = undefined;
     export let labelText;
 
     let attribution;

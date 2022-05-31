@@ -4,11 +4,12 @@
     import { TextInput } from "carbon-components-svelte";
     import { Tooltip } from "carbon-components-svelte";
 
-    export let value;
+    export let value = undefined;
     export let labelText;
     export let placeholder;
     export let invalidText = "";
     export let validate = undefined;
+    export let live = false;
 
     const dispatch = createEventDispatcher();
 
@@ -37,9 +38,14 @@
         } else {
             validateFailed = undefined;
         }
+
+        if (live) {
+            value = valueShadow;
+            dispatch("change", value);
+        }
     }
 
-    $: if (valueShadow) Revalidate();
+    $: if (valueShadow !== undefined) Revalidate();
 </script>
 
 <div class="bx--form-item bx--text-input-wrapper bx--text-input-wrapper--inline">
