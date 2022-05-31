@@ -29,27 +29,31 @@
     export async function Refresh() {
         const compare = await compareBranches(accessToken, project, "main", "dev");
 
+        const names = [];
         filesChanged = [];
         for (const file of compare.files) {
             const type = file.filename.split("/")[0];
-            const name = file.filename.split("/").pop().split(".")[0];
-            const extension = file.filename.split("/").pop().split(".")[1];
+            const name = file.filename.split("/")[1].split(".")[0];
+
+            /* Hide entries we already have, as the user doesn't actually care if we changed metadata or the image. */
+            const hide = names.find((n) => n === name) !== undefined;
+            if (!hide) {
+                names.push(name);
+            }
 
             filesChanged.push({
                 type,
                 name,
-                extension,
                 filename: file.filename,
                 sha: file.status === "removed" ? null : file.sha,
                 status: file.status,
-                hide: false,
+                hide: hide,
             });
 
             if (file.previous_filename !== undefined) {
                 filesChanged.push({
                     type,
                     name,
-                    extension,
                     filename: file.previous_filename,
                     sha: null,
                     status: "removed",
@@ -126,7 +130,7 @@
             </StructuredListHead>
             <StructuredListBody>
                 {#each filesChanged as file}
-                    {#if file.extension === "yaml" && file.hide === false}
+                    {#if file.hide === false}
                         <StructuredListRow>
                             <StructuredListCell>{file.type}</StructuredListCell>
                             <StructuredListCell>{file.name}</StructuredListCell>
