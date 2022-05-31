@@ -3,6 +3,7 @@
 
     import { createEventDispatcher } from "svelte";
 
+    import { InlineLoading } from "carbon-components-svelte";
     import { ProgressIndicator, ProgressStep } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
 
@@ -33,7 +34,7 @@
 
     function ProjectSelected(event) {
         project = event.detail;
-        progressIndex = 2;
+        progressIndex = 3;
     }
 
     async function ProjectCreate(event) {
@@ -48,9 +49,10 @@
         }
 
         newProjectDialogOpen = false;
+        progressIndex = 2;
 
         project = await forkProject(accessToken, project, newProject, newLicense);
-        progressIndex = 2;
+        progressIndex = 3;
     }
 
     function ProjectCached(event) {
@@ -104,6 +106,12 @@
     {/if}
 
     {#if progressIndex == 2}
+        <div class="creating">
+            <InlineLoading description="Creating new project ..." />
+        </div>
+    {/if}
+
+    {#if progressIndex == 3}
         <Initialize {accessToken} {project} on:cached={ProjectCached} />
     {/if}
 
@@ -122,6 +130,7 @@
             placeholder="Name of your new project"
             bind:value={newProject}
             invalidText={newProjectError}
+            live
         />
         <SelectLicense labelText="License" bind:value={newLicense} />
 
@@ -150,5 +159,9 @@
     .small {
         font-size: 12px;
         margin-top: 36px;
+    }
+
+    .creating {
+        margin-top: 20px;
     }
 </style>
