@@ -4,6 +4,7 @@
     import { commitBranch, compareBranches } from "$lib/helpers/github";
 
     import { Button } from "carbon-components-svelte";
+    import { InlineLoading } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
     import {
         StructuredList,
@@ -23,6 +24,7 @@
     let filesChanged = [];
     let commitDialogOpen = false;
     let commitMessage = "";
+    let committing = false;
 
     export async function Refresh() {
         const compare = await compareBranches(accessToken, project, "main", "dev");
@@ -70,14 +72,20 @@
     }
 
     async function CommitChanges() {
-        await commitBranch(accessToken, project, commitMessage, filesChanged);
         commitDialogOpen = false;
+        committing = true;
+
+        await commitBranch(accessToken, project, commitMessage, filesChanged);
         await Refresh();
+
+        committing = false;
     }
 </script>
 
 <div>
-    {#if changesPending === false}
+    {#if committing === true}
+        <InlineLoading description="Committing pending changes ..." />
+    {:else if changesPending === false}
         You have no pending changes in this project.
     {:else}
         <div>
