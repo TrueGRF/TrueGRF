@@ -172,7 +172,11 @@ async function createReference(accessToken, project, branch, reference) {
     return await response.json();
 }
 
-async function updateReference(accessToken, project, branch, reference) {
+async function updateReference(accessToken, project, branch, reference, force?) {
+    if (force === undefined) {
+        force = false;
+    }
+
     const response = await fetch(`https://api.github.com/repos/${project}/git/refs/heads/${branch}`, {
         method: "PATCH",
         headers: {
@@ -181,6 +185,7 @@ async function updateReference(accessToken, project, branch, reference) {
         },
         body: JSON.stringify({
             sha: reference,
+            force: force,
         }),
     });
     if (response.status != 200) {
@@ -401,4 +406,46 @@ export async function getLicense(accessToken, project) {
     const data = yaml.load(atob(result.content));
 
     return data.license;
+}
+
+export async function compareBranches(accessToken, project, base, head) {
+    const result = await doApiCall(
+        accessToken,
+        `https://api.github.com/repos/${project}/compare/${base}...${head}?per_page=1`
+    );
+
+    return result;
+}
+
+export async function commitBranch(accessToken, project, commitMessage, filesList) {
+    const result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/branches`);
+    for (const branch of result) {
+        if (branch.name === "main") {
+            const resultCommit = await doApiCall(
+                accessToken,
+                `https://api.github.com/repos/${project}/git/commits/${branch.commit.sha}`
+            );
+
+            const tree = [];
+            for (const file of filesList) {
+                tree.push({
+                    path: file.filename,
+                    sha: file.sha,
+                    mode: "100644",
+                    type: "blob",
+                });
+            }
+
+            const resultTree = await createTree(accessToken, project, tree, resultCommit.tree.sha);
+            const resultNewCommit = await createCommit(
+                accessToken,
+                project,
+                commitMessage,
+                resultTree.sha,
+                branch.commit.sha
+            );
+            await updateReference(accessToken, project, "main", resultNewCommit.sha);
+            await updateReference(accessToken, project, "dev", resultNewCommit.sha, true);
+        }
+    }
 }

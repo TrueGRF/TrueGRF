@@ -2,6 +2,10 @@
     import yaml from "js-yaml";
     import slug from "slug";
 
+    import { Mutex } from "async-mutex";
+    import { createEventDispatcher } from "svelte";
+
+    import { Loading } from "carbon-components-svelte";
     import { ToastNotification } from "carbon-components-svelte";
 
     import { deleteFile, updateFile, renameFile } from "$lib/helpers/github";
@@ -9,7 +13,11 @@
     export let project = "";
     export let accessToken = "";
 
-    let syncError = false;
+    let syncError = undefined;
+    let sendSync = false;
+    let syncing = false;
+
+    const dispatch = createEventDispatcher();
 
     const typeToFolder = {
         cargo: "cargoes",
@@ -88,7 +96,6 @@
             return;
         }
 
-        /* We need to copy these, as we are async, and selected will change before we are done. */
         const type = selected.type;
         const folder = typeToFolder[type];
         let userdata = undefined;
@@ -130,6 +137,7 @@
         /* Check if this industry was committed in the first place. */
         if (fileList[0].sha !== undefined) {
             await deleteFile(accessToken, project, `delete(${type}): ${oldName}`, fileList);
+            sendSync = true;
 
             const indexdb = indexedDB.open(project);
             indexdb.onsuccess = async function () {
@@ -162,7 +170,6 @@
         }
 
         if (selected.type !== "general") {
-            /* We need to copy these, as we are async, and selected will change before we are done. */
             const type = selected.type;
             const folder = typeToFolder[type];
             let userdata = undefined;
@@ -234,6 +241,7 @@
                 /* If this was a new file, don't rename; just update. */
                 if (fileList[0].sha !== undefined) {
                     await renameFile(accessToken, project, `rename(${type}): ${oldName} -> ${newName}`, fileList);
+                    sendSync = true;
 
                     const indexdb = indexedDB.open(project);
                     indexdb.onsuccess = async function () {
@@ -265,6 +273,7 @@
                         file.newPath,
                         file.newContent
                     );
+                    sendSync = true;
 
                     const indexdb = indexedDB.open(project);
                     indexdb.onsuccess = async function () {
@@ -300,6 +309,7 @@
                     "truegrf.yaml",
                     newContent
                 );
+                sendSync = true;
 
                 const indexdb = indexedDB.open(project);
                 indexdb.onsuccess = async function () {
@@ -318,20 +328,69 @@
         }
     }
 
+    const syncMutex = new Mutex();
+
     export async function CommitRemoval(images, selected) {
-        try {
-            await InternalCommitRemoval(images, selected);
-        } catch (error) {
-            syncError = true;
-        }
+        let syncTimeout = setTimeout(() => {
+            syncing = true;
+        }, 100);
+
+        /* We need to copy these, as we are async, and selected will change before we are done. */
+        const selectedCopy = {
+            type: selected.type,
+            item: selected.item,
+            name: selected.name,
+        };
+
+        await syncMutex.runExclusive(async () => {
+            try {
+                await InternalCommitRemoval(images, selectedCopy);
+            } catch (error) {
+                syncError =
+                    "An error occoured during synchronizing your data to GitHub. Please reload this page. Your current work will be lost.";
+            }
+
+            if (sendSync) {
+                dispatch("sync");
+                sendSync = false;
+            }
+            syncing = false;
+            clearTimeout(syncTimeout);
+        });
     }
 
     export async function CheckCommitChanges(images, selected) {
-        try {
-            await InternalCheckCommitChanges(images, selected);
-        } catch (error) {
-            syncError = true;
+        let syncTimeout = setTimeout(() => {
+            syncing = true;
+        }, 100);
+
+        /* We need to copy these, as we are async, and selected will change before we are done. */
+        const selectedCopy = {
+            type: selected.type,
+            item: selected.item,
+            name: selected.name,
+        };
+
+        /* Prevent renaming the next time we call this function by updating selected. */
+        if (selected.type == "cargo" || selected.type == "industry") {
+            selected.name = selected.item.name;
         }
+
+        await syncMutex.runExclusive(async () => {
+            try {
+                await InternalCheckCommitChanges(images, selectedCopy);
+            } catch (error) {
+                syncError =
+                    "An error occoured during synchronizing your data to GitHub. Please reload this page. Your current work will be lost.";
+            }
+
+            if (sendSync) {
+                dispatch("sync");
+                sendSync = false;
+            }
+            syncing = false;
+            clearTimeout(syncTimeout);
+        });
     }
 </script>
 
@@ -339,13 +398,15 @@
     <div class="caption">
         Project: <a target="_new" href="https://github.com/{project}">{project}</a>
     </div>
+    {#if syncing}
+        <div class="sync">
+            <Loading withOverlay={false} small />
+            Syncing data to GitHub
+        </div>
+    {/if}
 
     {#if syncError}
-        <ToastNotification
-            title="Error syncing files"
-            subtitle="An error occoured during synchronizing your data to GitHub. Please reload this page. Your current work will be lost."
-            caption={new Date().toLocaleString()}
-        />
+        <ToastNotification title="Error syncing files" subtitle={syncError} caption={new Date().toLocaleString()} />
     {/if}
 </div>
 
@@ -363,5 +424,14 @@
     .project :global(.bx--toast-notification) {
         position: relative;
         z-index: 100;
+    }
+
+    .project .sync :global(.bx--loading) {
+        display: inline-block;
+        position: relative;
+        top: 3px;
+    }
+    .project .sync {
+        margin-top: 6px;
     }
 </style>
