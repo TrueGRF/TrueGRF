@@ -6,11 +6,12 @@
     import { ProgressIndicator, ProgressStep } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
 
-    import { forkProject } from "$lib/helpers/github";
+    import { forkProject, getLicense } from "$lib/helpers/github";
 
     import Initialize from "$lib/components/account/initialize.svelte";
     import Login from "$lib/components/account/login.svelte";
     import Repositories from "$lib/components/account/repositories.svelte";
+    import SelectLicense from "$lib/components/ui/select-license.svelte";
     import TextInput from "$lib/components/ui/text-input.svelte";
 
     const dispatch = createEventDispatcher();
@@ -19,8 +20,9 @@
     let accessToken;
     let username;
     let project;
-    let newProject = "";
+    let newProject;
     let newProjectError = "";
+    let newLicense;
 
     let newProjectDialogOpen = false;
 
@@ -34,8 +36,9 @@
         progressIndex = 2;
     }
 
-    function ProjectCreate(event) {
+    async function ProjectCreate(event) {
         project = event.detail;
+        newLicense = await getLicense(accessToken, project);
         newProjectDialogOpen = true;
     }
 
@@ -46,7 +49,7 @@
 
         newProjectDialogOpen = false;
 
-        project = await forkProject(accessToken, project, newProject);
+        project = await forkProject(accessToken, project, newProject, newLicense);
         progressIndex = 2;
     }
 
@@ -61,12 +64,16 @@
     function CheckNewProject() {
         newProjectError = "";
 
+        if (newProject === "") {
+            newProjectError = "Project name cannot be empty";
+        }
+
         if (newProject !== slug(newProject, { lower: true })) {
             newProjectError = "Project name must be lowercase and contain only letters, numbers, and dashes.";
         }
     }
 
-    $: if (newProject) CheckNewProject();
+    $: if (newProject !== undefined) CheckNewProject();
 </script>
 
 <div class="account">
@@ -101,12 +108,14 @@
     {/if}
 
     <Modal
+        size="lg"
         bind:open={newProjectDialogOpen}
         modalHeading="Create new project based on {project}?"
         primaryButtonText="Create"
         secondaryButtonText="Cancel"
         on:click:button--secondary={() => (newProjectDialogOpen = false)}
         on:click:button--primary={ProjectCreateConfirm}
+        primaryButtonDisabled={newProject === undefined || newProjectError !== "" || newLicense === undefined}
     >
         <TextInput
             labelText="Name"
@@ -114,8 +123,12 @@
             bind:value={newProject}
             invalidText={newProjectError}
         />
+        <SelectLicense labelText="License" bind:value={newLicense} />
 
-        <p class="small">By clicking "create", a new (public) repository will be created on GitHub.</p>
+        <p class="small">
+            By clicking "create", a new (public) repository will be created on GitHub{#if newLicense}&nbsp;under the {newLicense}
+                license{/if}.
+        </p>
     </Modal>
 </div>
 
@@ -136,7 +149,6 @@
 
     .small {
         font-size: 12px;
-        margin-top: 12px;
-        margin-left: 155px;
+        margin-top: 36px;
     }
 </style>

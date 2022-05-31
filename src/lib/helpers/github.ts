@@ -1,3 +1,7 @@
+import yaml from "js-yaml";
+
+import { licenses } from "$lib/licenses/licenses";
+
 async function doApiCall(accessToken, url) {
     const response = await fetch(url, {
         cache: "no-cache",
@@ -86,6 +90,24 @@ export async function updateFile(accessToken, project, commitMessage, sha, path,
         }),
     });
     if (response.status != 200 && response.status != 201) {
+        throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
+    }
+
+    return await response.json();
+}
+
+async function createBlob(accessToken, project, content) {
+    const response = await fetch(`https://api.github.com/repos/${project}/git/blobs`, {
+        method: "POST",
+        headers: {
+            accept: "application/vnd.github.v3+json",
+            authorization: `token ${accessToken}`,
+        },
+        body: JSON.stringify({
+            content,
+        }),
+    });
+    if (response.status != 201) {
         throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
     }
 
@@ -262,7 +284,7 @@ async function updateTopics(accessToken, project, topics) {
     }
 }
 
-export async function forkProject(accessToken, project, name) {
+export async function forkProject(accessToken, project, name, license) {
     const response = await fetch(`https://api.github.com/repos/${project}/generate`, {
         method: "POST",
         headers: {
@@ -281,13 +303,67 @@ export async function forkProject(accessToken, project, name) {
     const result = await response.json();
     const userProject = result.full_name;
 
-    /* Wait till the project is available via the API, for at most 5 seconds. */
+    /* Wait till the project is available via the API, for at most 5 seconds. Update tht topics. */
     for (let i = 0; i < 10; i++) {
         try {
             await updateTopics(accessToken, userProject, ["truegrf"]);
             break;
         } catch (e) {
             await sleep(500);
+        }
+    }
+
+    /* Ensure the license is set correctly. */
+    const resultYaml = await doApiCall(
+        accessToken,
+        `https://api.github.com/repos/${userProject}/contents/truegrf.yaml`
+    );
+    let data = yaml.load(atob(resultYaml.content));
+
+    if (data.license !== license) {
+        data.license = license;
+
+        const newContent = yaml.dump(data, {
+            sortKeys: true,
+            lineWidth: -1,
+            noArrayIndent: true,
+        });
+
+        const blobYaml = await createBlob(accessToken, userProject, newContent);
+        const blobLicense = await createBlob(accessToken, userProject, licenses[license]);
+
+        const result = await doApiCall(accessToken, `https://api.github.com/repos/${userProject}/branches`);
+        for (const branch of result) {
+            if (branch.name === "main") {
+                const resultCommit = await doApiCall(
+                    accessToken,
+                    `https://api.github.com/repos/${userProject}/git/commits/${branch.commit.sha}`
+                );
+
+                const tree = [];
+                tree.push({
+                    path: "truegrf.yaml",
+                    sha: blobYaml.sha,
+                    mode: "100644",
+                    type: "blob",
+                });
+                tree.push({
+                    path: "LICENSE",
+                    sha: blobLicense.sha,
+                    mode: "100644",
+                    type: "blob",
+                });
+
+                const resultTree = await createTree(accessToken, userProject, tree, resultCommit.tree.sha);
+                const resultNewCommit = await createCommit(
+                    accessToken,
+                    userProject,
+                    `chore: update license to ${license}`,
+                    resultTree.sha,
+                    branch.commit.sha
+                );
+                await updateReference(accessToken, userProject, "main", resultNewCommit.sha);
+            }
         }
     }
 
@@ -318,4 +394,11 @@ export async function refreshRepositories(accessToken, url, page) {
     }
 
     return repositories;
+}
+
+export async function getLicense(accessToken, project) {
+    const result = await doApiCall(accessToken, `https://api.github.com/repos/${project}/contents/truegrf.yaml`);
+    const data = yaml.load(atob(result.content));
+
+    return data.license;
 }
