@@ -1,6 +1,6 @@
 {
   "name": "truegrf",
-  "version": "2.0.0",
+  "version": "dev",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "cp node_modules/carbon-components-svelte/css/*.css static/ && svelte-kit build",
