@@ -15,4 +15,7 @@ jobs:
 
     - name: Update release branch
       run: |
+        npm version from-git --no-git-tag-version
+        git add -A
+        git commit -m "chore: bump version"
         git push -f origin HEAD:release/v2
