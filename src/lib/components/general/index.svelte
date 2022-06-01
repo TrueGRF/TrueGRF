@@ -27,6 +27,7 @@
         on:change={OnChange}
     />
     <TextInput labelText="Name" placeholder="Name of NewGRF" bind:value={general.name} on:change={OnChange} />
+    <TextInput labelText="URL" placeholder="URL of NewGRF" bind:value={general.url} on:change={OnChange} />
     <TextInput
         labelText="Description"
         placeholder="Description of NewGRF"
