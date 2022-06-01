@@ -220,8 +220,8 @@
         pageSizeInputDisabled
         forwardText="Next Layout"
         backwardText="Previous Layout"
-        itemRangeText={(min, max, total) => `Layout #${min}`}
-        pageRangeText={(current, total) => `of ${total} layouts`}
+        itemRangeText={(min) => `Layout #${min}`}
+        pageRangeText={(_, total) => `of ${total} layouts`}
     />
     <Layout
         id={industry.name}

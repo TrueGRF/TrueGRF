@@ -109,6 +109,7 @@
         const oldPath = `${folder}/${oldFilename}.yaml`;
 
         if (type === "cargo") {
+            /* Nothing to do. */
         } else if (type === "industry") {
             userdata = [];
 

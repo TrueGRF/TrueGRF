@@ -323,7 +323,7 @@ export async function forkProject(accessToken, project, name, license) {
         accessToken,
         `https://api.github.com/repos/${userProject}/contents/truegrf.yaml`
     );
-    let data = yaml.load(atob(resultYaml.content));
+    const data = yaml.load(atob(resultYaml.content));
 
     let updateLicense = false;
 
@@ -472,7 +472,7 @@ export async function getChangelog() {
     }
 
     const releases = [];
-    for (let release of await response.json()) {
+    for (const release of await response.json()) {
         releases.push({
             body: release.body,
             name: release.name,

@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-
     import { commitBranch, compareBranches } from "$lib/helpers/github";
 
     import { Button } from "carbon-components-svelte";

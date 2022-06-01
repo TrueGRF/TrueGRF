@@ -35,7 +35,7 @@ const config = {
 		},
 		vite: {
 			define: {
-				__version__: JSON.stringify(pkg.version),
+				__VERSION__: JSON.stringify(pkg.version),
 			},
 			server: server,
 		}

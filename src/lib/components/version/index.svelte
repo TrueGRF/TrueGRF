@@ -7,7 +7,7 @@
 
     import { getChangelog, markdownToHtml } from "$lib/helpers/github";
 
-    const version = __version__;
+    const version = __VERSION__; // eslint-disable-line no-undef
 
     let newVersion = false;
     let changelogOpen = false;
