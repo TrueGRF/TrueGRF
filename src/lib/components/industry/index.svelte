@@ -1,11 +1,13 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
+    import Add from "carbon-icons-svelte/lib/Add.svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
 
     import { Button } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
     import { Pagination } from "carbon-components-svelte";
+    import { Tabs, Tab, TabContent } from "carbon-components-svelte";
     import { TextArea } from "carbon-components-svelte";
 
     import Layout from "$lib/components/industry/layout.svelte";
@@ -29,6 +31,7 @@
     let cargoesItems = [];
     let selectedLayout = 1;
     let deleteIndustryOpen = false;
+    let deleteLayoutOpen = false;
 
     function DeleteIndustry() {
         dispatch("delete", industry.id);
@@ -45,6 +48,8 @@
     }
 
     function DeleteLayout() {
+        deleteLayoutOpen = false;
+
         industry.layout.splice(selectedLayout - 1, 1);
 
         if (industry.layout.length === 0) {
@@ -100,137 +105,173 @@
 </script>
 
 <div class="listing">
-    <div class="flex">
-        <Switch
-            labelText="Availability"
-            labelOff="Hidden"
-            labelOn="Available"
-            bind:value={industry.available}
-            on:change={OnChange}
-        />
-        <Button
-            kind="danger-tertiary"
-            iconDescription="Delete industry"
-            icon={TrashCan}
-            size="small"
-            tooltipPosition="bottom"
-            tooltipAlignment="end"
-            on:click={() => (deleteIndustryOpen = true)}
-        />
-    </div>
+    <Tabs class="subnav">
+        <Tab label="Properties" />
+        <Tab label="Graphics" />
+        <Tab label="Callbacks" />
 
-    <br />
+        <svelte:fragment slot="content">
+            <TabContent>
+                <div class="flex">
+                    <Switch
+                        labelText="Availability"
+                        labelOff="Hidden"
+                        labelOn="Available"
+                        bind:value={industry.available}
+                        on:change={OnChange}
+                    />
+                    <Button
+                        kind="danger-tertiary"
+                        iconDescription="Delete industry"
+                        icon={TrashCan}
+                        size="small"
+                        tooltipPosition="bottom"
+                        tooltipAlignment="end"
+                        on:click={() => (deleteIndustryOpen = true)}
+                    />
+                </div>
 
-    <TextInput
-        labelText="Name"
-        placeholder="Name of industry"
-        validate={ValidateName}
-        bind:value={industry.name}
-        on:change={OnChange}
-    />
-    <Select options={types} labelText="Type" bind:value={industry.type} on:change={OnChange} />
-    <Select options={placement} labelText="Placement" bind:value={industry.placement} on:change={OnChange} />
+                <br />
 
-    <br />
+                <TextInput
+                    labelText="Name"
+                    placeholder="Name of industry"
+                    validate={ValidateName}
+                    bind:value={industry.name}
+                    on:change={OnChange}
+                />
+                <Select options={types} labelText="Type" bind:value={industry.type} on:change={OnChange} />
+                <Select
+                    options={placement}
+                    labelText="Placement"
+                    bind:value={industry.placement}
+                    on:change={OnChange}
+                />
 
-    <Slider
-        labelText="Probability (Map Generation)"
-        min={0}
-        max={30}
-        step={1}
-        bind:value={industry.probabilityMapGen}
-        on:change={OnChange}
-    >
-        <svelte:fragment slot="tooltip">
-            This is a relative value to other industries.<br />
-            In other words, if industry A has this on 1, and industry B on 2, industry B has twice the chance of spawning
-            as industry A.
+                <br />
+
+                <Slider
+                    labelText="Probability (Map Generation)"
+                    min={0}
+                    max={30}
+                    step={1}
+                    bind:value={industry.probabilityMapGen}
+                    on:change={OnChange}
+                >
+                    <svelte:fragment slot="tooltip">
+                        This is a relative value to other industries.<br />
+                        In other words, if industry A has this on 1, and industry B on 2, industry B has twice the chance
+                        of spawning as industry A.
+                    </svelte:fragment>
+                </Slider>
+                <Slider
+                    labelText="Probability (In Game)"
+                    min={0}
+                    max={30}
+                    step={1}
+                    bind:value={industry.probabilityInGame}
+                    on:change={OnChange}
+                >
+                    <svelte:fragment slot="tooltip">
+                        This is a relative value to other industries.<br />
+                        In other words, if industry A has this on 1, and industry B on 2, industry B has twice the chance
+                        of spawning as industry A.
+                    </svelte:fragment>
+                </Slider>
+                <Slider
+                    labelText="Prospect Success Chance"
+                    min={0}
+                    max={100}
+                    step={1}
+                    unit="%"
+                    bind:value={industry.prospectChance}
+                    disabled={industry.type !== "primary"}
+                    on:change={OnChange}
+                />
+                <Slider
+                    labelText="Fund Cost Multiplier"
+                    min={0}
+                    max={255}
+                    step={1}
+                    bind:value={industry.fundCostMultiplier}
+                    on:change={OnChange}
+                />
+
+                <br />
+
+                <MultiSelect
+                    labelText="Cargo acceptance"
+                    bind:selected={industry.cargoAcceptance}
+                    items={cargoesItems}
+                    on:change={OnChange}
+                />
+                <MultiSelect
+                    labelText="Cargo production"
+                    bind:selected={industry.cargoProduction}
+                    items={cargoesItems}
+                    on:change={OnChange}
+                />
+            </TabContent>
+            <TabContent>
+                <div class="flex navigation">
+                    <Pagination
+                        bind:page={selectedLayout}
+                        totalItems={industry.layout.length}
+                        pageSize={1}
+                        pageSizeInputDisabled
+                        forwardText="Next layout"
+                        backwardText="Previous layout"
+                        itemRangeText={(min) => `Layout #${min}`}
+                        pageRangeText={(_, total) => `of ${total} layouts`}
+                    />
+                    <Button
+                        kind="ghost"
+                        iconDescription="New layout"
+                        icon={Add}
+                        size="small"
+                        tooltipPosition="bottom"
+                        tooltipAlignment="end"
+                        class="bx--pagination__button buttons"
+                        on:click={() => CreateLayout()}
+                    />
+
+                    <Button
+                        kind="danger-ghost"
+                        iconDescription="Delete layout"
+                        icon={TrashCan}
+                        size="small"
+                        tooltipPosition="bottom"
+                        tooltipAlignment="end"
+                        class="bx--pagination__button buttons delete-layout"
+                        on:click={() => (deleteLayoutOpen = true)}
+                    />
+                </div>
+                <Layout
+                    id={industry.name}
+                    bind:layout={industry.layout[selectedLayout - 1]}
+                    bind:tiles={industry.tiles}
+                    {images}
+                    on:delete={DeleteLayout}
+                    on:create={CreateLayout}
+                />
+            </TabContent>
+            <TabContent>
+                <TextArea
+                    placeholder="Define your custom callbacks here"
+                    bind:value={industry.callbacks}
+                    rows={35}
+                    on:change={OnChange}
+                />
+                <p class="bx--form__helper-text">
+                    Callbacks scripting is done in a language specifically designed for TrueGRF. See <a
+                        target="_new"
+                        href="https://github.com/TrueGRF/TrueGRF-rs/blob/main/src/grf/actions/action2_rpn/README.md"
+                        >here</a
+                    > for documentation on the language.
+                </p>
+            </TabContent>
         </svelte:fragment>
-    </Slider>
-    <Slider
-        labelText="Probability (In Game)"
-        min={0}
-        max={30}
-        step={1}
-        bind:value={industry.probabilityInGame}
-        on:change={OnChange}
-    >
-        <svelte:fragment slot="tooltip">
-            This is a relative value to other industries.<br />
-            In other words, if industry A has this on 1, and industry B on 2, industry B has twice the chance of spawning
-            as industry A.
-        </svelte:fragment>
-    </Slider>
-    <Slider
-        labelText="Prospect Success Chance"
-        min={0}
-        max={100}
-        step={1}
-        unit="%"
-        bind:value={industry.prospectChance}
-        disabled={industry.type !== "primary"}
-        on:change={OnChange}
-    />
-    <Slider
-        labelText="Fund Cost Multiplier"
-        min={0}
-        max={255}
-        step={1}
-        bind:value={industry.fundCostMultiplier}
-        on:change={OnChange}
-    />
-
-    <br />
-
-    <MultiSelect
-        labelText="Cargo acceptance"
-        bind:selected={industry.cargoAcceptance}
-        items={cargoesItems}
-        on:change={OnChange}
-    />
-    <MultiSelect
-        labelText="Cargo production"
-        bind:selected={industry.cargoProduction}
-        items={cargoesItems}
-        on:change={OnChange}
-    />
-
-    <br />
-
-    <TextArea
-        labelText="Callbacks"
-        placeholder="Define your custom callbacks here"
-        bind:value={industry.callbacks}
-        rows={10}
-        on:change={OnChange}
-    />
-    <p class="bx--form__helper-text">
-        Callbacks scripting is done in a language specifically designed for TrueGRF. See <a
-            target="_new"
-            href="https://github.com/TrueGRF/TrueGRF-rs/blob/main/src/grf/actions/action2_rpn/README.md">here</a
-        > for documentation on the language.
-    </p>
-
-    <br />
-
-    <Pagination
-        bind:page={selectedLayout}
-        totalItems={industry.layout.length}
-        pageSize={1}
-        pageSizeInputDisabled
-        forwardText="Next Layout"
-        backwardText="Previous Layout"
-        itemRangeText={(min) => `Layout #${min}`}
-        pageRangeText={(_, total) => `of ${total} layouts`}
-    />
-    <Layout
-        id={industry.name}
-        bind:layout={industry.layout[selectedLayout - 1]}
-        bind:tiles={industry.tiles}
-        {images}
-        on:delete={DeleteLayout}
-        on:create={CreateLayout}
-    />
+    </Tabs>
 
     <Modal
         bind:open={deleteIndustryOpen}
@@ -243,6 +284,18 @@
     >
         Are you sure you want to delete '{industry.name}'?
     </Modal>
+
+    <Modal
+        bind:open={deleteLayoutOpen}
+        modalHeading="Delete layout?"
+        primaryButtonText="Delete"
+        secondaryButtonText="Cancel"
+        on:click:button--secondary={() => (deleteLayoutOpen = false)}
+        on:click:button--primary={() => DeleteLayout()}
+        danger
+    >
+        Are you sure you want to delete this layout?
+    </Modal>
 </div>
 
 <style>
@@ -252,5 +305,27 @@
 
     .flex {
         display: flex;
+    }
+
+    .listing :global(.subnav) {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+    }
+    .navigation {
+        margin-bottom: 12px;
+    }
+
+    .navigation :global(.buttons) {
+        background-color: var(--cds-ui-01, #f4f4f4);
+        border-top: 1px solid var(--cds-ui-03, #e0e0e0);
+        height: 41px;
+        padding: 0;
+    }
+    .navigation :global(.buttons:hover) {
+        background-color: var(--cds-hover-ui, #e5e5e5);
+    }
+    .navigation :global(.delete-layout > svg) {
+        margin-left: 0.25rem;
     }
 </style>

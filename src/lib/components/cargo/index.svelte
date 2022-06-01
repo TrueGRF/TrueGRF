@@ -5,6 +5,7 @@
 
     import { Button } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
+    import { Tabs, Tab, TabContent } from "carbon-components-svelte";
 
     import ColorPicker from "$lib/components/ui/color-picker.svelte";
     import NumberInput from "$lib/components/ui/number-input.svelte";
@@ -141,152 +142,169 @@
 </script>
 
 <div class="listing">
-    <div class="flex">
-        <Switch
-            labelText="Availability"
-            labelOff="Hidden"
-            labelOn="Available"
-            bind:value={cargo.available}
-            on:change={OnChange}
-        />
-        <Button
-            kind="danger-tertiary"
-            iconDescription="Delete cargo"
-            icon={TrashCan}
-            size="small"
-            tooltipPosition="bottom"
-            tooltipAlignment="end"
-            on:click={() => (deleteCargoOpen = true)}
-        />
-    </div>
+    <Tabs class="subnav">
+        <Tab label="Properties" />
+        <Tab label="Graphics" />
 
-    <br />
+        <svelte:fragment slot="content">
+            <TabContent>
+                <div class="flex">
+                    <Switch
+                        labelText="Availability"
+                        labelOff="Hidden"
+                        labelOn="Available"
+                        bind:value={cargo.available}
+                        on:change={OnChange}
+                    />
+                    <Button
+                        kind="danger-tertiary"
+                        iconDescription="Delete cargo"
+                        icon={TrashCan}
+                        size="small"
+                        tooltipPosition="bottom"
+                        tooltipAlignment="end"
+                        on:click={() => (deleteCargoOpen = true)}
+                    />
+                </div>
 
-    <TextInput
-        labelText="Label"
-        placeholder="Label of cargo"
-        validate={ValidateLabel}
-        bind:value={cargo.label}
-        on:change={OnChange}
-    />
-    <TextInput
-        labelText="Abbreviation"
-        placeholder="Abbreviation of cargo"
-        validate={ValidateAbbreviation}
-        bind:value={cargo.abbreviation}
-        on:change={OnChange}
-    />
-    <TextInput
-        labelText="Name"
-        placeholder="Name of cargo"
-        validate={ValidateName}
-        bind:value={cargo.name}
-        on:change={OnChange}
-    />
-    <Select options={units} labelText="Unit" bind:value={cargo.unitName} on:change={OnChangeUnit} />
-    <ColorPicker labelText="Colour" bind:value={cargo.colour} on:change={OnChange} />
+                <br />
 
-    <br />
+                <TextInput
+                    labelText="Label"
+                    placeholder="Label of cargo"
+                    validate={ValidateLabel}
+                    bind:value={cargo.label}
+                    on:change={OnChange}
+                />
+                <TextInput
+                    labelText="Abbreviation"
+                    placeholder="Abbreviation of cargo"
+                    validate={ValidateAbbreviation}
+                    bind:value={cargo.abbreviation}
+                    on:change={OnChange}
+                />
+                <TextInput
+                    labelText="Name"
+                    placeholder="Name of cargo"
+                    validate={ValidateName}
+                    bind:value={cargo.name}
+                    on:change={OnChange}
+                />
+                <Select options={units} labelText="Unit" bind:value={cargo.unitName} on:change={OnChangeUnit} />
+                <ColorPicker labelText="Colour" bind:value={cargo.colour} on:change={OnChange} />
 
-    <Select options={classes} labelText="Cargo class" bind:value={cargoClass} on:change={OnChangeCargoClass} />
-    <SegmentedButton
-        options={currentClassesOptional}
-        labelText="Cargo class options"
-        bind:selection={cargoClassOptional}
-        on:change={OnChangeCargoClassOptional}
-    />
-    <Slider
-        min={0}
-        max={2000}
-        step={62.5}
-        unit="kg"
-        disabled={cargo.unitName === "Tonnes"}
-        bind:value={weight}
-        on:change={OnChangeWeight}
-    >
-        <svelte:fragment slot="labelText">
-            Weight per
-            {#if cargo.unitName === "Tonnes"}
-                ton
-            {:else if cargo.unitName === "Passengers"}
-                passenger
-            {:else if cargo.unitName === "Bags"}
-                bag
-            {:else if cargo.unitName === "Items"}
-                item
-            {:else if cargo.unitName === "Crates"}
-                crate
-            {:else if cargo.unitName === "Litres"}
-                1,000 litres
-            {/if}
+                <br />
+
+                <Select
+                    options={classes}
+                    labelText="Cargo class"
+                    bind:value={cargoClass}
+                    on:change={OnChangeCargoClass}
+                />
+                <SegmentedButton
+                    options={currentClassesOptional}
+                    labelText="Cargo class options"
+                    bind:selection={cargoClassOptional}
+                    on:change={OnChangeCargoClassOptional}
+                />
+                <Slider
+                    min={0}
+                    max={2000}
+                    step={62.5}
+                    unit="kg"
+                    disabled={cargo.unitName === "Tonnes"}
+                    bind:value={weight}
+                    on:change={OnChangeWeight}
+                >
+                    <svelte:fragment slot="labelText">
+                        Weight per
+                        {#if cargo.unitName === "Tonnes"}
+                            ton
+                        {:else if cargo.unitName === "Passengers"}
+                            passenger
+                        {:else if cargo.unitName === "Bags"}
+                            bag
+                        {:else if cargo.unitName === "Items"}
+                            item
+                        {:else if cargo.unitName === "Crates"}
+                            crate
+                        {:else if cargo.unitName === "Litres"}
+                            1,000 litres
+                        {/if}
+                    </svelte:fragment>
+                </Slider>
+
+                <br />
+
+                <NumberInput
+                    labelText="Price in pounds"
+                    placeholder="Price of cargo"
+                    min={1}
+                    bind:value={price}
+                    on:change={OnChangePrice}
+                >
+                    <svelte:fragment slot="tooltip">
+                        Price per
+                        {#if cargo.unitName === "Tonnes"}
+                            10 tonnes
+                        {:else if cargo.unitName === "Passengers"}
+                            10 passengers
+                        {:else if cargo.unitName === "Bags"}
+                            10 bags
+                        {:else if cargo.unitName === "Items"}
+                            10 item
+                        {:else if cargo.unitName === "Crates"}
+                            10 crate
+                        {:else if cargo.unitName === "Litres"}
+                            10,000 litres
+                        {/if}
+                        across 20 tiles in pounds
+                    </svelte:fragment>
+                </NumberInput>
+                <Slider
+                    labelText="Penalty (lowerbound)"
+                    min={0}
+                    max={637.5}
+                    step={2.5}
+                    unit="days"
+                    bind:value={penaltyLowerBound}
+                    on:change={OnChangePenalty}
+                >
+                    <svelte:fragment slot="tooltip">
+                        The first mark indicates after how many days in transit the price of the cargo starts to drop
+                        with 0.16% per extra day in transit.<br />
+                        The second mark indicates after how many days this becomes 0.31% per extra day in transit.<br />
+                        The price can never drop below 12% of the original price.
+                    </svelte:fragment>
+                </Slider>
+                <Slider
+                    labelText="Penalty (upperbound)"
+                    min={0}
+                    max={637.5}
+                    step={2.5}
+                    unit="days"
+                    bind:value={penaltyUpperBound}
+                    on:change={OnChangePenalty}
+                />
+            </TabContent>
+            <TabContent>
+                <div class="bx--form-item bx--text-input-wrapper bx--text-input-wrapper--inline">
+                    <div class="bx--text-input__label-helper-wrapper">
+                        <span class="bx--label--inline--sm bx--label bx--label--inline">
+                            <slot name="labelText">Sprite</slot>
+                        </span>
+                    </div>
+                    <SpriteEditor
+                        bind:base64Data={images[cargo.sprite.filename]}
+                        colour={spriteColour}
+                        on:change={OnChange}
+                    />
+
+                    <Palette bind:selected={spriteColour} />
+                </div>
+            </TabContent>
         </svelte:fragment>
-    </Slider>
-
-    <br />
-
-    <NumberInput
-        labelText="Price in pounds"
-        placeholder="Price of cargo"
-        min={1}
-        bind:value={price}
-        on:change={OnChangePrice}
-    >
-        <svelte:fragment slot="tooltip">
-            Price per
-            {#if cargo.unitName === "Tonnes"}
-                10 tonnes
-            {:else if cargo.unitName === "Passengers"}
-                10 passengers
-            {:else if cargo.unitName === "Bags"}
-                10 bags
-            {:else if cargo.unitName === "Items"}
-                10 item
-            {:else if cargo.unitName === "Crates"}
-                10 crate
-            {:else if cargo.unitName === "Litres"}
-                10,000 litres
-            {/if}
-            across 20 tiles in pounds
-        </svelte:fragment>
-    </NumberInput>
-    <Slider
-        labelText="Penalty (lowerbound)"
-        min={0}
-        max={637.5}
-        step={2.5}
-        unit="days"
-        bind:value={penaltyLowerBound}
-        on:change={OnChangePenalty}
-    >
-        <svelte:fragment slot="tooltip">
-            The first mark indicates after how many days in transit the price of the cargo starts to drop with 0.16% per
-            extra day in transit.<br />
-            The second mark indicates after how many days this becomes 0.31% per extra day in transit.<br />
-            The price can never drop below 12% of the original price.
-        </svelte:fragment>
-    </Slider>
-    <Slider
-        labelText="Penalty (upperbound)"
-        min={0}
-        max={637.5}
-        step={2.5}
-        unit="days"
-        bind:value={penaltyUpperBound}
-        on:change={OnChangePenalty}
-    />
-
-    <br />
-
-    <div class="bx--form-item bx--text-input-wrapper bx--text-input-wrapper--inline">
-        <div class="bx--text-input__label-helper-wrapper">
-            <span class="bx--label--inline--sm bx--label bx--label--inline">
-                <slot name="labelText">Sprite</slot>
-            </span>
-        </div>
-        <SpriteEditor bind:base64Data={images[cargo.sprite.filename]} colour={spriteColour} on:change={OnChange} />
-
-        <Palette bind:selected={spriteColour} />
-    </div>
+    </Tabs>
 
     <Modal
         bind:open={deleteCargoOpen}
@@ -308,5 +326,11 @@
 
     .flex {
         display: flex;
+    }
+
+    .listing :global(.subnav) {
+        display: flex;
+        width: 100%;
+        justify-content: center;
     }
 </style>
