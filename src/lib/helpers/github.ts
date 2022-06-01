@@ -449,3 +449,45 @@ export async function commitBranch(accessToken, project, commitMessage, filesLis
         }
     }
 }
+
+export async function getChangelog() {
+    const response = await fetch("https://api.github.com/repos/TrueGRF/TrueGRF/releases", {
+        cache: "no-cache",
+        headers: {
+            accept: "application/vnd.github.v3+json",
+        },
+    });
+    if (response.status != 200) {
+        throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
+    }
+
+    const releases = [];
+    for (let release of await response.json()) {
+        releases.push({
+            body: release.body,
+            name: release.name,
+            published_at: release.published_at,
+        });
+    }
+
+    return releases;
+}
+
+export async function markdownToHtml(project, text) {
+    const response = await fetch(`https://api.github.com/markdown`, {
+        method: "POST",
+        headers: {
+            accept: "application/vnd.github.v3+json",
+        },
+        body: JSON.stringify({
+            text,
+            mode: "gfm",
+            context: project,
+        }),
+    });
+    if (response.status != 200) {
+        throw new Error(`GitHub API error [${response.status}]: ${response.statusText}`);
+    }
+
+    return await response.text();
+}

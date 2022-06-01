@@ -20,6 +20,7 @@
     import Overview from "$lib/components/sync/overview.svelte";
     import Sync from "$lib/components/sync/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
+    import Version from "$lib/components/version/index.svelte";
 
     import { newCargo } from "$lib/components/cargo/newCargo";
     import { newIndustry } from "$lib/components/industry/newIndustry";
@@ -278,6 +279,9 @@
         {/if}
         <div class="title">
             TrueGRF
+            <div class="version">
+                <Version />
+            </div>
             <div class="subtitle">NewGRFs made easy</div>
         </div>
 
@@ -297,7 +301,7 @@
                             <div>
                                 <span class="pending-caption"> Project </span>
                                 {#if changesPending === true}
-                                    <span class="pending" />
+                                    <span class="badge" />
                                 {/if}
                             </div>
                         </slot>
@@ -391,6 +395,7 @@
         font-size: 38px;
         font-weight: bold;
         margin-top: 20px;
+        position: relative;
         text-align: center;
     }
     .subtitle {
@@ -398,12 +403,19 @@
         font-weight: normal;
         margin-top: 10px;
     }
+    .version {
+        bottom: 27px;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 11px;
+        position: absolute;
+    }
 
     .pending-caption {
         position: relative;
     }
 
-    .pending {
+    .badge {
         background-color: var(--cds-support-error-inverse, #fa4d56);
         border-radius: 8px;
         display: inline-block;
