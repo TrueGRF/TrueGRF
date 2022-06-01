@@ -15,4 +15,11 @@ jobs:
 
     - name: Update release branch
       run: |
+        npm version from-git --no-git-tag-version
+
+        git config --global user.email "truegrf@truebrain.nl"
+        git config --global user.name "TrueGRF"
+
+        git add -A
+        git commit -m "chore: bump version"
         git push -f origin HEAD:release/v2
