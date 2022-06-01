@@ -92,7 +92,7 @@
 
     .tags {
         margin-right: 280px;
-        width: 494px;
+        width: 454px;
     }
 
     .tags .none {

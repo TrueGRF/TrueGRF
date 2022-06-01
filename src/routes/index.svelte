@@ -294,7 +294,7 @@
             {:else if !loadedProject}
                 <div class="content center">Processing data ...</div>
             {:else}
-                <Tabs type="container" class="topnav" on:change={TabSelected}>
+                <Tabs class="topnav" on:change={TabSelected}>
                     <Tab label="Editing" />
                     <Tab label="Testing" />
                     <Tab label="Project">
