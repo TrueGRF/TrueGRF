@@ -378,7 +378,7 @@ export async function forkProject(accessToken, project, name, license) {
 export async function refreshRepositories(accessToken, url, page) {
     const result = await doApiCall(
         accessToken,
-        `https://api.github.com/${url}?sort=created&direction=asc&per_page=100&page=${page}`
+        `https://api.github.com/${url}?sort=pushed&direction=desc&per_page=100&page=${page}`
     );
 
     let repositories = [];
