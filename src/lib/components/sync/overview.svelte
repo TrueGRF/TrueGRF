@@ -39,7 +39,7 @@
                 type = "general";
                 name = "general";
             } else if (file.filename.indexOf("/") === -1) {
-                type = "unknown"
+                type = "unknown";
                 name = file.filename.split(".")[0];
             } else {
                 type = file.filename.split("/")[0];
