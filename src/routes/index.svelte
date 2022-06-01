@@ -59,7 +59,7 @@
             for (let file of files) {
                 const request = store.get(file);
 
-                request.onsuccess = function () {
+                request.onsuccess = async function () {
                     requests += 1;
 
                     if (file.endsWith(".png")) {
@@ -83,6 +83,7 @@
                     }
 
                     if (requests == files.length) {
+                        await sync.MigrateProject(project, general, cargoes, industries, images);
                         loadedProject = true;
                     }
                 };

@@ -392,6 +392,20 @@
             clearTimeout(syncTimeout);
         });
     }
+
+    export async function MigrateProject(project, general, cargoes, industries, images) {
+        if (general.version === 3) {
+            general.url = `https://github.com/${project}`;
+
+            CheckCommitChanges(images, {
+                type: "general",
+                item: general,
+                name: undefined,
+            });
+
+            general.version = 4;
+        }
+    }
 </script>
 
 <div class="project">
@@ -415,6 +429,7 @@
         position: absolute;
         top: 30px;
         right: 20px;
+        z-index: 10;
     }
 
     .project .caption {

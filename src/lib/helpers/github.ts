@@ -318,57 +318,67 @@ export async function forkProject(accessToken, project, name, license) {
         }
     }
 
-    /* Ensure the license is set correctly. */
+    /* Update the entry YAML file. */
     const resultYaml = await doApiCall(
         accessToken,
         `https://api.github.com/repos/${userProject}/contents/truegrf.yaml`
     );
     let data = yaml.load(atob(resultYaml.content));
 
+    let updateLicense = false;
+
+    /* Set the URL correct, and update the license file if needed. */
+    data.url = `https://github.com/${userProject}`;
     if (data.license !== license) {
+        updateLicense = true;
         data.license = license;
+    }
 
-        const newContent = yaml.dump(data, {
-            sortKeys: true,
-            lineWidth: -1,
-            noArrayIndent: true,
-        });
+    const newContent = yaml.dump(data, {
+        sortKeys: true,
+        lineWidth: -1,
+        noArrayIndent: true,
+    });
 
-        const blobYaml = await createBlob(accessToken, userProject, newContent);
-        const blobLicense = await createBlob(accessToken, userProject, licenses[license]);
+    const blobYaml = await createBlob(accessToken, userProject, newContent);
+    let blobLicense;
+    if (updateLicense) {
+        blobLicense = await createBlob(accessToken, userProject, licenses[license]);
+    }
 
-        const result = await doApiCall(accessToken, `https://api.github.com/repos/${userProject}/branches`);
-        for (const branch of result) {
-            if (branch.name === "main") {
-                const resultCommit = await doApiCall(
-                    accessToken,
-                    `https://api.github.com/repos/${userProject}/git/commits/${branch.commit.sha}`
-                );
+    const resultBranches = await doApiCall(accessToken, `https://api.github.com/repos/${userProject}/branches`);
+    for (const branch of resultBranches) {
+        if (branch.name === "main") {
+            const resultCommit = await doApiCall(
+                accessToken,
+                `https://api.github.com/repos/${userProject}/git/commits/${branch.commit.sha}`
+            );
 
-                const tree = [];
-                tree.push({
-                    path: "truegrf.yaml",
-                    sha: blobYaml.sha,
-                    mode: "100644",
-                    type: "blob",
-                });
+            const tree = [];
+            tree.push({
+                path: "truegrf.yaml",
+                sha: blobYaml.sha,
+                mode: "100644",
+                type: "blob",
+            });
+            if (updateLicense) {
                 tree.push({
                     path: "LICENSE",
                     sha: blobLicense.sha,
                     mode: "100644",
                     type: "blob",
                 });
-
-                const resultTree = await createTree(accessToken, userProject, tree, resultCommit.tree.sha);
-                const resultNewCommit = await createCommit(
-                    accessToken,
-                    userProject,
-                    `chore: update license to ${license}`,
-                    resultTree.sha,
-                    branch.commit.sha
-                );
-                await updateReference(accessToken, userProject, "main", resultNewCommit.sha);
             }
+
+            const resultTree = await createTree(accessToken, userProject, tree, resultCommit.tree.sha);
+            const resultNewCommit = await createCommit(
+                accessToken,
+                userProject,
+                "chore: update URL" + (updateLicense ? ` and update license to ${license}` : ""),
+                resultTree.sha,
+                branch.commit.sha
+            );
+            await updateReference(accessToken, userProject, "main", resultNewCommit.sha);
         }
     }
 
