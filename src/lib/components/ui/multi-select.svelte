@@ -12,6 +12,13 @@
     const dispatch = createEventDispatcher();
 
     let lookup = {};
+    let selectedShadow;
+
+    function UpdateShadow() {
+        selectedShadow = selected;
+    }
+
+    $: if (selected !== undefined) UpdateShadow();
 
     function UpdateItems() {
         lookup = {};
@@ -23,8 +30,13 @@
 
     $: if (items) UpdateItems();
 
-    function OnChange(event) {
-        dispatch("change", event.detail);
+    function OnChange() {
+        if (selected.toString() === selectedShadow.toString()) return;
+
+        console.log(selected, selectedShadow);
+
+        selected = selectedShadow;
+        dispatch("change", selected);
     }
 </script>
 
@@ -56,7 +68,15 @@
         {/each}
     </div>
 
-    <MultiSelect bind:selectedIds={selected} hideLabel size="sm" filterable placeholder="Select cargoes" {items} />
+    <MultiSelect
+        bind:selectedIds={selectedShadow}
+        hideLabel
+        size="sm"
+        filterable
+        placeholder="Select cargoes"
+        {items}
+        on:select={OnChange}
+    />
 </div>
 
 <style>

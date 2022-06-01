@@ -128,14 +128,11 @@
 
                     /* Find the first available id to use for a new sprite. */
                     let filename;
-                    let i = 1;
-                    while (true) {
+                    for (let i = 1; ; i++) {
                         filename = `${path}/${i}.png`;
                         if (images[filename] === undefined) {
                             break;
                         }
-
-                        i++;
                     }
 
                     spriteCurrent.sprite.filename = filename;

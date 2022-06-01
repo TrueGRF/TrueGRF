@@ -88,7 +88,7 @@
         layout[gridSelected.y][gridSelected.x] = event.detail;
     }
 
-    function OnTileChange(event) {
+    function OnTileChange() {
         tiles = tiles;
         OnChange();
     }
