@@ -247,9 +247,19 @@
         return images[filename];
     }
 
+    function ChangeTheme(darkmode) {
+        document.documentElement.setAttribute("theme", darkmode ? "g90" : "g10");
+    }
+
     onMount(async () => {
         /* Make this function available on "window", so the rust application can find it again. */
         window.load_sprite_bytes = load_sprite_bytes;
+
+        const colorSchema = window.matchMedia("(prefers-color-scheme: dark)");
+        colorSchema.addEventListener("change", (e) => {
+            ChangeTheme(e.matches);
+        });
+        ChangeTheme(colorSchema.matches);
     });
 
     $: if (overview) overview.Refresh();
@@ -257,8 +267,7 @@
 
 <svelte:head>
     <link rel="icon" href="{base}/favicon.ico" />
-    <link rel="stylesheet" href="{base}/g10.css" media="(prefers-color-scheme: light)" />
-    <link rel="stylesheet" href="{base}/g90.css" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="{base}/all.css" />
     <title>TrueGRF - NewGRFs made easy</title>
 </svelte:head>
 
@@ -288,7 +297,7 @@
                             <div>
                                 <span class="pending-caption"> Project </span>
                                 {#if changesPending === true}
-                                    <span class="pending"></span>
+                                    <span class="pending" />
                                 {/if}
                             </div>
                         </slot>
@@ -370,7 +379,7 @@
     }
 
     .content-inner {
-        border: 1px solid #8d8d8d;
+        border: 1px solid var(--cds-ui-04, #8d8d8d);
         height: 100%;
         margin-left: 20px;
         overflow: auto;
@@ -395,7 +404,7 @@
     }
 
     .pending {
-        background-color: #fa4d56;
+        background-color: var(--cds-support-error-inverse, #fa4d56);
         border-radius: 8px;
         display: inline-block;
         height: 11px;
