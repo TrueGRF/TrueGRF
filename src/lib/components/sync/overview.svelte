@@ -32,8 +32,19 @@
         const names = [];
         filesChanged = [];
         for (const file of compare.files) {
-            const type = file.filename.split("/")[0];
-            const name = file.filename.split("/")[1].split(".")[0];
+            let type;
+            let name;
+
+            if (file.filename === "truegrf.yaml") {
+                type = "general";
+                name = "general";
+            } else if (file.filename.indexOf("/") === -1) {
+                type = "unknown"
+                name = file.filename.split(".")[0];
+            } else {
+                type = file.filename.split("/")[0];
+                name = file.filename.split("/")[1].split(".")[0];
+            }
 
             /* Hide entries we already have, as the user doesn't actually care if we changed metadata or the image. */
             const hide = names.find((n) => n === name) !== undefined;
