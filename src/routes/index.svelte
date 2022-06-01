@@ -288,9 +288,7 @@
                             <div>
                                 <span class="pending-caption"> Project </span>
                                 {#if changesPending === true}
-                                    <span class="pending">
-                                        <span class="pending-text">!</span>
-                                    </span>
+                                    <span class="pending"></span>
                                 {/if}
                             </div>
                         </slot>
@@ -400,18 +398,10 @@
         background-color: #fa4d56;
         border-radius: 8px;
         display: inline-block;
-        height: 17px;
+        height: 11px;
         position: relative;
-        width: 17px;
-        top: 4px;
-        left: 4px;
-    }
-
-    .pending-text {
-        position: absolute;
-        top: -8px;
-        left: 7px;
-        color: white;
-        font-size: 12px;
+        width: 11px;
+        top: -6px;
+        left: -3px;
     }
 </style>
