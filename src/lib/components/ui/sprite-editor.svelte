@@ -4,8 +4,8 @@
 
     import { colours } from "./colours";
 
-    export let width = 10;
-    export let height = 10;
+    export let width = undefined;
+    export let height = undefined;
     export let scale = 16;
     export let base64Data;
     export let colour = 0;
@@ -18,10 +18,11 @@
     let ctxPreview;
     let lastBase64Data;
 
+    let imageWidth;
+    let imageHeight;
+
     let xLast = 0;
     let yLast = 0;
-    let widthLast = 0;
-    let heightLast = 0;
     let grid = [];
     let mouseDown = false;
 
@@ -65,9 +66,6 @@
                 ctxPreview.fillStyle = colours[colour];
                 ctxPreview.fillRect(x, y, 1, 1);
             }
-
-            base64Data = canvasPreview.toDataURL("image/png").replace("data:image/png;base64,", "");
-            lastBase64Data = base64Data;
         } else {
             ctx.fillStyle = colour;
             /* Custom colour, for highlighting. Never draw on preview. */
@@ -75,15 +73,29 @@
         ctx.fillRect(x * scale, y * scale, scale, scale);
     }
 
-    function UpdateGrid() {
-        if (widthLast == width && heightLast == height) return;
-        widthLast = width;
-        heightLast = height;
+    function SaveSprite() {
+        base64Data = canvasPreview.toDataURL("image/png").replace("data:image/png;base64,", "");
+        lastBase64Data = base64Data;
+
+        dispatch("change", base64Data);
+    }
+
+    function UpdateGrid(newWidth, newHeight) {
+        if (imageWidth === newWidth && imageHeight === newHeight) return;
+        imageWidth = newWidth;
+        imageHeight = newHeight;
+
+        dispatch("resize", { width: imageWidth, height: imageHeight });
+
+        canvas.width = imageWidth * scale;
+        canvas.height = imageHeight * scale;
+        canvasPreview.width = imageWidth;
+        canvasPreview.height = imageHeight;
 
         let newGrid = [];
-        for (let y = 0; y < height; y++) {
+        for (let y = 0; y < imageHeight; y++) {
             newGrid[y] = [];
-            for (let x = 0; x < width; x++) {
+            for (let x = 0; x < imageWidth; x++) {
                 newGrid[y][x] = (grid[y] || [])[x] || 0;
                 DrawTile(x, y, newGrid[y][x]);
             }
@@ -93,8 +105,8 @@
     }
 
     function Redraw() {
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
+        for (let y = 0; y < imageHeight; y++) {
+            for (let x = 0; x < imageWidth; x++) {
                 DrawTile(x, y, grid[y][x]);
             }
         }
@@ -107,23 +119,21 @@
         if (base64Data) {
             const sprite = new Image();
             sprite.src = "data:image/png;base64," + base64Data;
-            sprite.onload = () => ProcessSprite(sprite);
+            sprite.onload = () => ProcessSprite(sprite, false);
         } else {
-            widthLast = 0;
-            heightLast = 0;
             grid = [];
-            UpdateGrid();
+            UpdateGrid(16, 16);
         }
     }
 
     $: if (ctx) base64Data, UpdateSprite();
-    $: if (ctx && width && height) UpdateGrid();
+    $: if (ctx && width && height) UpdateGrid(width, height);
 
     function MouseMove(event) {
         let x = Math.floor(event.offsetX / scale);
         let y = Math.floor(event.offsetY / scale);
-        if (x < 0 || x >= width) return;
-        if (y < 0 || y >= height) return;
+        if (x < 0 || x >= imageWidth) return;
+        if (y < 0 || y >= imageHeight) return;
 
         if (x === xLast && y === yLast) return;
         DrawTile(xLast, yLast, grid[yLast][xLast]);
@@ -146,10 +156,14 @@
         grid[y][x] = colour;
         DrawTile(x, y, grid[y][x]);
 
-        dispatch("change", base64Data);
+        SaveSprite();
     }
 
-    function ProcessSprite(sprite) {
+    function ProcessSprite(sprite, save) {
+        if (width === undefined) {
+            UpdateGrid(sprite.width, sprite.height);
+        }
+
         /* Create a canvas to draw on. */
         const canvas = document.createElement("canvas");
         canvas.width = sprite.width;
@@ -168,10 +182,10 @@
 
         /* Find the indexed colour based on the RGB values. */
         for (let y = 0; y < canvas.height; y++) {
-            if (y >= height) break;
+            if (y >= imageHeight) break;
 
             for (let x = 0; x < canvas.width; x++) {
-                if (x >= width) break;
+                if (x >= imageWidth) break;
 
                 let index = (y * canvas.width + x) * 4;
                 let colour =
@@ -193,7 +207,13 @@
             }
         }
 
-        Redraw();
+        /* Give the canvas a bit of time to actually rescale, before redrawing. */
+        setTimeout(() => {
+            Redraw();
+            if (save) {
+                SaveSprite();
+            }
+        }, 10);
     }
 
     function LoadSprite(file) {
@@ -202,8 +222,7 @@
             const sprite = new Image();
             sprite.src = URL.createObjectURL(blob);
             sprite.onload = () => {
-                ProcessSprite(sprite);
-                dispatch("change", base64Data);
+                ProcessSprite(sprite, true);
             };
         });
     }
@@ -223,17 +242,32 @@
 
         return false;
     }
+
+    export function Resize(width, height) {
+        UpdateGrid(width, height);
+        SaveSprite();
+
+        /* Give the canvas a bit of time to actually rescale, before redrawing. */
+        setTimeout(() => {
+            Redraw();
+        }, 10);
+    }
 </script>
 
 <div class="sprite-editor" on:drop={OnDrop} on:paste={OnPaste} on:dragover={OnDragOver}>
-    <canvas style="width: {width}px; height: {height}px;" {width} {height} bind:this={canvasPreview} />
+    <canvas
+        style="width: {imageWidth}px; height: {imageHeight}px;"
+        width={imageWidth}
+        height={imageHeight}
+        bind:this={canvasPreview}
+    />
 
     <div>
         <canvas
             class="canvas"
-            style="width: {width * scale}px; height: {height * scale}px;"
-            width={width * scale}
-            height={height * scale}
+            style="width: {imageWidth * scale}px; height: {imageHeight * scale}px;"
+            width={imageWidth * scale}
+            height={imageHeight * scale}
             bind:this={canvas}
             on:mousemove={MouseMove}
             on:mousedown={() => {

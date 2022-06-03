@@ -11,7 +11,7 @@ export const newTile = {
             alwaysDraw: false,
             drawType: "recolour",
             sprite: {
-                id: 3924,
+                id: 0,
                 left: -31,
                 top: 0,
             },

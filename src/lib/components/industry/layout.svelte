@@ -4,6 +4,7 @@
     import Grid from "$lib/components/industry/grid.svelte";
     import Slider from "$lib/components/ui/slider.svelte";
     import Tiles from "$lib/components/industry/tiles.svelte";
+    import TileEditor from "$lib/components/industry/tile-editor.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -89,9 +90,11 @@
             <Grid {images} {layout} {tiles} bind:selected={gridSelected} on:select={OnGridSelect} />
         </div>
         <div class="tiles">
-            <Tiles {images} {tiles} {id} selected={tileSelected} on:select={OnTileSelect} on:change={OnTileChange} />
+            <Tiles {images} {tiles} selected={tileSelected} on:select={OnTileSelect} on:change={OnTileChange} />
         </div>
     </div>
+
+    <TileEditor {images} {tiles} {id} {tileSelected} on:change={OnTileChange} />
 </div>
 
 <style>
