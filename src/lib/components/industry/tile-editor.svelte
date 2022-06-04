@@ -29,7 +29,6 @@
 
     function UpdateCurrentSprite() {
         spriteCurrent = tiles[tileSelected].sprites[layerSelected].sprite;
-        console.log(spriteCurrent);
 
         /* Check if the sprite was using a built-in sprite. */
         if (spriteCurrent.id !== undefined) {

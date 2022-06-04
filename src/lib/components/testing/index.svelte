@@ -7,12 +7,15 @@
 
     export let cargoes = undefined;
     export let industries = undefined;
+    export let townnames = undefined;
     export let general = undefined;
 
     let compiling = false;
     let error = "";
 
     export const compileAndDownload = (config) => {
+        config.type = config.general.type;
+
         compiling = true;
         /* Delay, so Svelte can actually update the component. */
         setTimeout(() => {
@@ -30,6 +33,8 @@
     };
 
     export const compileAndTest = (config, newgame_seed) => {
+        config.type = config.general.type;
+
         compiling = true;
         /* Delay, so Svelte can actually update the component. */
         setTimeout(() => {
@@ -53,6 +58,7 @@
             {
                 industries,
                 cargoes,
+                townnames,
                 general,
             },
             1
@@ -64,6 +70,7 @@
             {
                 industries,
                 cargoes,
+                townnames,
                 general,
             },
             0
@@ -74,6 +81,7 @@
         compileAndDownload({
             industries,
             cargoes,
+            townnames,
             general,
         });
     }

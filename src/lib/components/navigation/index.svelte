@@ -5,8 +5,10 @@
 
     const dispatch = createEventDispatcher();
 
+    export let type;
     export let cargoes = [];
     export let industries = [];
+    export let townnames = [];
     export let activeId;
 
     let tree = [];
@@ -31,6 +33,15 @@
             });
         }
 
+        /* Convert industry to a tree-like structure. */
+        let tree_townname = [];
+        for (let townname of townnames.sort((a, b) => a.name.localeCompare(b.name))) {
+            tree_townname.push({
+                id: townname.id | 0x3000,
+                text: townname.name,
+            });
+        }
+
         tree_cargo.push({
             id: 0x1fff,
             text: "+ New Cargo",
@@ -39,6 +50,10 @@
             id: 0x2fff,
             text: "+ New Industry",
         });
+        tree_townname.push({
+            id: 0x3fff,
+            text: "+ New Townname",
+        });
 
         /* Update the tree. */
         tree = [
@@ -46,17 +61,31 @@
                 id: 0,
                 text: "General",
             },
-            {
-                id: 1,
-                text: "Cargoes",
-                children: tree_cargo,
-            },
-            {
-                id: 2,
-                text: "Industries",
-                children: tree_industry,
-            },
         ];
+
+        switch (type) {
+            case "industry":
+                tree.push({
+                    id: 1,
+                    text: "Cargoes",
+                    children: tree_cargo,
+                });
+
+                tree.push({
+                    id: 2,
+                    text: "Industries",
+                    children: tree_industry,
+                });
+                break;
+
+            case "townname":
+                tree.push({
+                    id: 3,
+                    text: "Townnames",
+                    children: tree_townname,
+                });
+                break;
+        }
     }
 
     function TreeSelect(event) {
@@ -81,6 +110,10 @@
                 type = "industry";
                 id = undefined;
                 break;
+            case 3:
+                type = "townname";
+                id = undefined;
+                break;
 
             default:
                 type = "none";
@@ -97,6 +130,10 @@
                 type = "industry";
                 id = event.detail.id & 0x0fff;
                 break;
+            case 0x3000:
+                type = "townname";
+                id = event.detail.id & 0x0fff;
+                break;
         }
 
         dispatch("selected", {
@@ -105,7 +142,7 @@
         });
     }
 
-    $: if (cargoes || industries) UpdateTree();
+    $: if (cargoes || industries || townnames) UpdateTree();
 </script>
 
 <div class="navigation">

@@ -20,10 +20,12 @@
     import Overview from "$lib/components/sync/overview.svelte";
     import Sync from "$lib/components/sync/index.svelte";
     import Testing from "$lib/components/testing/index.svelte";
+    import Townname from "$lib/components/townname/index.svelte";
     import Version from "$lib/components/version/index.svelte";
 
     import { newCargo } from "$lib/components/cargo/newCargo";
     import { newIndustry } from "$lib/components/industry/newIndustry";
+    import { newTownname } from "$lib/components/townname/newTownname";
 
     let loadedAccount = false;
     let loadedProject = false;
@@ -34,7 +36,10 @@
 
     let cargoes = [];
     let industries = [];
-    let general = {};
+    let townnames = [];
+    let general = {
+        type: "unknown",
+    };
     let images = {};
 
     let sync;
@@ -77,13 +82,18 @@
 
                             /* Inform Svelte the array is changed. */
                             industries = industries;
+                        } else if (file.startsWith("townnames/")) {
+                            townnames.push(data);
+
+                            /* Inform Svelte the array is changed. */
+                            townnames = townnames;
                         } else if (file == "truegrf.yaml") {
                             general = data;
                         }
                     }
 
                     if (requests == files.length) {
-                        await sync.MigrateProject(project, general, cargoes, industries, images);
+                        await sync.MigrateProject(project, general, cargoes, industries, townnames, images);
                         loadedProject = true;
                     }
                 };
@@ -111,30 +121,7 @@
             case "cargo":
                 /* Create a new cargo. */
                 if (event.detail.id == 0xfff) {
-                    /* Find the first available id. */
-                    let id = 0;
-                    while (cargoes.find((i) => i.id == id)) id++;
-
-                    /* Copy the default new cargo object into a new object. */
-                    let cargoNew = JSON.parse(JSON.stringify(newCargo));
-                    cargoNew.id = id;
-                    event.detail.id = id;
-
-                    cargoNew.name += ` #${id}`;
-                    cargoNew.longName += ` #${id}`;
-
-                    const filename = slug(cargoNew.name, { lower: true });
-                    cargoNew.sprite.filename = `cargoes/${filename}.png`;
-                    images[cargoNew.sprite.filename] = "";
-
-                    cargoes.push(cargoNew);
-
-                    /* Inform Svelte the array has changed. */
-                    cargoes = cargoes;
-                    /* Delay changing the activeId ever so slightly, to give Svelte the time to actually update the navigation. */
-                    setTimeout(() => {
-                        activeId = 0x1000 | id;
-                    }, 10);
+                    event.detail.id = NewCargo();
                 }
 
                 if (event.detail.id === undefined) {
@@ -150,25 +137,7 @@
             case "industry":
                 /* Create a new industry. */
                 if (event.detail.id == 0xfff) {
-                    /* Find the first available id. */
-                    let id = 0;
-                    while (industries.find((i) => i.id == id)) id++;
-
-                    /* Copy the default new industry object into a new object. */
-                    let industryNew = JSON.parse(JSON.stringify(newIndustry));
-                    industryNew.id = id;
-                    event.detail.id = id;
-
-                    industryNew.name += ` #${id}`;
-
-                    industries.push(industryNew);
-
-                    /* Inform Svelte the array has changed. */
-                    industries = industries;
-                    /* Delay changing the activeId ever so slightly, to give Svelte the time to actually update the navigation. */
-                    setTimeout(() => {
-                        activeId = 0x2000 | id;
-                    }, 10);
+                    event.detail.id = NewIndustry();
                 }
 
                 if (event.detail.id === undefined) {
@@ -178,6 +147,22 @@
                 } else {
                     selected.type = "industry";
                     selected.item = industries.find((item) => item.id == event.detail.id);
+                    selected.name = selected.item.name;
+                }
+                break;
+            case "townname":
+                /* Create a new industry. */
+                if (event.detail.id == 0xfff) {
+                    event.detail.id = NewTownname();
+                }
+
+                if (event.detail.id === undefined) {
+                    selected.type = "none";
+                    selected.item = undefined;
+                    selected.name = undefined;
+                } else {
+                    selected.type = "townname";
+                    selected.item = townnames.find((item) => item.id == event.detail.id);
                     selected.name = selected.item.name;
                 }
                 break;
@@ -198,7 +183,38 @@
             case "industry":
                 industries = industries;
                 break;
+            case "townname":
+                townnames = townnames;
+                break;
         }
+    }
+
+    function NewCargo() {
+        /* Find the first available id. */
+        let id = 0;
+        while (cargoes.find((i) => i.id == id)) id++;
+
+        /* Copy the default new cargo object into a new object. */
+        let cargoNew = JSON.parse(JSON.stringify(newCargo));
+        cargoNew.id = id;
+
+        cargoNew.name += ` #${id}`;
+        cargoNew.longName += ` #${id}`;
+
+        const filename = slug(cargoNew.name, { lower: true });
+        cargoNew.sprite.filename = `cargoes/${filename}.png`;
+        images[cargoNew.sprite.filename] = "";
+
+        cargoes.push(cargoNew);
+
+        /* Inform Svelte the array has changed. */
+        cargoes = cargoes;
+        /* Delay changing the activeId ever so slightly, to give Svelte the time to actually update the navigation. */
+        setTimeout(() => {
+            activeId = 0x1000 | id;
+        }, 10);
+
+        return id;
     }
 
     function DeleteCargo() {
@@ -217,6 +233,29 @@
         selected.name = undefined;
     }
 
+    function NewIndustry() {
+        /* Find the first available id. */
+        let id = 0;
+        while (industries.find((i) => i.id == id)) id++;
+
+        /* Copy the default new industry object into a new object. */
+        let industryNew = JSON.parse(JSON.stringify(newIndustry));
+        industryNew.id = id;
+
+        industryNew.name += ` #${id}`;
+
+        industries.push(industryNew);
+
+        /* Inform Svelte the array has changed. */
+        industries = industries;
+        /* Delay changing the activeId ever so slightly, to give Svelte the time to actually update the navigation. */
+        setTimeout(() => {
+            activeId = 0x2000 | id;
+        }, 10);
+
+        return id;
+    }
+
     function DeleteIndustry() {
         sync.CommitRemoval(images, selected);
 
@@ -227,6 +266,45 @@
 
         /* Inform Svelte the array has changed. */
         industries = industries;
+
+        selected.type = "none";
+        selected.item = undefined;
+        selected.name = undefined;
+    }
+
+    function NewTownname() {
+        /* Find the first available id. */
+        let id = 0;
+        while (townnames.find((i) => i.id == id)) id++;
+
+        /* Copy the default new townname object into a new object. */
+        let townnameNew = JSON.parse(JSON.stringify(newTownname));
+        townnameNew.id = id;
+
+        townnameNew.name += ` #${id}`;
+
+        townnames.push(townnameNew);
+
+        /* Inform Svelte the array has changed. */
+        townnames = townnames;
+        /* Delay changing the activeId ever so slightly, to give Svelte the time to actually update the navigation. */
+        setTimeout(() => {
+            activeId = 0x3000 | id;
+        }, 10);
+
+        return id;
+    }
+
+    function DeleteTownname() {
+        sync.CommitRemoval(images, selected);
+
+        townnames.splice(
+            townnames.findIndex((item) => item.id == selected.item.id),
+            1
+        );
+
+        /* Inform Svelte the array has changed. */
+        townnames = townnames;
 
         selected.type = "none";
         selected.item = undefined;
@@ -311,7 +389,14 @@
                     <svelte:fragment slot="content">
                         <TabContent>
                             <div class="content">
-                                <Navigation {industries} {cargoes} bind:activeId on:selected={ItemSelected} />
+                                <Navigation
+                                    type={general.type}
+                                    {industries}
+                                    {cargoes}
+                                    {townnames}
+                                    bind:activeId
+                                    on:selected={ItemSelected}
+                                />
                                 <div class="content-inner">
                                     {#if selected.type === "general"}
                                         <General general={selected.item} on:change={UpdateSvelte} />
@@ -332,6 +417,13 @@
                                             on:change={UpdateSvelte}
                                             on:delete={DeleteIndustry}
                                         />
+                                    {:else if selected.type === "townname"}
+                                        <Townname
+                                            townname={selected.item}
+                                            {townnames}
+                                            on:change={UpdateSvelte}
+                                            on:delete={DeleteTownname}
+                                        />
                                     {/if}
                                 </div>
                             </div>
@@ -339,7 +431,7 @@
 
                         <TabContent>
                             <div class="content">
-                                <Testing {general} {industries} {cargoes} />
+                                <Testing {general} {industries} {cargoes} {townnames} />
                             </div>
                         </TabContent>
 

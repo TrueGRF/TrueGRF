@@ -308,7 +308,7 @@
 
     <Modal
         bind:open={deleteCargoOpen}
-        modalHeading="Delete industry?"
+        modalHeading="Delete cargo?"
         primaryButtonText="Delete"
         secondaryButtonText="Cancel"
         on:click:button--secondary={() => (deleteCargoOpen = false)}

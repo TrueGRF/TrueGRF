@@ -33,8 +33,6 @@
     function OnChange() {
         if (selected.toString() === selectedShadow.toString()) return;
 
-        console.log(selected, selectedShadow);
-
         selected = selectedShadow;
         dispatch("change", selected);
     }
