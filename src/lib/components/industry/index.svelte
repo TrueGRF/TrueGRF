@@ -1,17 +1,16 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import Add from "carbon-icons-svelte/lib/Add.svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
 
     import { Button } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
-    import { Pagination } from "carbon-components-svelte";
     import { Tabs, Tab, TabContent } from "carbon-components-svelte";
     import { TextArea } from "carbon-components-svelte";
 
     import Layout from "$lib/components/industry/layout.svelte";
     import MultiSelect from "$lib/components/ui/multi-select.svelte";
+    import Pagination from "$lib/components/ui/pagination.svelte";
     import Select from "$lib/components/ui/select.svelte";
     import Slider from "$lib/components/ui/slider.svelte";
     import Switch from "$lib/components/ui/switch.svelte";
@@ -213,39 +212,13 @@
                 />
             </TabContent>
             <TabContent>
-                <div class="flex navigation">
-                    <Pagination
-                        bind:page={selectedLayout}
-                        totalItems={industry.layout.length}
-                        pageSize={1}
-                        pageSizeInputDisabled
-                        forwardText="Next layout"
-                        backwardText="Previous layout"
-                        itemRangeText={(min) => `Layout #${min}`}
-                        pageRangeText={(_, total) => `of ${total} layouts`}
-                    />
-                    <Button
-                        kind="ghost"
-                        iconDescription="New layout"
-                        icon={Add}
-                        size="small"
-                        tooltipPosition="bottom"
-                        tooltipAlignment="end"
-                        class="bx--pagination__button buttons"
-                        on:click={() => CreateLayout()}
-                    />
-
-                    <Button
-                        kind="danger-ghost"
-                        iconDescription="Delete layout"
-                        icon={TrashCan}
-                        size="small"
-                        tooltipPosition="bottom"
-                        tooltipAlignment="end"
-                        class="bx--pagination__button buttons delete-layout"
-                        on:click={() => (deleteLayoutOpen = true)}
-                    />
-                </div>
+                <Pagination
+                    bind:selected={selectedLayout}
+                    items={industry.layout}
+                    labelText="layout"
+                    on:new={() => CreateLayout()}
+                    on:delete={() => (deleteLayoutOpen = true)}
+                />
                 <Layout
                     id={industry.name}
                     bind:layout={industry.layout[selectedLayout - 1]}
@@ -311,21 +284,5 @@
         display: flex;
         width: 100%;
         justify-content: center;
-    }
-    .navigation {
-        margin-bottom: 12px;
-    }
-
-    .navigation :global(.buttons) {
-        background-color: var(--cds-ui-01, #f4f4f4);
-        border-top: 1px solid var(--cds-ui-03, #e0e0e0);
-        height: 41px;
-        padding: 0;
-    }
-    .navigation :global(.buttons:hover) {
-        background-color: var(--cds-hover-ui, #e5e5e5);
-    }
-    .navigation :global(.delete-layout > svg) {
-        margin-left: 0.25rem;
     }
 </style>

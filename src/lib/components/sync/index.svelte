@@ -22,6 +22,7 @@
     const typeToFolder = {
         cargo: "cargoes",
         industry: "industries",
+        townname: "townnames",
     };
 
     function getFromDatabase(file) {
@@ -86,6 +87,8 @@
                     newContent: images[`${folder}/${newFilename}/${id}.png`],
                 });
             }
+        } else if (type === "townnames") {
+            /* Townnames have no images. */
         }
 
         return fileList;
@@ -121,6 +124,8 @@
                     }
                 }
             }
+        } else if (type === "townname") {
+            /* Nothing to do. */
         }
 
         const fileList = await CreateFilelist(
@@ -217,6 +222,8 @@
                         }
                     }
                 }
+            } else if (type === "townname") {
+                /* Townnames have no images. */
             }
 
             const newContent = yaml.dump(selected.item, {
@@ -373,7 +380,7 @@
         };
 
         /* Prevent renaming the next time we call this function by updating selected. */
-        if (selected.type == "cargo" || selected.type == "industry") {
+        if (selected.type === "cargo" || selected.type === "industry" || selected.type === "townname") {
             selected.name = selected.item.name;
         }
 
@@ -394,17 +401,27 @@
         });
     }
 
-    export async function MigrateProject(project, general, cargoes, industries, images) {
+    export async function MigrateProject(project, general, cargoes, industries, townnames, images) {
         if (general.version === 3) {
             general.url = `https://github.com/${project}`;
+            general.version = 4;
 
             CheckCommitChanges(images, {
                 type: "general",
                 item: general,
                 name: undefined,
             });
+        }
 
-            general.version = 4;
+        if (general.version === 4) {
+            general.type = "industry";
+            general.version = 5;
+
+            CheckCommitChanges(images, {
+                type: "general",
+                item: general,
+                name: undefined,
+            });
         }
     }
 </script>

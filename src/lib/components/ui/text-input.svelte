@@ -5,11 +5,13 @@
     import { Tooltip } from "carbon-components-svelte";
 
     export let value = undefined;
-    export let labelText;
+    export let labelText = "";
     export let placeholder;
     export let invalidText = "";
     export let validate = undefined;
     export let live = false;
+    export let hideLabel = false;
+    export let disabled = false;
 
     const dispatch = createEventDispatcher();
 
@@ -49,24 +51,27 @@
 </script>
 
 <div class="bx--form-item bx--text-input-wrapper bx--text-input-wrapper--inline">
-    <div class="bx--text-input__label-helper-wrapper">
-        <span class="bx--label--inline--sm bx--label bx--label--inline">
-            <slot name="labelText">
-                {#if $$slots.tooltip}
-                    <Tooltip align="start" triggerText={labelText}>
-                        <p>
-                            <slot name="tooltip" />
-                        </p>
-                    </Tooltip>
-                {:else}
-                    {labelText}
-                {/if}
-            </slot>
-        </span>
-    </div>
+    {#if hideLabel === false}
+        <div class="bx--text-input__label-helper-wrapper">
+            <span class="bx--label--inline--sm bx--label bx--label--inline">
+                <slot name="labelText">
+                    {#if $$slots.tooltip}
+                        <Tooltip align="start" triggerText={labelText}>
+                            <p>
+                                <slot name="tooltip" />
+                            </p>
+                        </Tooltip>
+                    {:else}
+                        {labelText}
+                    {/if}
+                </slot>
+            </span>
+        </div>
+    {/if}
     <TextInput
         size="sm"
         hideLabel
+        {disabled}
         {placeholder}
         invalid={invalidText !== "" || validateFailed !== undefined}
         invalidText={invalidText || validateFailed}
