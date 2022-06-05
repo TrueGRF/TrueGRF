@@ -460,8 +460,8 @@ export async function commitBranch(accessToken, project, commitMessage, filesLis
     }
 }
 
-export async function getChangelog() {
-    const response = await fetch("https://api.github.com/repos/TrueGRF/TrueGRF/releases", {
+export async function getChangelog(project) {
+    const response = await fetch(`https://api.github.com/repos/${project}/releases`, {
         cache: "no-cache",
         headers: {
             accept: "application/vnd.github.v3+json",
