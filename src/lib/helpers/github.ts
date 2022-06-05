@@ -1,6 +1,7 @@
 import yaml from "js-yaml";
 
 import { licenses } from "$lib/licenses/licenses";
+import { GenerateGRFId } from "$lib/helpers/grfid";
 
 async function doApiCall(accessToken, url) {
     const response = await fetch(url, {
@@ -327,12 +328,18 @@ export async function forkProject(accessToken, project, name, license) {
 
     let updateLicense = false;
 
-    /* Set the URL correct, and update the license file if needed. */
+    /* Set the URL and name.  */
+    data.name = name;
     data.url = `https://github.com/${userProject}`;
+
+    /* Update the license file if needed. */
     if (data.license !== license) {
         updateLicense = true;
         data.license = license;
     }
+
+    /* Generate a new unique GRFID. */
+    data.grfid = GenerateGRFId(data.type);
 
     const newContent = yaml.dump(data, {
         sortKeys: true,
@@ -374,7 +381,7 @@ export async function forkProject(accessToken, project, name, license) {
             const resultNewCommit = await createCommit(
                 accessToken,
                 userProject,
-                "chore: update URL" + (updateLicense ? ` and update license to ${license}` : ""),
+                "chore: update information" + (updateLicense ? ` and change license to ${license}` : ""),
                 resultTree.sha,
                 branch.commit.sha
             );

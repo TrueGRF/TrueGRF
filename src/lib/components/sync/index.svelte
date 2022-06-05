@@ -9,6 +9,7 @@
     import { ToastNotification } from "carbon-components-svelte";
 
     import { deleteFile, updateFile, renameFile } from "$lib/helpers/github";
+    import { GenerateGRFId } from "$lib/helpers/grfid";
 
     export let project = "";
     export let accessToken = "";
@@ -416,6 +417,18 @@
         if (general.version === 4) {
             general.type = "industry";
             general.version = 5;
+
+            CheckCommitChanges(images, {
+                type: "general",
+                item: general,
+                name: undefined,
+            });
+        }
+
+        if (general.version === 5) {
+            /* Prior to version 6, GRFIDs were initialised as TRU1. */
+            general.grfid = GenerateGRFId(general.type);
+            general.version = 6;
 
             CheckCommitChanges(images, {
                 type: "general",
