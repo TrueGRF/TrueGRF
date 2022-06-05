@@ -19,16 +19,23 @@
         compiling = true;
         /* Delay, so Svelte can actually update the component. */
         setTimeout(() => {
-            const result = compile(config);
-            compiling = false;
+            try {
+                const result = compile(config);
+                compiling = false;
 
-            if (result.getError()) {
-                error = result.getError();
+                if (result.getError()) {
+                    error = result.getError();
+                    return;
+                }
+                error = "";
+
+                FileSaver.saveAs(new Blob([result.getOutput()]), "truegrf_" + new Date().toISOString() + ".grf");
+            } catch (e) {
+                compiling = false;
+                error =
+                    "An unknown error occurred. Please file a bug report at https://github.com/TrueGRF/TrueGRF with a link to your project.";
                 return;
             }
-            error = "";
-
-            FileSaver.saveAs(new Blob([result.getOutput()]), "truegrf_" + new Date().toISOString() + ".grf");
         }, 10);
     };
 
@@ -38,18 +45,25 @@
         compiling = true;
         /* Delay, so Svelte can actually update the component. */
         setTimeout(() => {
-            const result = compile(config);
-            compiling = false;
+            try {
+                const result = compile(config);
+                compiling = false;
 
-            if (result.getError()) {
-                error = result.getError();
+                if (result.getError()) {
+                    error = result.getError();
+                    return;
+                }
+                error = "";
+
+                /* Tell OpenTTD to reload the GRF. */
+                const game = document?.getElementById("game");
+                game.contentWindow.openttd_inject_truegrf(result.getOutput(), newgame_seed);
+            } catch (e) {
+                compiling = false;
+                error =
+                    "An unknown error occurred. Please file a bug report at https://github.com/TrueGRF/TrueGRF with a link to your project.";
                 return;
             }
-            error = "";
-
-            /* Tell OpenTTD to reload the GRF. */
-            const game = document?.getElementById("game");
-            game.contentWindow.openttd_inject_truegrf(result.getOutput(), newgame_seed);
         }, 10);
     };
 
