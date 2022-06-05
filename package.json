@@ -33,7 +33,7 @@
     "svelte": "^3.48.0",
     "svelte-check": "^2.7.1",
     "svelte-preprocess": "^4.10.6",
-    "truegrf": "^2.0.1",
+    "truegrf": "^2.1.0",
     "tslib": "^2.4.0",
     "typescript": "~4.6.4"
   },

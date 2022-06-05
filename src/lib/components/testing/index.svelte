@@ -1,6 +1,7 @@
 <script lang="ts">
     import { compile } from "truegrf";
     import FileSaver from "file-saver";
+    import slug from "slug";
 
     import { Button } from "carbon-components-svelte";
     import { InlineNotification } from "carbon-components-svelte";
@@ -29,7 +30,10 @@
                 }
                 error = "";
 
-                FileSaver.saveAs(new Blob([result.getOutput()]), "truegrf_" + new Date().toISOString() + ".grf");
+                FileSaver.saveAs(
+                    new Blob([result.getOutput()]),
+                    slug(config.general.name, { lower: true }) + "_" + new Date().toISOString() + ".grf"
+                );
             } catch (e) {
                 compiling = false;
                 error =
@@ -55,9 +59,11 @@
                 }
                 error = "";
 
+                let grfid = parseInt(config.general.grfid, 16);
+
                 /* Tell OpenTTD to reload the GRF. */
                 const game = document?.getElementById("game");
-                game.contentWindow.openttd_inject_truegrf(result.getOutput(), newgame_seed);
+                game.contentWindow.openttd_inject_truegrf(result.getOutput(), newgame_seed, grfid);
             } catch (e) {
                 compiling = false;
                 error =
