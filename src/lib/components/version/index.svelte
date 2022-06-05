@@ -4,6 +4,7 @@
     import { Accordion, AccordionItem } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
     import { SkeletonText } from "carbon-components-svelte";
+    import { Tabs, Tab, TabContent } from "carbon-components-svelte";
 
     import { getChangelog, markdownToHtml } from "$lib/helpers/github";
 
@@ -12,6 +13,7 @@
     let newVersion = false;
     let changelogOpen = false;
     let changelog = [];
+    let changelogCompiler = [];
     let versionUser;
 
     async function OpenChangelog() {
@@ -20,18 +22,24 @@
 
         /* Load the changelog if it isn't loaded yet. */
         if (changelog.length === 0) {
-            changelog = await getChangelog();
+            changelog = await getChangelog("TrueGRF/TrueGRF");
+            changelogCompiler = await getChangelog("TrueGRF/TrueGRF-rs");
         }
     }
 
-    async function OnVersionClick(version) {
+    async function OnVersionClick(project, version) {
         if (version.html !== undefined) return;
 
-        version.html = await markdownToHtml("TrueGRF/TrueGRF", version.body);
+        /* Remove the "Full Changelog" line and all the "by @<user>" parts of every line. */
+        let body = version.body.replace(/\*\*Full Changelog(.*)/, "");
+        body = body.replace(/ by @(.*)/g, "");
+        version.html = await markdownToHtml(project, body);
+        /* Make sure all links open a new window. */
         version.html = version.html.replace(/<a /g, '<a target="new" ');
 
         /* Inform Svelte the array has changed. */
         changelog = changelog;
+        changelogCompiler = changelogCompiler;
     }
 
     onMount(async () => {
@@ -55,18 +63,47 @@
         modalHeading="What is new?"
         primaryButtonText="Close"
         on:click:button--primary={() => (changelogOpen = false)}
+        class="changelog"
     >
-        <Accordion size="sm" skeleton={changelog.length === 0} open={false}>
-            {#each changelog as version}
-                <AccordionItem title={version.name} on:click={() => OnVersionClick(version)}>
-                    {#if version.html === undefined}
-                        <SkeletonText paragraph />
-                    {:else}
-                        {@html version.html}
-                    {/if}
-                </AccordionItem>
-            {/each}
-        </Accordion>
+        <Tabs class="subnav">
+            <Tab label="TrueGRF" />
+            <Tab label="Compiler" />
+
+            <svelte:fragment slot="content">
+                <TabContent>
+                    <Accordion size="sm" skeleton={changelog.length === 0} open={false}>
+                        {#each changelog as version}
+                            <AccordionItem
+                                title={version.name}
+                                on:click={() => OnVersionClick("TrueGRF/TrueGRF", version)}
+                            >
+                                {#if version.html === undefined}
+                                    <SkeletonText />
+                                {:else}
+                                    {@html version.html}
+                                {/if}
+                            </AccordionItem>
+                        {/each}
+                    </Accordion>
+                </TabContent>
+                <TabContent>
+                    <Accordion size="sm" skeleton={changelogCompiler.length === 0} open={false}>
+                        {#each changelogCompiler as version}
+                            <AccordionItem
+                                title={version.name}
+                                on:click={() => OnVersionClick("TrueGRF/TrueGRF-rs", version)}
+                            >
+                                {#if version.html === undefined}
+                                    <SkeletonText />
+                                {:else}
+                                    {@html version.html}
+                                {/if}
+                            </AccordionItem>
+                        {/each}
+                    </Accordion>
+                </TabContent>
+            </svelte:fragment>
+        </Tabs>
     </Modal>
 </div>
 
@@ -96,5 +133,9 @@
     .version :global(p) {
         margin-bottom: 10px;
         margin-top: 10px;
+    }
+
+    .version :global(.changelog > .bx--modal-container) {
+        height: 800px;
     }
 </style>
