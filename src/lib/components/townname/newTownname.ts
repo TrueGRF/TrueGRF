@@ -2,7 +2,7 @@ export const newTownname = {
     available: false,
     id: undefined, // Filled in after creation.
     name: "New Townname",
-    mainset: [],
+    mainset: [{ names: [] }],
     source: "",
     subsets: [],
 };
