@@ -364,6 +364,8 @@
             <div class="subtitle">NewGRFs made easy</div>
         </div>
 
+        <div class="unmaintained">TrueGRF is no longer maintained. Use at your own risk.</div>
+
         <div class="window">
             {#if !loadedAccount}
                 <div class="content center">
@@ -502,6 +504,14 @@
         display: inline-block;
         font-size: 11px;
         position: absolute;
+    }
+
+    .unmaintained {
+        color: var(--cds-support-error-inverse, #fa4d56);
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: center;
     }
 
     .pending-caption {
